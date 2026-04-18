@@ -22,8 +22,34 @@ po_dict = dict(zip(zip(incoming_df['Item Number'], incoming_df['Location Code'])
 # 3. CALCULATE COSTS (The "Brain" Constants)
 penalty_df = pd.read_excel(cost_excel, sheet_name='Data-Penalty')
 transfer_df = pd.read_excel(cost_excel, sheet_name='Data-Transfer Cost')
+
+
+#ADDED THIS SO IT CAN RUN
+penalty_df['Extended Price'] = pd.to_numeric(
+    penalty_df['Extended Price'].astype(str).str.replace("$", "", regex=False).str.replace(",", "", regex=False),
+    errors='coerce',
+)
+transfer_df['Amount'] = pd.to_numeric(
+    transfer_df['Amount'].astype(str).str.replace("$", "", regex=False).str.replace(",", "", regex=False),
+    errors='coerce',
+)
+
+# transfer stuff
 avg_penalty = float(penalty_df['Extended Price'].mean())
-avg_transfer_cost = float(transfer_df['Amount'].mean())
+transfer_df['From'] = transfer_df['From'].astype(str).str.strip().str.upper()
+transfer_df['To'] = transfer_df['To'].astype(str).str.strip().str.upper()
+lane_avg_df = (
+    transfer_df.dropna(subset=['From', 'To', 'Amount'])
+    .groupby(['From', 'To'])['Amount']
+    .mean()
+    .round(2)
+    .reset_index()
+)
+transfer_cost_by_lane_by_pallet = {
+    f"{row['From']}->{row['To']}": float(row['Amount'])
+    for _, row in lane_avg_df.iterrows()
+    if row['From'] and row['To'] and row['From'] != 'NAN' and row['To'] != 'NAN'
+}
 
 # 4. PROCESS INVENTORY
 inv_file = pd.ExcelFile(inv_excel)
@@ -33,7 +59,7 @@ site_code_map = {'Site 1 - SF': '1', 'Site 2 - NJ': '2', 'Site 3 - LA': '3'}
 master_inventory = {
     "METADATA": {
         "avg_penalty_cost": round(avg_penalty, 2),
-        "avg_transfer_cost": round(avg_transfer_cost, 2)
+        "transfer_cost_by_lane": transfer_cost_by_lane
     },
     "ITEMS": {}
 }
