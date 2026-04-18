@@ -1,1 +1,46 @@
 @import "tailwindcss";
+
+:root {
+  --font-sans: "Space Grotesk", sans-serif;
+  --font-mono: "DM Mono", monospace;
+
+  --color-bg: oklch(0.97 0.005 240);
+  --color-sidebar: oklch(0.13 0.03 240);
+  --color-sidebar-hover: oklch(0.20 0.04 240);
+  --color-sidebar-active: oklch(0.26 0.06 200);
+  --color-accent: oklch(0.65 0.18 200);
+  --color-accent-dim: oklch(0.65 0.18 200 / 0.12);
+
+  --color-critical: oklch(0.55 0.22 25);
+  --color-critical-bg: oklch(0.96 0.04 25);
+  --color-warning: oklch(0.72 0.17 65);
+  --color-warning-bg: oklch(0.97 0.04 65);
+  --color-ok: oklch(0.60 0.15 145);
+  --color-ok-bg: oklch(0.96 0.04 145);
+
+  --color-text: oklch(0.18 0.02 240);
+  --color-muted: oklch(0.52 0.01 240);
+  --color-border: oklch(0.88 0.008 240);
+  --color-surface: oklch(1 0 0);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
