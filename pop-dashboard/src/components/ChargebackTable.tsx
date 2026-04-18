@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
 import type { ChargebackRow, CustomerPenalty, YearlyPenalty } from "../data/mockData";
+import { useLanguage } from "../i18n/LanguageContext";
 
-const TYPE_CONFIG = {
-  operational:   { label: "Operational",  pill: "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]" },
-  "post-audit":  { label: "Post-Audit",   pill: "bg-[#FEF7E8] text-[#8C5A0F] border border-[#E5B664]" },
-  damage:        { label: "Damage",       pill: "bg-[#FAF7F1] text-[#403A34] border border-[#D6CFC7]" },
-  promotional:   { label: "Promo TPR",    pill: "bg-[#FDF9EC] text-[#6B4F0F] border border-[#F4D35E]" },
+const TYPE_PILL: Record<string, string> = {
+  operational:  "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]",
+  "post-audit": "bg-[#FEF7E8] text-[#8C5A0F] border border-[#E5B664]",
+  damage:       "bg-[#FAF7F1] text-[#403A34] border border-[#D6CFC7]",
+  promotional:  "bg-[#FDF9EC] text-[#6B4F0F] border border-[#F4D35E]",
 };
 
 export function ChargebackTable() {
+  const { t } = useLanguage();
   const [chargebackData, setChargebackData] = useState<ChargebackRow[]>([]);
   const [customerPenalties, setCustomerPenalties] = useState<CustomerPenalty[]>([]);
   const [yearlyPenalties, setYearlyPenalties] = useState<YearlyPenalty[]>([]);
@@ -48,13 +50,13 @@ export function ChargebackTable() {
         <div className="px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-base font-bold" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Penalty Trend · 2023 – 2025</h3>
-              <p className="text-sm mt-0.5" style={{ color: "#8E8680" }}>Operational (CRED11-F/O) + Post-Audit claims (CRED12)</p>
+              <h3 className="text-base font-bold" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{t.chargebacks.trendTitle}</h3>
+              <p className="text-sm mt-0.5" style={{ color: "#8E8680" }}>{t.chargebacks.trendSubtitle}</p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>Peak Month</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>{t.chargebacks.peakMonth}</p>
               <p className="text-lg font-bold mono" style={{ color: "#7A0F1D" }}>${peakMonthAmt.toLocaleString()}</p>
-              <p className="text-xs" style={{ color: "#8E8680" }}>{peakMonthLabel} — {peakMultiplier}× typical</p>
+              <p className="text-xs" style={{ color: "#8E8680" }}>{peakMonthLabel} — {t.chargebacks.typicalMultiplier(peakMultiplier)}</p>
             </div>
           </div>
         </div>
@@ -89,12 +91,12 @@ export function ChargebackTable() {
                 <p className="mono text-3xl font-bold leading-none mb-1" style={{ color: isWorst ? "#7A0F1D" : "#14110F" }}>
                   ${(total / 1000).toFixed(0)}K
                 </p>
-                <p className="text-xs mb-4" style={{ color: "#8E8680" }}>total penalties</p>
+                <p className="text-xs mb-4" style={{ color: "#8E8680" }}>{t.chargebacks.totalPenalties}</p>
 
                 <div className="space-y-2">
                   <div>
                     <div className="flex justify-between text-[11px] mb-0.5" style={{ color: "#6B6560" }}>
-                      <span>Operational</span>
+                      <span>{t.chargebacks.operational}</span>
                       <span className="mono">${yr.operational.toLocaleString()}</span>
                     </div>
                     <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
@@ -103,7 +105,7 @@ export function ChargebackTable() {
                   </div>
                   <div>
                     <div className="flex justify-between text-[11px] mb-0.5" style={{ color: "#6B6560" }}>
-                      <span>Post-Audit</span>
+                      <span>{t.chargebacks.postAudit}</span>
                       <span className="mono">${yr.postAudit.toLocaleString()}</span>
                     </div>
                     <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
@@ -111,14 +113,14 @@ export function ChargebackTable() {
                     </div>
                   </div>
                   <div className="text-[10px] pt-1" style={{ color: "#8E8680" }}>
-                    Damage: ${yr.damage.toLocaleString()}
+                    {t.chargebacks.damage} ${yr.damage.toLocaleString()}
                   </div>
                 </div>
 
                 {yr.peakMonth && (
                   <div className="mt-3 rounded-lg px-3 py-2" style={{ backgroundColor: "#FFFFFF", border: "1px solid #F4D5D8" }}>
                     <p className="text-[11px] font-bold" style={{ color: "#7A0F1D" }}>{yr.peakMonth}: ${yr.peakMonthAmount?.toLocaleString()}</p>
-                    <p className="text-[10px]" style={{ color: "#8E8680" }}>10× a typical month</p>
+                    <p className="text-[10px]" style={{ color: "#8E8680" }}>{t.chargebacks.tenXTypical}</p>
                   </div>
                 )}
               </div>
@@ -128,10 +130,7 @@ export function ChargebackTable() {
 
         <div className="px-6 pb-5">
           <div className="rounded-xl px-5 py-4 text-sm leading-relaxed" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8", color: "#403A34" }}>
-            <strong style={{ color: "#7A0F1D" }}>+{yoyPct}% increase from 2023 to 2024</strong>{" "}
-            in operational + post-audit penalties (2023 covers Sep–Dec only — system tracking started mid-year).
-            Post-audit claims (CRED12) arrive 8–12 months after the incident — by the time they land,{" "}
-            <em>there is no practical way to dispute them.</em> Early detection is the only lever.
+            {t.chargebacks.yoyNote(yoyPct)}
           </div>
         </div>
       </div>
@@ -141,8 +140,8 @@ export function ChargebackTable() {
 
         <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
           <div className="px-5 py-4" style={{ borderBottom: "1px solid #E8E2DA" }}>
-            <h3 className="text-sm font-bold" style={{ color: "#14110F" }}>Top Penalty Customers</h3>
-            <p className="text-xs mt-0.5" style={{ color: "#8E8680" }}>Real names from penalty sheet · 2023–2025</p>
+            <h3 className="text-sm font-bold" style={{ color: "#14110F" }}>{t.chargebacks.customersTitle}</h3>
+            <p className="text-xs mt-0.5" style={{ color: "#8E8680" }}>{t.chargebacks.customersSubtitle}</p>
           </div>
           <div className="divide-y" style={{ borderColor: "#F2EDE5" }}>
             {customerPenalties.map((c, i) => {
@@ -154,7 +153,7 @@ export function ChargebackTable() {
                   <span className="mono text-xs w-4 flex-shrink-0" style={{ color: "#D6CFC7" }}>{i + 1}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold leading-tight" style={{ color: "#14110F" }}>{c.customerName}</p>
-                    <p className="mono text-[11px]" style={{ color: "#8E8680" }}>{c.customerId} · {c.incidents} incidents</p>
+                    <p className="mono text-[11px]" style={{ color: "#8E8680" }}>{c.customerId} · {c.incidents} {t.chargebacks.incidents}</p>
                     <div className="mt-1.5 h-1 rounded-full overflow-hidden w-full" style={{ backgroundColor: "#E8E2DA" }}>
                       <div className="h-full rounded-full" style={{ width: `${share}%`, backgroundColor: "#A6192E" }} />
                     </div>
@@ -169,23 +168,22 @@ export function ChargebackTable() {
           </div>
           <div className="px-5 py-3" style={{ backgroundColor: "#FAF7F1", borderTop: "1px solid #E8E2DA" }}>
             <p className="text-[11px] leading-relaxed" style={{ color: "#6B6560" }}>
-              Dollar General, CVS, Walmart, Walgreens use automated compliance systems.
-              Their OTIF windows are hard constraints, not targets.
+              {t.chargebacks.customersNote}
             </p>
           </div>
         </div>
 
         <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
           <div className="px-5 py-4" style={{ borderBottom: "1px solid #E8E2DA" }}>
-            <h3 className="text-sm font-bold" style={{ color: "#14110F" }}>2025 Addressability</h3>
-            <p className="text-xs mt-0.5" style={{ color: "#8E8680" }}>What this system can and cannot prevent</p>
+            <h3 className="text-sm font-bold" style={{ color: "#14110F" }}>{t.chargebacks.addressabilityTitle}</h3>
+            <p className="text-xs mt-0.5" style={{ color: "#8E8680" }}>{t.chargebacks.addressabilitySubtitle}</p>
           </div>
           <div className="p-5 space-y-4">
             {/* TODO: HARDCODED */}
             {[
-              { label: "Operational penalties (CRED11)", amount: yearlyPenalties.find((y) => y.year === "2025")?.operational ?? 155354, addressable: true, note: "Short ship, late delivery — preventable with proactive inventory positioning" },
-              { label: "Post-audit claims (CRED12)", amount: yearlyPenalties.find((y) => y.year === "2025")?.postAudit ?? 253597, addressable: false, note: "Reflects 2023–24 events. Arrive 8–12 months later — cannot be prevented retroactively" },
-              { label: "Damage allowances (CRED08)", amount: yearlyPenalties.find((y) => y.year === "2025")?.damage ?? 576864, addressable: false, note: "Warehouse handling — NJ rate 2.5× SF. Separate initiative required." },
+              { label: t.chargebacks.items.operational.label, amount: yearlyPenalties.find((y) => y.year === "2025")?.operational ?? 155354, addressable: true, note: t.chargebacks.items.operational.note },
+              { label: t.chargebacks.items.postAudit.label, amount: yearlyPenalties.find((y) => y.year === "2025")?.postAudit ?? 253597, addressable: false, note: t.chargebacks.items.postAudit.note },
+              { label: t.chargebacks.items.damage.label, amount: yearlyPenalties.find((y) => y.year === "2025")?.damage ?? 576864, addressable: false, note: t.chargebacks.items.damage.note },
             ].map((item) => (
               <div key={item.label}>
                 <div className="flex items-start justify-between mb-1.5">
@@ -207,9 +205,7 @@ export function ChargebackTable() {
           </div>
           <div className="px-5 py-4" style={{ backgroundColor: "#EEF7F5", borderTop: "1px solid #7AC4B8" }}>
             <p className="text-xs leading-relaxed font-medium" style={{ color: "#125F54" }}>
-              Target: prevent 30–50% of the $189K operational penalties ($57K–$95K/yr)
-              against ~$50–80K in targeted transfer freight.{" "}
-              <strong>Net benefit: $0–$45K/yr + OTIF score preservation.</strong>
+              {t.chargebacks.targetNote}
             </p>
           </div>
         </div>
@@ -218,13 +214,13 @@ export function ChargebackTable() {
       {/* Cause code breakdown */}
       <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
         <div className="px-6 py-4" style={{ borderBottom: "1px solid #E8E2DA" }}>
-          <h3 className="text-sm font-bold" style={{ color: "#14110F" }}>Cause Code Breakdown · 2023–2025</h3>
+          <h3 className="text-sm font-bold" style={{ color: "#14110F" }}>{t.chargebacks.causeCodeTitle}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr style={{ backgroundColor: "#FAF7F1", borderBottom: "1px solid #E8E2DA" }}>
-                {["Cause Code", "Channel", "Primary DC", "Incidents", "3yr Total", "Share of Total", "Type"].map((h) => (
+                {t.chargebacks.causeCodeHeaders.map((h) => (
                   <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>
                     {h}
                   </th>
@@ -234,7 +230,8 @@ export function ChargebackTable() {
             <tbody>
               {chargebackData.sort((a, b) => b.amount - a.amount).map((row, i) => {
                 const share = (row.amount / GRAND_TOTAL) * 100;
-                const cfg = TYPE_CONFIG[row.type];
+                const pill = TYPE_PILL[row.type] ?? TYPE_PILL["damage"];
+                const typeLabel = t.chargebacks.typeLabels[row.type as keyof typeof t.chargebacks.typeLabels] ?? row.type;
                 return (
                   <tr key={i} className="transition-colors" style={{ borderBottom: "1px solid #F2EDE5", backgroundColor: i % 2 === 1 ? "#FAF7F1" : "#FFFFFF" }}
                     onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#FDF9EC")}
@@ -257,8 +254,8 @@ export function ChargebackTable() {
                       </div>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`inline-flex text-[11px] font-semibold rounded-full px-2.5 py-0.5 ${cfg.pill}`}>
-                        {cfg.label}
+                      <span className={`inline-flex text-[11px] font-semibold rounded-full px-2.5 py-0.5 ${pill}`}>
+                        {typeLabel}
                       </span>
                     </td>
                   </tr>

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useLanguage } from "../i18n/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DcData = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
@@ -24,13 +25,13 @@ const DC_SF = "Site 1 - SF";
 const DC_NJ = "Site 2 - NJ";
 const DC_LA = "Site 3 - LA";
 
-const STATUS_CFG: Record<Status, { label: string; shortLabel: string; dot: string; badge: string; barBg: string; rank: number }> = {
-  stockout: { label: "Out of Stock",  shortLabel: "Out",      dot: "bg-red-600",     badge: "bg-red-600 text-white",                              barBg: "#EF4444", rank: 0 },
-  critical: { label: "Critical",      shortLabel: "Critical", dot: "bg-red-500",     badge: "bg-red-100 text-red-700 border border-red-200",       barBg: "#F87171", rank: 1 },
-  warning:  { label: "Running Low",   shortLabel: "Low",      dot: "bg-amber-400",   badge: "bg-amber-100 text-amber-700 border border-amber-200", barBg: "#FBBF24", rank: 2 },
-  watch:    { label: "Monitoring",    shortLabel: "Watch",    dot: "bg-yellow-400",  badge: "bg-yellow-50 text-yellow-700 border border-yellow-200",barBg: "#FDE68A", rank: 3 },
-  ok:       { label: "Well Stocked",  shortLabel: "Good",     dot: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700 border border-emerald-200", barBg: "#34D399", rank: 4 },
-  inactive: { label: "No Activity",   shortLabel: "—",        dot: "bg-gray-300",    badge: "bg-gray-100 text-gray-400",                          barBg: "#E5E7EB", rank: 5 },
+const STATUS_CFG: Record<Status, { dot: string; badge: string; barBg: string; rank: number }> = {
+  stockout: { dot: "bg-red-600",     badge: "bg-red-600 text-white",                              barBg: "#EF4444", rank: 0 },
+  critical: { dot: "bg-red-500",     badge: "bg-red-100 text-red-700 border border-red-200",       barBg: "#F87171", rank: 1 },
+  warning:  { dot: "bg-amber-400",   badge: "bg-amber-100 text-amber-700 border border-amber-200", barBg: "#FBBF24", rank: 2 },
+  watch:    { dot: "bg-yellow-400",  badge: "bg-yellow-50 text-yellow-700 border border-yellow-200",barBg: "#FDE68A", rank: 3 },
+  ok:       { dot: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700 border border-emerald-200", barBg: "#34D399", rank: 4 },
+  inactive: { dot: "bg-gray-300",    badge: "bg-gray-100 text-gray-400",                          barBg: "#E5E7EB", rank: 5 },
 };
 
 function getStatus(days: number, demand: number): Status {
@@ -61,21 +62,16 @@ function processInventory(raw: LiveInventory): ProcessedItem[] {
         name: data.item_name,
         demand,
         casesPerPallet: Number(data.cases_per_pallet || 1),
-        sf,
-        nj,
-        la,
-        sfStatus,
-        njStatus,
-        laStatus,
-        worstStatus,
-        worstRank,
+        sf, nj, la,
+        sfStatus, njStatus, laStatus,
+        worstStatus, worstRank,
       };
     })
     .sort((a, b) => a.worstRank - b.worstRank);
 }
 
 // ─── Recommendation helper ────────────────────────────────────────────────────
-interface Rec { text: string; units: number; cost: number; route: string }
+interface Rec { from: string; to: string; units: number; cost: number; route: string }
 
 function getRecommendations(item: ProcessedItem, laneCosts: Record<string, number>): Rec[] {
   if (item.demand === 0) return [];
@@ -85,27 +81,26 @@ function getRecommendations(item: ProcessedItem, laneCosts: Record<string, numbe
   if ((item.njStatus === "stockout" || item.njStatus === "critical") && sfGood) {
     const units = Math.max(0, Math.round((30 - item.nj.days_of_supply) * item.demand));
     const pallets = Math.ceil(units / casesPerPallet);
-    const laneCost = Number(laneCosts["SF->NJ"] || 0);
-    const cost = Math.round(pallets * laneCost);
-    recs.push({ route: "SF → NJ", units, cost, text: `Transfer ${units.toLocaleString()} units from SF to NJ` });
+    const cost = Math.round(pallets * Number(laneCosts["SF->NJ"] || 0));
+    recs.push({ route: "SF → NJ", units, cost, from: "SF", to: "NJ" });
   }
   if ((item.laStatus === "stockout" || item.laStatus === "critical") && sfGood) {
     const units = Math.max(0, Math.round((30 - item.la.days_of_supply) * item.demand));
     const pallets = Math.ceil(units / casesPerPallet);
-    const laneCost = Number(laneCosts["SF->LA"] || 0);
-    const cost = Math.round(pallets * laneCost);
-    recs.push({ route: "SF → LA", units, cost, text: `Transfer ${units.toLocaleString()} units from SF to LA` });
+    const cost = Math.round(pallets * Number(laneCosts["SF->LA"] || 0));
+    recs.push({ route: "SF → LA", units, cost, from: "SF", to: "LA" });
   }
   return recs;
 }
 
 // ─── StatusBadge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: Status }) {
+  const { t } = useLanguage();
   const s = STATUS_CFG[status];
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2.5 py-1 ${s.badge}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-      {s.label}
+      {t.charts.statusLabels[status]}
     </span>
   );
 }
@@ -123,7 +118,6 @@ function DosMiniBar({ days, status }: { days: number; status: Status }) {
     <div className="flex items-center gap-2 w-full">
       <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden relative">
         <div className="h-full rounded transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
-        {/* 30d safety line */}
         <div className="absolute top-0 bottom-0 w-px bg-gray-400 opacity-50" style={{ left: "33.3%" }} />
       </div>
       <span className="text-[11px] font-semibold w-10 text-right flex-shrink-0"
@@ -136,29 +130,29 @@ function DosMiniBar({ days, status }: { days: number; status: Status }) {
 
 // ─── DC Health Heatmap ────────────────────────────────────────────────────────
 function Heatmap({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect: (sku: string) => void }) {
+  const { t } = useLanguage();
   const activeItems = allItems.filter(i => i.demand > 0).slice(0, 40);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="px-5 py-3.5 border-b border-gray-200 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-gray-900">Inventory Health by Product × Warehouse</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Each bar = days of stock left · dotted line = 30-day safety threshold · click any row to inspect</p>
+          <h3 className="text-sm font-bold text-gray-900">{t.charts.heatmapTitle}</h3>
+          <p className="text-xs text-gray-400 mt-0.5">{t.charts.heatmapDesc}</p>
         </div>
         <div className="flex items-center gap-3 text-[11px] text-gray-500">
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#EF4444" }} />Critical</div>
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#FBBF24" }} />Low</div>
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#34D399" }} />Good</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#EF4444" }} />{t.charts.legend.critical}</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#FBBF24" }} />{t.charts.legend.low}</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#34D399" }} />{t.charts.legend.good}</div>
         </div>
       </div>
 
-      {/* Column headers */}
       <div className="grid px-4 py-2 border-b border-gray-100 bg-gray-50 text-[11px] font-bold uppercase tracking-widest text-gray-400"
         style={{ gridTemplateColumns: "200px 1fr 1fr 1fr" }}>
-        <span>Product</span>
-        <span className="pl-1">SF · Hub</span>
-        <span className="pl-1">NJ · Primary</span>
-        <span className="pl-1">LA</span>
+        <span>{t.charts.heatmapHeaders.product}</span>
+        <span className="pl-1">{t.charts.heatmapHeaders.sf}</span>
+        <span className="pl-1">{t.charts.heatmapHeaders.nj}</span>
+        <span className="pl-1">{t.charts.heatmapHeaders.la}</span>
       </div>
 
       <div className="overflow-y-auto" style={{ maxHeight: 320 }}>
@@ -187,6 +181,7 @@ function Heatmap({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect: 
 
 // ─── Overview Panel ───────────────────────────────────────────────────────────
 function Overview({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect: (sku: string) => void }) {
+  const { t } = useLanguage();
   const topSellers = [...allItems].filter(i => i.demand > 0).sort((a, b) => b.demand - a.demand).slice(0, 10);
   const maxDemand = topSellers[0]?.demand ?? 1;
   const totalActive = allItems.filter(i => i.demand > 0).length;
@@ -194,16 +189,17 @@ function Overview({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect:
   const warnCount = allItems.filter(i => i.worstRank === 2 && i.demand > 0).length;
   const okCount = allItems.filter(i => i.worstRank >= 3 && i.demand > 0).length;
 
+  const chips = [
+    { n: totalActive, label: t.charts.chips.activeProducts,  sub: t.charts.chips.activeProductsSub,  color: "text-gray-900",    bg: "bg-white border-gray-200" },
+    { n: critCount,   label: t.charts.chips.needAction,       sub: t.charts.chips.needActionSub,       color: "text-red-600",     bg: "bg-red-50 border-red-200" },
+    { n: warnCount,   label: t.charts.chips.runningLow,       sub: t.charts.chips.runningLowSub,       color: "text-amber-600",   bg: "bg-amber-50 border-amber-200" },
+    { n: okCount,     label: t.charts.chips.wellStocked,      sub: t.charts.chips.wellStockedSub,      color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200" },
+  ];
+
   return (
     <div className="space-y-5">
-      {/* Summary chips */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { n: totalActive, label: "Active Products",  sub: "with daily sales",        color: "text-gray-900",    bg: "bg-white border-gray-200" },
-          { n: critCount,   label: "Need Action Now",  sub: "critical or out of stock", color: "text-red-600",     bg: "bg-red-50 border-red-200" },
-          { n: warnCount,   label: "Running Low",      sub: "below 30-day threshold",   color: "text-amber-600",   bg: "bg-amber-50 border-amber-200" },
-          { n: okCount,     label: "Well Stocked",     sub: "60+ days at all DCs",      color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200" },
-        ].map(c => (
+        {chips.map(c => (
           <div key={c.label} className={`rounded-xl border px-4 py-3 ${c.bg}`}>
             <p className={`text-3xl font-bold ${c.color}`} style={{ fontFamily: "DM Mono, monospace" }}>{c.n}</p>
             <p className="text-xs font-semibold text-gray-700 mt-0.5">{c.label}</p>
@@ -212,14 +208,12 @@ function Overview({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect:
         ))}
       </div>
 
-      {/* Heatmap */}
       <Heatmap allItems={allItems} onSelect={onSelect} />
 
-      {/* Top sellers velocity */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-200">
-          <h3 className="text-sm font-bold text-gray-900">Fastest-Selling Products</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Average daily units · bar color = stock risk level · click to inspect</p>
+          <h3 className="text-sm font-bold text-gray-900">{t.charts.fastestSelling}</h3>
+          <p className="text-xs text-gray-400 mt-0.5">{t.charts.fastestSellingDesc}</p>
         </div>
         <div className="p-4 space-y-2.5">
           {topSellers.map(item => {
@@ -236,7 +230,7 @@ function Overview({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect:
                   </div>
                   <span className="text-xs font-bold text-gray-600 w-20 text-right flex-shrink-0"
                     style={{ fontFamily: "DM Mono, monospace" }}>
-                    {item.demand.toFixed(0)}/day
+                    {item.demand.toFixed(0)}/{t.charts.unitsPerDay.split("/")[1] ?? "day"}
                   </span>
                 </div>
               </button>
@@ -244,9 +238,9 @@ function Overview({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect:
           })}
         </div>
         <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex gap-4 text-[11px] text-gray-500">
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#EF4444" }} />Stock risk</div>
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#FBBF24" }} />Running low</div>
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#14B8A6" }} />Well stocked</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#EF4444" }} />{t.charts.velocityLegend.risk}</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#FBBF24" }} />{t.charts.velocityLegend.low}</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#14B8A6" }} />{t.charts.velocityLegend.good}</div>
         </div>
       </div>
     </div>
@@ -255,10 +249,11 @@ function Overview({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect:
 
 // ─── Stock vs Incoming bar chart ──────────────────────────────────────────────
 function StockChart({ item }: { item: ProcessedItem }) {
+  const { t } = useLanguage();
   const dcs = [
-    { label: "SF · Hub", data: item.sf, status: item.sfStatus, tag: "Redistribution hub" },
-    { label: "NJ · Primary", data: item.nj, status: item.njStatus, tag: "54% of revenue" },
-    { label: "LA", data: item.la, status: item.laStatus, tag: "" },
+    { label: "SF · Hub",      data: item.sf, status: item.sfStatus, tag: t.charts.dcTags.sf },
+    { label: "NJ · Primary",  data: item.nj, status: item.njStatus, tag: t.charts.dcTags.nj },
+    { label: "LA",             data: item.la, status: item.laStatus, tag: t.charts.dcTags.la },
   ];
 
   const maxVal = Math.max(...dcs.flatMap(d => [d.data.stock_on_hand, d.data.incoming_stock]), 1);
@@ -267,15 +262,15 @@ function StockChart({ item }: { item: ProcessedItem }) {
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-bold text-gray-900">Current Stock vs. Incoming</h4>
-          <p className="text-xs text-gray-400 mt-0.5">See at a glance whether each warehouse has enough or is waiting on shipments</p>
+          <h4 className="text-sm font-bold text-gray-900">{t.charts.stockVsIncoming}</h4>
+          <p className="text-xs text-gray-400 mt-0.5">{t.charts.stockVsIncomingDesc}</p>
         </div>
         <div className="flex items-center gap-4 text-[11px] text-gray-500">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#6B7280" }} />On Hand
+            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#6B7280" }} />{t.charts.onHand}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#5EEAD4", opacity: 0.7 }} />Incoming
+            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#5EEAD4", opacity: 0.7 }} />{t.charts.incoming}
           </div>
         </div>
       </div>
@@ -296,14 +291,13 @@ function StockChart({ item }: { item: ProcessedItem }) {
                 <StatusBadge status={status} />
               </div>
 
-              {/* On-hand bar */}
               <div className="mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-gray-400 w-16 text-right flex-shrink-0">On Hand</span>
+                  <span className="text-[11px] text-gray-400 w-16 text-right flex-shrink-0">{t.charts.onHand}</span>
                   <div className="flex-1 h-7 bg-gray-100 rounded overflow-hidden relative">
                     {isEmpty ? (
                       <div className="h-full flex items-center pl-3">
-                        <span className="text-xs font-bold text-red-500">EMPTY</span>
+                        <span className="text-xs font-bold text-red-500">{t.charts.empty}</span>
                       </div>
                     ) : (
                       <div className="h-full rounded flex items-center pl-2 transition-all"
@@ -326,14 +320,13 @@ function StockChart({ item }: { item: ProcessedItem }) {
                 </div>
               </div>
 
-              {/* Incoming bar */}
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-gray-400 w-16 text-right flex-shrink-0">Incoming</span>
+                  <span className="text-[11px] text-gray-400 w-16 text-right flex-shrink-0">{t.charts.incoming}</span>
                   <div className="flex-1 h-7 bg-gray-100 rounded overflow-hidden relative">
                     {data.incoming_stock === 0 ? (
                       <div className="h-full flex items-center pl-3">
-                        <span className="text-[11px] text-gray-400">None arriving</span>
+                        <span className="text-[11px] text-gray-400">{t.charts.noneArriving}</span>
                       </div>
                     ) : (
                       <div className="h-full rounded flex items-center pl-2 transition-all"
@@ -365,10 +358,11 @@ function StockChart({ item }: { item: ProcessedItem }) {
 
 // ─── Days of Supply chart ─────────────────────────────────────────────────────
 function DosChart({ item }: { item: ProcessedItem }) {
+  const { t } = useLanguage();
   const dcs = [
-    { label: "SF · Hub", days: item.sf.days_of_supply, status: item.sfStatus },
+    { label: "SF · Hub",     days: item.sf.days_of_supply, status: item.sfStatus },
     { label: "NJ · Primary", days: item.nj.days_of_supply, status: item.njStatus },
-    { label: "LA", days: item.la.days_of_supply, status: item.laStatus },
+    { label: "LA",            days: item.la.days_of_supply, status: item.laStatus },
   ];
 
   const maxDisplay = 90;
@@ -376,10 +370,8 @@ function DosChart({ item }: { item: ProcessedItem }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="px-5 py-3.5 border-b border-gray-100">
-        <h4 className="text-sm font-bold text-gray-900">Days of Stock Remaining</h4>
-        <p className="text-xs text-gray-400 mt-0.5">
-          Dashed line = 30-day safety threshold · bars capped at 90d for scale
-        </p>
+        <h4 className="text-sm font-bold text-gray-900">{t.charts.dosTitle}</h4>
+        <p className="text-xs text-gray-400 mt-0.5">{t.charts.dosDesc}</p>
       </div>
       <div className="p-5 space-y-4">
         {dcs.map(({ label, days, status }) => {
@@ -387,7 +379,7 @@ function DosChart({ item }: { item: ProcessedItem }) {
           const pct = (cappedDays / maxDisplay) * 100;
           const color = STATUS_CFG[status].barBg;
           const isInactive = status === "inactive";
-          const displayDays = days === 0 ? "0 days" : days >= 9999 ? "No demand" : days > 365 ? "365+ days" : `${days} day${days === 1 ? "" : "s"}`;
+          const displayDays = days === 0 ? "0d" : days >= 9999 ? t.charts.noDemandRecorded : days > 365 ? "365+d" : `${days}d`;
 
           return (
             <div key={label}>
@@ -402,7 +394,6 @@ function DosChart({ item }: { item: ProcessedItem }) {
                 </span>
               </div>
               <div className="h-8 bg-gray-100 rounded overflow-hidden relative">
-                {/* 30d safety marker */}
                 <div className="absolute top-0 bottom-0 w-0.5 bg-gray-500 z-10 opacity-40"
                   style={{ left: `${(30 / maxDisplay) * 100}%` }} />
                 <div className="absolute top-1 bottom-1 flex items-end"
@@ -412,7 +403,7 @@ function DosChart({ item }: { item: ProcessedItem }) {
 
                 {isInactive ? (
                   <div className="h-full flex items-center pl-3">
-                    <span className="text-[11px] text-gray-400">No demand recorded</span>
+                    <span className="text-[11px] text-gray-400">{t.charts.noDemandRecorded}</span>
                   </div>
                 ) : (
                   <div className="h-full rounded flex items-center px-2 transition-all"
@@ -431,7 +422,7 @@ function DosChart({ item }: { item: ProcessedItem }) {
         })}
         <div className="flex justify-between text-[10px] text-gray-300 mt-1 px-0.5">
           <span>0</span>
-          <span className="text-gray-400">▲ 30d threshold</span>
+          <span className="text-gray-400">▲ 30d</span>
           <span>90+</span>
         </div>
       </div>
@@ -441,11 +432,11 @@ function DosChart({ item }: { item: ProcessedItem }) {
 
 // ─── Item Detail Panel ────────────────────────────────────────────────────────
 function ItemDetail({ item, avgPenalty, laneCosts }: { item: ProcessedItem; avgPenalty: number; laneCosts: Record<string, number> }) {
+  const { t } = useLanguage();
   const recs = getRecommendations(item, laneCosts);
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-lg font-bold text-gray-900 leading-tight">{item.name}</h2>
@@ -457,26 +448,26 @@ function ItemDetail({ item, avgPenalty, laneCosts }: { item: ProcessedItem; avgP
         </div>
         {item.demand > 0 && (
           <div className="text-right flex-shrink-0 ml-4">
-            <p className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold">Daily Sales</p>
+            <p className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold">{t.charts.dailySales}</p>
             <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: "DM Mono, monospace" }}>
               {item.demand.toFixed(0)}
             </p>
-            <p className="text-[11px] text-gray-400">units/day (~{Math.round(item.demand * 30).toLocaleString()}/mo)</p>
+            <p className="text-[11px] text-gray-400">{t.charts.unitsPerDay} ({t.charts.perMonth(Math.round(item.demand * 30))})</p>
           </div>
         )}
       </div>
 
-      {/* Recommendation */}
       {recs.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
-          <p className="text-xs font-bold text-amber-700 uppercase tracking-widest">Recommended Action</p>
+          <p className="text-xs font-bold text-amber-700 uppercase tracking-widest">{t.charts.recommendedAction}</p>
           {recs.map(r => (
             <div key={r.route} className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-gray-900">{r.text}</p>
+                <p className="text-sm font-semibold text-gray-900">{t.charts.transferText(r.units, r.from, r.to)}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Freight: <span className="font-semibold text-gray-800" style={{ fontFamily: "DM Mono, monospace" }}>${r.cost.toLocaleString()}</span>
-                  {" · "}Avg chargeback if ignored: <span className="font-semibold text-red-600" style={{ fontFamily: "DM Mono, monospace" }}>${avgPenalty.toFixed(0)}</span>
+                  {t.charts.freight} <span className="font-semibold text-gray-800" style={{ fontFamily: "DM Mono, monospace" }}>${r.cost.toLocaleString()}</span>
+                  {" · "}
+                  {t.charts.avgChargeback} <span className="font-semibold text-red-600" style={{ fontFamily: "DM Mono, monospace" }}>${avgPenalty.toFixed(0)}</span>
                 </p>
               </div>
               <span className="text-xs font-bold text-amber-700 bg-amber-100 border border-amber-200 rounded-lg px-3 py-1.5 flex-shrink-0"
@@ -490,22 +481,17 @@ function ItemDetail({ item, avgPenalty, laneCosts }: { item: ProcessedItem; avgP
 
       {item.demand === 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p className="text-sm text-gray-500">No recorded daily sales. Stock is held but this item isn't currently moving.</p>
+          <p className="text-sm text-gray-500">{t.charts.noSales}</p>
         </div>
       )}
 
-      {/* Visual charts */}
       <div className="grid grid-cols-2 gap-4">
         <StockChart item={item} />
         <DosChart item={item} />
       </div>
 
-      {/* Footer note */}
       <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-        <p className="text-[11px] text-gray-400 leading-relaxed">
-          SF is the redistribution hub — transfers to NJ cost ~$0.51/unit · to LA ~$0.17/unit.
-          The <span className="text-amber-500 font-semibold">30-day mark</span> is the minimum safe threshold before chargeback risk begins.
-        </p>
+        <p className="text-[11px] text-gray-400 leading-relaxed">{t.charts.sfNote}</p>
       </div>
     </div>
   );
@@ -513,6 +499,7 @@ function ItemDetail({ item, avgPenalty, laneCosts }: { item: ProcessedItem; avgP
 
 // ─── Left Nav ─────────────────────────────────────────────────────────────────
 function ItemNav({ allItems, selected, onSelect }: { allItems: ProcessedItem[]; selected: string | null; onSelect: (sku: string | null) => void }) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<NavFilter>("all");
 
@@ -529,10 +516,10 @@ function ItemNav({ allItems, selected, onSelect }: { allItems: ProcessedItem[]; 
   }, [allItems, search, filter]);
 
   const filterBtns: { key: NavFilter; label: string; count: number }[] = [
-    { key: "all",      label: "All",    count: allItems.length },
-    { key: "action",   label: "Urgent", count: allItems.filter(i => i.worstRank <= 2).length },
-    { key: "ok",       label: "OK",     count: allItems.filter(i => i.worstRank >= 3 && i.demand > 0).length },
-    { key: "inactive", label: "Idle",   count: allItems.filter(i => i.demand === 0).length },
+    { key: "all",      label: t.charts.filters.all,      count: allItems.length },
+    { key: "action",   label: t.charts.filters.action,   count: allItems.filter(i => i.worstRank <= 2).length },
+    { key: "ok",       label: t.charts.filters.ok,       count: allItems.filter(i => i.worstRank >= 3 && i.demand > 0).length },
+    { key: "inactive", label: t.charts.filters.inactive, count: allItems.filter(i => i.demand === 0).length },
   ];
 
   return (
@@ -542,7 +529,7 @@ function ItemNav({ allItems, selected, onSelect }: { allItems: ProcessedItem[]; 
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search products…"
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.charts.searchPlaceholder}
             className="w-full pl-8 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-400 focus:bg-white" />
         </div>
       </div>
@@ -564,10 +551,10 @@ function ItemNav({ allItems, selected, onSelect }: { allItems: ProcessedItem[]; 
           <svg className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
-          <span className={`text-xs font-semibold ${selected === null ? "text-teal-700" : "text-gray-600"}`}>Overview</span>
+          <span className={`text-xs font-semibold ${selected === null ? "text-teal-700" : "text-gray-600"}`}>{t.charts.overview}</span>
         </button>
 
-        {filtered.length === 0 && <p className="px-3 py-6 text-xs text-gray-400 text-center">No products match.</p>}
+        {filtered.length === 0 && <p className="px-3 py-6 text-xs text-gray-400 text-center">{t.charts.noMatch}</p>}
 
         {filtered.map(item => {
           const isSelected = selected === item.sku;
@@ -582,7 +569,7 @@ function ItemNav({ allItems, selected, onSelect }: { allItems: ProcessedItem[]; 
               </div>
               <div className="flex gap-0.5 flex-shrink-0">
                 {[item.sfStatus, item.njStatus, item.laStatus].map((st, i) => (
-                  <span key={i} className={`w-1.5 h-5 rounded-sm ${STATUS_CFG[st].dot}`} title={STATUS_CFG[st].shortLabel} />
+                  <span key={i} className={`w-1.5 h-5 rounded-sm ${STATUS_CFG[st].dot}`} title={t.charts.statusShort[st]} />
                 ))}
               </div>
             </button>
@@ -595,6 +582,7 @@ function ItemNav({ allItems, selected, onSelect }: { allItems: ProcessedItem[]; 
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
 export function InventoryCharts() {
+  const { t } = useLanguage();
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
   const [inventory, setInventory] = useState<LiveInventory | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -603,7 +591,7 @@ export function InventoryCharts() {
     fetch("/api/inventory")
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(setInventory)
-      .catch(() => setLoadError("Could not load inventory. Is the backend running?"));
+      .catch(() => setLoadError(t.charts.error));
   }, []);
 
   const allItems = useMemo(() => inventory ? processInventory(inventory) : [], [inventory]);
@@ -622,7 +610,7 @@ export function InventoryCharts() {
   if (!inventory) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 px-6 py-8 text-center text-sm text-gray-400">
-        Loading inventory…
+        {t.charts.loading}
       </div>
     );
   }
@@ -631,8 +619,8 @@ export function InventoryCharts() {
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm flex" style={{ height: 720 }}>
       <div className="w-64 flex-shrink-0 border-r border-gray-200 flex flex-col overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">Product Navigator</p>
-          <p className="text-[10px] text-gray-400 mt-0.5">{allItems.length} products · 3 warehouses</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">{t.charts.productNavigator}</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">{t.charts.productsWarehouses(allItems.length)}</p>
         </div>
         <ItemNav allItems={allItems} selected={selectedSku} onSelect={setSelectedSku} />
       </div>

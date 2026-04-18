@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api, type Recommendation } from "../api/client";
 import type { DcSlot } from "../data/mockData";
+import { useLanguage } from "../i18n/LanguageContext";
 
 // ─── Build SkuRows from live_inventory.json ────────────────────────────────────
 type LiveDc = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
@@ -86,11 +87,11 @@ const DC_SITES = [
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const STATUS = {
-  critical: { label: "Critical",   dot: "bg-[#7A0F1D]", text: "text-[#7A0F1D]", pill: "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]" },
-  warning:  { label: "Warning",    dot: "bg-[#B97A15]", text: "text-[#8C5A0F]", pill: "bg-[#FEF7E8] text-[#8C5A0F] border border-[#E5B664]" },
-  ok:       { label: "OK",         dot: "bg-[#1E8574]", text: "text-[#125F54]", pill: "bg-[#EEF7F5] text-[#125F54] border border-[#7AC4B8]" },
-  inactive: { label: "Dead Stock", dot: "bg-[#8E8680]", text: "text-[#403A34]", pill: "bg-[#FAF7F1] text-[#403A34] border border-[#D6CFC7]" },
+const STATUS_STYLE = {
+  critical: { dot: "bg-[#7A0F1D]", text: "text-[#7A0F1D]", pill: "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]" },
+  warning:  { dot: "bg-[#B97A15]", text: "text-[#8C5A0F]", pill: "bg-[#FEF7E8] text-[#8C5A0F] border border-[#E5B664]" },
+  ok:       { dot: "bg-[#1E8574]", text: "text-[#125F54]", pill: "bg-[#EEF7F5] text-[#125F54] border border-[#7AC4B8]" },
+  inactive: { dot: "bg-[#8E8680]", text: "text-[#403A34]", pill: "bg-[#FAF7F1] text-[#403A34] border border-[#D6CFC7]" },
 };
 
 function dosColor(days: number) {
@@ -103,6 +104,7 @@ function dosColor(days: number) {
 }
 
 function DcCell({ slot }: { slot: DcSlot }) {
+  const { t } = useLanguage();
   const col = dosColor(slot.daysSupply);
   const isNoDemand = slot.daysSupply === 9999;
   const pct = isNoDemand ? 0 : Math.min((slot.daysSupply / 300) * 100, 100);
@@ -119,7 +121,7 @@ function DcCell({ slot }: { slot: DcSlot }) {
           <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${pct}%` }} />
         </div>
         <span className={`mono text-[11px] font-semibold ${col.text} whitespace-nowrap`}>
-          {isNoDemand ? "No Demand" : slot.daysSupply === 0 ? "0d" : `${slot.daysSupply}d`}
+          {isNoDemand ? t.table.noDemand : slot.daysSupply === 0 ? "0d" : `${slot.daysSupply}d`}
         </span>
       </div>
     </div>
@@ -133,6 +135,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { t } = useLanguage();
   const dcOptions = DC_SITES.map((d) => ({
     ...d,
     dos: row[d.key].daysSupply,
@@ -162,7 +165,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
 
   async function handleSubmit() {
     if (!sourceValid) {
-      setError(sourceDc === destDc ? "Source and destination must differ." : `Only ${sourceStock.toLocaleString()} units available at source.`);
+      setError(sourceDc === destDc ? t.transferModal.sameDcError : t.transferModal.overCapError(sourceStock));
       return;
     }
     setSubmitting(true);
@@ -178,7 +181,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
       setDone(true);
       setTimeout(onSuccess, 1400);
     } catch (e: any) {
-      setError(e?.message ?? "Transfer failed. Check backend connection.");
+      setError(e?.message ?? t.transferModal.failError);
     } finally {
       setSubmitting(false);
     }
@@ -193,7 +196,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] mb-1" style={{ color: "#7A0F1D" }}>Initiate Transfer</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] mb-1" style={{ color: "#7A0F1D" }}>{t.transferModal.title}</p>
             <h3 className="text-lg font-bold leading-tight" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{row.product}</h3>
             <p className="mono text-xs mt-0.5" style={{ color: "#8E8680" }}>{row.sku.trim()}</p>
           </div>
@@ -205,9 +208,9 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "#EEF7F5" }}>
               <span className="text-2xl" style={{ color: "#125F54" }}>✓</span>
             </div>
-            <p className="font-bold text-base" style={{ color: "#125F54" }}>Transfer logged</p>
+            <p className="font-bold text-base" style={{ color: "#125F54" }}>{t.transferModal.done}</p>
             <p className="text-sm mt-1" style={{ color: "#6B6560" }}>
-              {unitCount.toLocaleString()} units · {sourceDc} → {destDc}
+              {t.transferModal.sourceDest(sourceDc, destDc, unitCount)}
             </p>
           </div>
         ) : (
@@ -215,7 +218,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
 
             {rec && (
               <div className="rounded-lg px-4 py-3 text-sm" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
-                <p className="font-semibold" style={{ color: "#7A0F1D" }}>System recommendation active</p>
+                <p className="font-semibold" style={{ color: "#7A0F1D" }}>{t.transferModal.systemRec}</p>
                 <p className="text-xs mt-0.5" style={{ color: "#6B6560" }}>{rec.reason}</p>
               </div>
             )}
@@ -223,7 +226,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
             {/* Source → Dest */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>Source DC</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>{t.transferModal.sourceDc}</p>
                 <div className="space-y-1.5">
                   {dcOptions.map(dc => (
                     <button
@@ -242,7 +245,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                     >
                       <p className="font-semibold text-xs">{dc.label}</p>
                       <p className="mono text-[11px] mt-0.5" style={{ color: dc.dos < 14 ? "#A6192E" : "#6B6560" }}>
-                        {dc.stock.toLocaleString()} units · {dc.dos === 9999 ? "No demand" : `${dc.dos}d supply`}
+                        {dc.stock.toLocaleString()} · {dc.dos === 9999 ? t.table.noDemand : `${dc.dos}d`}
                       </p>
                     </button>
                   ))}
@@ -250,7 +253,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
               </div>
 
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>Destination DC</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>{t.transferModal.destDc}</p>
                 <div className="space-y-1.5">
                   {dcOptions.map(dc => (
                     <button
@@ -265,7 +268,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                     >
                       <p className="font-semibold text-xs">{dc.label}</p>
                       <p className="mono text-[11px] mt-0.5" style={{ color: dc.dos < 14 ? "#A6192E" : "#6B6560" }}>
-                        {dc.stock.toLocaleString()} units · {dc.dos === 9999 ? "No demand" : `${dc.dos}d supply`}
+                        {dc.stock.toLocaleString()} · {dc.dos === 9999 ? t.table.noDemand : `${dc.dos}d`}
                       </p>
                     </button>
                   ))}
@@ -275,7 +278,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
 
             {/* Units */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>Units to Transfer</p>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>{t.transferModal.units}</p>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -298,12 +301,12 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                   onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FAF7F1")}
                 >
-                  Max
+                  {t.transferModal.max}
                 </button>
               </div>
               <p className="text-[11px] mt-1" style={{ color: "#8E8680" }}>
-                {sourceStock.toLocaleString()} units available at source
-                {demand > 0 && ` · ${demand.toFixed(0)} units/day demand`}
+                {t.transferModal.available(sourceStock)}
+                {demand > 0 && ` · ${t.transferModal.demand(demand)}`}
               </p>
             </div>
 
@@ -311,15 +314,15 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
             {rec && (
               <div className="rounded-lg p-4 space-y-2" style={{ backgroundColor: "#FAF7F1", border: "1px solid #E8E2DA" }}>
                 <div className="flex justify-between text-sm">
-                  <span style={{ color: "#6B6560" }}>Freight cost</span>
+                  <span style={{ color: "#6B6560" }}>{t.transferModal.freightCost}</span>
                   <span className="mono font-semibold" style={{ color: "#403A34" }}>${rec.transfer_cost.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span style={{ color: "#6B6560" }}>Penalty avoided</span>
+                  <span style={{ color: "#6B6560" }}>{t.transferModal.penaltyAvoided}</span>
                   <span className="mono font-semibold" style={{ color: "#1E8574" }}>${rec.avoided_penalty.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm pt-2" style={{ borderTop: "1px solid #E8E2DA" }}>
-                  <span className="font-bold" style={{ color: "#14110F" }}>Net value</span>
+                  <span className="font-bold" style={{ color: "#14110F" }}>{t.transferModal.netValue}</span>
                   <span className="mono font-bold" style={{ color: rec.transfer_value > 0 ? "#125F54" : "#8C5A0F" }}>
                     {rec.transfer_value > 0 ? "+" : ""}${rec.transfer_value.toLocaleString()}
                   </span>
@@ -339,14 +342,14 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                 className="flex-1 text-sm font-bold text-white rounded-lg px-5 py-2.5 disabled:opacity-50 transition-opacity"
                 style={{ backgroundColor: "#7A0F1D" }}
               >
-                {submitting ? "Submitting…" : "Approve Transfer"}
+                {submitting ? t.transferModal.submitting : t.transferModal.approve}
               </button>
               <button
                 onClick={onClose}
                 className="text-sm font-medium rounded-lg px-5 py-2.5 transition-colors"
                 style={{ color: "#6B6560", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
               >
-                Cancel
+                {t.transferModal.cancel}
               </button>
             </div>
           </div>
@@ -362,7 +365,9 @@ function DetailModal({ row, onClose, onTransfer }: {
   onClose: () => void;
   onTransfer: () => void;
 }) {
-  const statusCfg = STATUS[row.status as keyof typeof STATUS];
+  const { t } = useLanguage();
+  const statusCfg = STATUS_STYLE[row.status as keyof typeof STATUS_STYLE];
+  const statusLabel = t.status[row.status as keyof typeof t.status];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
@@ -375,7 +380,7 @@ function DetailModal({ row, onClose, onTransfer }: {
             <div className="flex items-center gap-2.5">
               <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2.5 py-1 ${statusCfg.pill}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                {statusCfg.label}
+                {statusLabel}
               </span>
               <span className="mono text-xs rounded px-2 py-0.5" style={{ color: "#8E8680", backgroundColor: "#FAF7F1" }}>{row.sku.trim()}</span>
             </div>
@@ -400,16 +405,16 @@ function DetailModal({ row, onClose, onTransfer }: {
                 <p className="mono text-2xl font-bold mt-2" style={{ color: slot.available === 0 ? "#7A0F1D" : "#14110F" }}>
                   {slot.available.toLocaleString()}
                 </p>
-                <p className="text-xs mono" style={{ color: "#8E8680" }}>avail · {slot.onHand.toLocaleString()} on-hand</p>
+                <p className="text-xs mono" style={{ color: "#8E8680" }}>{t.detailModal.availOnHand(slot.available, slot.onHand)}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
                     <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${isNoDemand ? 0 : Math.min(slot.daysSupply / 300 * 100, 100)}%` }} />
                   </div>
                   <span className={`mono text-xs font-bold ${col.text}`}>
-                    {isNoDemand ? "No Demand" : `${slot.daysSupply}d`}
+                    {isNoDemand ? t.table.noDemand : `${slot.daysSupply}d`}
                   </span>
                 </div>
-                <p className="mono text-xs mt-1" style={{ color: "#8E8680" }}>{isNoDemand ? "—" : `${slot.velocityPerDay} units/day`}</p>
+                <p className="mono text-xs mt-1" style={{ color: "#8E8680" }}>{isNoDemand ? "—" : `${slot.velocityPerDay} ${t.detailModal.unitsPerDay}`}</p>
               </div>
             );
           })}
@@ -423,11 +428,11 @@ function DetailModal({ row, onClose, onTransfer }: {
               className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors"
               style={{ backgroundColor: "#7A0F1D" }}
             >
-              Initiate Transfer
+              {t.detailModal.initiateTransfer}
             </button>
           )}
           <button onClick={onClose} className="text-sm font-medium rounded-lg px-4 py-2.5 ml-auto transition-colors" style={{ color: "#6B6560", border: "1px solid #D6CFC7" }}>
-            Close
+            {t.detailModal.close}
           </button>
         </div>
       </div>
@@ -440,6 +445,7 @@ type SortKey = "status" | "chargebackRisk" | "companyDaysSupply";
 type FilterStatus = "all" | "critical" | "warning" | "inactive";
 
 export function InventoryTable() {
+  const { t } = useLanguage();
   const [inventoryData, setInventoryData] = useState<RowType[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -495,9 +501,9 @@ export function InventoryTable() {
         </div>
       )}
       <div className="rounded-xl px-5 py-3.5 text-sm flex items-start gap-3" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
-        <span className="font-bold flex-shrink-0" style={{ color: "#7A0F1D" }}>ACTION REQUIRED</span>
+        <span className="font-bold flex-shrink-0" style={{ color: "#7A0F1D" }}>{t.table.actionRequired}</span>
         <p style={{ color: "#6B6560" }}>
-          Showing <strong style={{ color: "#14110F" }}>{inventoryData.length} SKUs</strong> currently facing shortages or marked as dead stock. Healthy inventory is hidden.
+          <strong style={{ color: "#14110F" }}>{t.table.showingSkus(inventoryData.length)}</strong> {t.table.facingShortages}
         </p>
       </div>
 
@@ -506,7 +512,7 @@ export function InventoryTable() {
           {(["all", "critical", "warning", "inactive"] as FilterStatus[]).map(f => {
             const active = filter === f;
             const dotColor = f === "critical" ? "#7A0F1D" : f === "warning" ? "#B97A15" : f === "inactive" ? "#8E8680" : "";
-            const label = f === "all" ? "All At Risk" : f === "inactive" ? "Dead Stock" : f.charAt(0).toUpperCase() + f.slice(1);
+            const label = t.table.filters[f as keyof typeof t.table.filters];
             return (
               <button key={f} onClick={() => setFilter(f)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
@@ -520,8 +526,8 @@ export function InventoryTable() {
         </div>
 
         <div className="flex items-center gap-2 text-sm" style={{ color: "#8E8680" }}>
-          <span>Sort:</span>
-          {([["status", "Risk Level"], ["chargebackRisk", "CB Exposure"], ["companyDaysSupply", "Days Supply"]] as [SortKey, string][]).map(([key, label]) => (
+          <span>{t.table.sort}</span>
+          {(["status", "chargebackRisk", "companyDaysSupply"] as SortKey[]).map((key) => (
             <button key={key} onClick={() => setSort(key)}
               className="px-3 py-1.5 rounded-lg text-sm transition-all"
               style={{
@@ -530,7 +536,7 @@ export function InventoryTable() {
                 fontWeight: sort === key ? 700 : 400,
                 backgroundColor: "#FFFFFF",
               }}>
-              {label}
+              {t.table.sortKeys[key]}
             </button>
           ))}
         </div>
@@ -541,21 +547,21 @@ export function InventoryTable() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ borderBottom: "1px solid #E8E2DA", backgroundColor: "#FAF7F1" }}>
-                <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-[0.14em] min-w-[220px]" style={{ color: "#6B6560" }}>Product</th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-[0.14em] min-w-[220px]" style={{ color: "#6B6560" }}>{t.table.headers.product}</th>
                 <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>
-                  DC-SF <span className="font-normal" style={{ color: "#1E8574" }}>(Hub)</span>
+                  {t.table.headers.dcSF} <span className="font-normal" style={{ color: "#1E8574" }}>({t.table.headers.hub})</span>
                 </th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>DC-NJ</th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>DC-LA</th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>Company</th>
-                <th className="px-3 py-3.5 text-center text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>Status</th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>CB Risk</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>{t.table.headers.dcNJ}</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>{t.table.headers.dcLA}</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>{t.table.headers.company}</th>
+                <th className="px-3 py-3.5 text-center text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>{t.table.headers.status}</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>{t.table.headers.cbRisk}</th>
                 <th className="px-4 py-3.5 sticky right-0 z-10" style={{ backgroundColor: "#FAF7F1", boxShadow: "-5px 0 10px -5px rgba(20,17,15,0.06)" }} />
               </tr>
             </thead>
             <tbody>
               {rows.map((row, i) => {
-                const s = STATUS[row.status as keyof typeof STATUS];
+                const s = STATUS_STYLE[row.status as keyof typeof STATUS_STYLE];
                 const bgBase = i % 2 === 1 ? "#FAF7F1" : "#FFFFFF";
                 return (
                   <tr
@@ -581,14 +587,14 @@ export function InventoryTable() {
                     <td className="px-3 py-4"><DcCell slot={row.dcLA} /></td>
 
                     <td className="px-3 py-4 text-right">
-                      <p className="mono text-base font-bold" style={{ color: "#14110F" }}>{row.companyDaysSupply === 9999 ? "No Demand" : `${row.companyDaysSupply}d`}</p>
+                      <p className="mono text-base font-bold" style={{ color: "#14110F" }}>{row.companyDaysSupply === 9999 ? t.table.noDemand : `${row.companyDaysSupply}d`}</p>
                       <p className="mono text-[11px] whitespace-nowrap" style={{ color: "#8E8680" }}>{row.companyAvailable.toLocaleString()} avail</p>
                     </td>
 
                     <td className="px-3 py-4 text-center">
                       <span className={`inline-flex items-center gap-1.5 rounded-full text-xs font-semibold px-2.5 py-1 whitespace-nowrap ${s.pill}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-                        {s.label}
+                        {t.status[row.status as keyof typeof t.status]}
                       </span>
                     </td>
 
@@ -607,7 +613,7 @@ export function InventoryTable() {
                       <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                         {transferredSkus.has(row.sku.trim()) ? (
                           <span className="text-xs font-semibold rounded-lg px-3 py-1.5 whitespace-nowrap" style={{ color: "#125F54", backgroundColor: "#EEF7F5", border: "1px solid #7AC4B8" }}>
-                            ✓ Transferred
+                            {t.table.transferred}
                           </span>
                         ) : (row.status === "critical" || row.status === "warning") ? (
                           <button
@@ -617,7 +623,7 @@ export function InventoryTable() {
                             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5E0B15")}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}
                           >
-                            Transfer
+                            {t.table.transfer}
                           </button>
                         ) : null}
                       </div>
