@@ -6,6 +6,39 @@ sales_csv = "data/POP_SalesTransactionHistory.csv"
 inv_excel = "data/POP_InventorySnapshot.xlsx"
 po_excel = "data/POP_PurchaseOrderHistory.XLSX"
 cost_excel = "data/POP_ChargeBack_Deductions_Penalties_Freight.xlsx"
+item_spec_csv = "data/POP_ItemSpecMaster.xlsx - Item Spec Master.csv"
+
+# Hardcoded defaults for SKUs missing from ItemSpecMaster.
+# Values are guesses rn
+default_cases_per_pallet_by_sku = {
+    "AC-B3SLJ": 16,
+    "AC-B6SLJ": 16,
+    "AC-B9SL": 16,
+    "A-61012": 24,
+    "A-61280": 24,
+    "AC-B9SLE": 16,
+    "F-00491": 126,
+    "F-04220": 70,
+    "F-04221": 70,
+    "F-50139": 60,
+    "F-50140": 36,
+    "F-76010": 42,
+    "F-97000": 84,
+    "T-31510R": 72,
+    "T-32224": 56,
+    "T-47010": 120,
+}
+
+
+def parse_cases_per_pallet(value):
+    text = str(value).strip()
+    if not text or text.lower() in {"nan", "none", "n/a"}:
+        return None
+    numeric = "".join(ch for ch in text if ch.isdigit() or ch == ".")
+    if not numeric:
+        return None
+    parsed = float(numeric)
+    return int(parsed) if parsed.is_integer() else parsed
 
 # 1. CALCULATE DEMAND
 sales_df = pd.read_csv(sales_csv, low_memory=False)
@@ -78,6 +111,16 @@ transfer_cost_by_lane_by_pallet = {
     },
 }
 
+# item spec master (cases per pallet by SKU)
+item_spec_df = pd.read_csv(item_spec_csv, low_memory=False)
+item_spec_df['Item Number'] = item_spec_df['Item Number'].astype(str).str.strip()
+item_spec_df['cases_per_pallet_parsed'] = item_spec_df['Case/ Pallet'].apply(parse_cases_per_pallet)
+cases_per_pallet_by_sku = {
+    row['Item Number']: row['cases_per_pallet_parsed']
+    for _, row in item_spec_df.iterrows()
+    if row['Item Number'] and row['Item Number'] != 'nan' and pd.notna(row['cases_per_pallet_parsed'])
+}
+
 transfer_cost_by_lane_by_pallet = {
     f"{row['From']}->{row['To']}": float(row['Amount'])
     for row in sorted(
@@ -99,6 +142,8 @@ master_inventory = {
     "ITEMS": {}
 }
 
+missing_cases_per_pallet_skus = set()
+
 for site in sites:
     site_df = pd.read_excel(inv_file, sheet_name=site)
     site_df['Available'] = site_df['Available'].fillna(0)
@@ -106,12 +151,23 @@ for site in sites:
     
     for _, row in site_df.iterrows():
         sku = str(row['Item Number'])
+        sku_lookup = sku.strip()
         available = float(row['Available'])
         
         if sku not in master_inventory["ITEMS"]:
+            cases_per_pallet = cases_per_pallet_by_sku.get(
+                sku_lookup,
+                default_cases_per_pallet_by_sku.get(sku_lookup),
+            )
+            if pd.isna(cases_per_pallet):
+                cases_per_pallet = default_cases_per_pallet_by_sku.get(sku_lookup)
+            if cases_per_pallet is None:
+                missing_cases_per_pallet_skus.add(sku_lookup)
+                continue
             master_inventory["ITEMS"][sku] = {
                 "item_name": str(row['Description']),
                 "avg_daily_demand": demand_dict.get(sku, 0),
+                "cases_per_pallet": cases_per_pallet,
                 "inventory_by_dc": {}
             }
         
@@ -127,5 +183,12 @@ for site in sites:
         }
 
 # 5. SAVE
+#debugging stuff
+if missing_cases_per_pallet_skus:
+    raise ValueError(
+        "Missing cases_per_pallet in ItemSpecMaster or defaults for SKUs: "
+        + ", ".join(sorted(missing_cases_per_pallet_skus))
+    )
+
 with open("live_inventory.json", "w") as f:
     json.dump(master_inventory, f, indent=4)
