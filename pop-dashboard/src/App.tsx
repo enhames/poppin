@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { alertsData, transferRecs, urgentRequestSample } from "./data/mockData";
+import { useState, useEffect } from "react";
+import { urgentRequestSample } from "./data/mockData";
+import { api } from "./api/client";
 import { AlertsBanner } from "./components/AlertsBanner";
 import { InventoryTable } from "./components/InventoryTable";
 import { ChargebackTable } from "./components/ChargebackTable";
@@ -8,11 +9,8 @@ import { InventoryCharts } from "./components/InventoryCharts";
 
 type Tab = "imbalances" | "chargebacks" | "transfers" | "alerts" | "charts";
 
-// ─── Real numbers ─────────────────────────────────────────────────────────────
 const URGENT_REQUESTS_TOTAL = 2029;
 const PENALTY_EXPOSURE = 745000;
-const criticalCount = alertsData.filter((a) => a.severity === "critical").length;
-const transferCount = transferRecs.filter((r) => r.recommendation === "TRANSFER").length;
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 function Icon({ d, size = 16 }: { d: string; size?: number }) {
@@ -94,6 +92,19 @@ function KpiCard({
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("imbalances");
+  const [criticalCount, setCriticalCount] = useState(0);
+  const [transferCount, setTransferCount] = useState(0);
+  const [alertsData, setAlertsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.getAlerts().then((alerts: any[]) => {
+      setAlertsData(alerts);
+      setCriticalCount(alerts.filter((a) => a.severity === "critical").length);
+    });
+    api.getRecommendations().then((recs) => {
+      setTransferCount(recs.filter((r) => r.recommendation === "TRANSFER").length);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen flex font-sans bg-gray-50">

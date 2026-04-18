@@ -1,5 +1,4 @@
-import { useState, useMemo } from "react";
-import liveInventoryRaw from "@backend/live_inventory.json";
+import { useState, useMemo, useEffect } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DcData = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
@@ -15,7 +14,6 @@ interface ProcessedItem {
   worstStatus: Status; worstRank: number;
 }
 
-const raw = liveInventoryRaw as LiveInventory;
 const DC_SF = "Site 1 - SF";
 const DC_NJ = "Site 2 - NJ";
 const DC_LA = "Site 3 - LA";
@@ -39,21 +37,23 @@ function getStatus(days: number, demand: number): Status {
   return "ok";
 }
 
-const ALL_ITEMS: ProcessedItem[] = Object.entries(raw.ITEMS)
-  .map(([rawSku, data]) => {
-    const sku = rawSku.trim();
-    const sf = data.inventory_by_dc[DC_SF];
-    const nj = data.inventory_by_dc[DC_NJ];
-    const la = data.inventory_by_dc[DC_LA];
-    const demand = data.avg_daily_demand;
-    const sfStatus = getStatus(sf.days_of_supply, demand);
-    const njStatus = getStatus(nj.days_of_supply, demand);
-    const laStatus = getStatus(la.days_of_supply, demand);
-    const worstRank = Math.min(STATUS_CFG[sfStatus].rank, STATUS_CFG[njStatus].rank, STATUS_CFG[laStatus].rank);
-    const worstStatus = (Object.keys(STATUS_CFG) as Status[]).find(k => STATUS_CFG[k].rank === worstRank) ?? "inactive";
-    return { sku, name: data.item_name, demand, sf, nj, la, sfStatus, njStatus, laStatus, worstStatus, worstRank };
-  })
-  .sort((a, b) => a.worstRank - b.worstRank);
+function processInventory(raw: LiveInventory): ProcessedItem[] {
+  return Object.entries(raw.ITEMS)
+    .map(([rawSku, data]) => {
+      const sku = rawSku.trim();
+      const sf = data.inventory_by_dc[DC_SF];
+      const nj = data.inventory_by_dc[DC_NJ];
+      const la = data.inventory_by_dc[DC_LA];
+      const demand = data.avg_daily_demand;
+      const sfStatus = getStatus(sf.days_of_supply, demand);
+      const njStatus = getStatus(nj.days_of_supply, demand);
+      const laStatus = getStatus(la.days_of_supply, demand);
+      const worstRank = Math.min(STATUS_CFG[sfStatus].rank, STATUS_CFG[njStatus].rank, STATUS_CFG[laStatus].rank);
+      const worstStatus = (Object.keys(STATUS_CFG) as Status[]).find(k => STATUS_CFG[k].rank === worstRank) ?? "inactive";
+      return { sku, name: data.item_name, demand, sf, nj, la, sfStatus, njStatus, laStatus, worstStatus, worstRank };
+    })
+    .sort((a, b) => a.worstRank - b.worstRank);
+}
 
 // ─── Recommendation helper ────────────────────────────────────────────────────
 interface Rec { text: string; units: number; cost: number; route: string }
@@ -111,8 +111,8 @@ function DosMiniBar({ days, status }: { days: number; status: Status }) {
 }
 
 // ─── DC Health Heatmap ────────────────────────────────────────────────────────
-function Heatmap({ onSelect }: { onSelect: (sku: string) => void }) {
-  const activeItems = ALL_ITEMS.filter(i => i.demand > 0).slice(0, 40);
+function Heatmap({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect: (sku: string) => void }) {
+  const activeItems = allItems.filter(i => i.demand > 0).slice(0, 40);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -162,13 +162,13 @@ function Heatmap({ onSelect }: { onSelect: (sku: string) => void }) {
 }
 
 // ─── Overview Panel ───────────────────────────────────────────────────────────
-function Overview({ onSelect }: { onSelect: (sku: string) => void }) {
-  const topSellers = [...ALL_ITEMS].filter(i => i.demand > 0).sort((a, b) => b.demand - a.demand).slice(0, 10);
+function Overview({ allItems, onSelect }: { allItems: ProcessedItem[]; onSelect: (sku: string) => void }) {
+  const topSellers = [...allItems].filter(i => i.demand > 0).sort((a, b) => b.demand - a.demand).slice(0, 10);
   const maxDemand = topSellers[0]?.demand ?? 1;
-  const totalActive = ALL_ITEMS.filter(i => i.demand > 0).length;
-  const critCount = ALL_ITEMS.filter(i => i.worstRank <= 1 && i.demand > 0).length;
-  const warnCount = ALL_ITEMS.filter(i => i.worstRank === 2 && i.demand > 0).length;
-  const okCount = ALL_ITEMS.filter(i => i.worstRank >= 3 && i.demand > 0).length;
+  const totalActive = allItems.filter(i => i.demand > 0).length;
+  const critCount = allItems.filter(i => i.worstRank <= 1 && i.demand > 0).length;
+  const warnCount = allItems.filter(i => i.worstRank === 2 && i.demand > 0).length;
+  const okCount = allItems.filter(i => i.worstRank >= 3 && i.demand > 0).length;
 
   return (
     <div className="space-y-5">
@@ -189,7 +189,7 @@ function Overview({ onSelect }: { onSelect: (sku: string) => void }) {
       </div>
 
       {/* Heatmap */}
-      <Heatmap onSelect={onSelect} />
+      <Heatmap allItems={allItems} onSelect={onSelect} />
 
       {/* Top sellers velocity */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -237,7 +237,6 @@ function StockChart({ item }: { item: ProcessedItem }) {
     { label: "LA", data: item.la, status: item.laStatus, tag: "" },
   ];
 
-  // Scale to the largest single value
   const maxVal = Math.max(...dcs.flatMap(d => [d.data.stock_on_hand, d.data.incoming_stock]), 1);
 
   return (
@@ -417,9 +416,8 @@ function DosChart({ item }: { item: ProcessedItem }) {
 }
 
 // ─── Item Detail Panel ────────────────────────────────────────────────────────
-function ItemDetail({ item }: { item: ProcessedItem }) {
+function ItemDetail({ item, avgPenalty }: { item: ProcessedItem; avgPenalty: number }) {
   const recs = getRecommendations(item);
-  const avgPenalty = raw.METADATA.avg_penalty_cost;
 
   return (
     <div className="space-y-5">
@@ -490,12 +488,12 @@ function ItemDetail({ item }: { item: ProcessedItem }) {
 }
 
 // ─── Left Nav ─────────────────────────────────────────────────────────────────
-function ItemNav({ selected, onSelect }: { selected: string | null; onSelect: (sku: string | null) => void }) {
+function ItemNav({ allItems, selected, onSelect }: { allItems: ProcessedItem[]; selected: string | null; onSelect: (sku: string | null) => void }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<NavFilter>("all");
 
   const filtered = useMemo(() => {
-    let items = ALL_ITEMS;
+    let items = allItems;
     if (filter === "action") items = items.filter(i => i.worstRank <= 2);
     else if (filter === "ok") items = items.filter(i => i.worstRank >= 3 && i.demand > 0);
     else if (filter === "inactive") items = items.filter(i => i.demand === 0);
@@ -504,13 +502,13 @@ function ItemNav({ selected, onSelect }: { selected: string | null; onSelect: (s
       items = items.filter(i => i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q));
     }
     return items;
-  }, [search, filter]);
+  }, [allItems, search, filter]);
 
   const filterBtns: { key: NavFilter; label: string; count: number }[] = [
-    { key: "all",      label: "All",    count: ALL_ITEMS.length },
-    { key: "action",   label: "Urgent", count: ALL_ITEMS.filter(i => i.worstRank <= 2).length },
-    { key: "ok",       label: "OK",     count: ALL_ITEMS.filter(i => i.worstRank >= 3 && i.demand > 0).length },
-    { key: "inactive", label: "Idle",   count: ALL_ITEMS.filter(i => i.demand === 0).length },
+    { key: "all",      label: "All",    count: allItems.length },
+    { key: "action",   label: "Urgent", count: allItems.filter(i => i.worstRank <= 2).length },
+    { key: "ok",       label: "OK",     count: allItems.filter(i => i.worstRank >= 3 && i.demand > 0).length },
+    { key: "inactive", label: "Idle",   count: allItems.filter(i => i.demand === 0).length },
   ];
 
   return (
@@ -574,19 +572,50 @@ function ItemNav({ selected, onSelect }: { selected: string | null; onSelect: (s
 // ─── Main Export ──────────────────────────────────────────────────────────────
 export function InventoryCharts() {
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
-  const selectedItem = selectedSku ? ALL_ITEMS.find(i => i.sku === selectedSku) ?? null : null;
+  const [inventory, setInventory] = useState<LiveInventory | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/inventory")
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(setInventory)
+      .catch(() => setLoadError("Could not load inventory. Is the backend running?"));
+  }, []);
+
+  const allItems = useMemo(() => inventory ? processInventory(inventory) : [], [inventory]);
+  const selectedItem = selectedSku ? allItems.find(i => i.sku === selectedSku) ?? null : null;
+  const avgPenalty = inventory?.METADATA.avg_penalty_cost ?? 680;
+
+  if (loadError) {
+    return (
+      <div className="bg-red-50 rounded-xl border border-red-200 px-6 py-8 text-center text-sm text-red-700">
+        {loadError}
+      </div>
+    );
+  }
+
+  if (!inventory) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 px-6 py-8 text-center text-sm text-gray-400">
+        Loading inventory…
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm flex" style={{ height: 720 }}>
       <div className="w-64 flex-shrink-0 border-r border-gray-200 flex flex-col overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
           <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">Product Navigator</p>
-          <p className="text-[10px] text-gray-400 mt-0.5">{ALL_ITEMS.length} products · 3 warehouses</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">{allItems.length} products · 3 warehouses</p>
         </div>
-        <ItemNav selected={selectedSku} onSelect={setSelectedSku} />
+        <ItemNav allItems={allItems} selected={selectedSku} onSelect={setSelectedSku} />
       </div>
       <div className="flex-1 overflow-y-auto p-6">
-        {selectedItem ? <ItemDetail item={selectedItem} /> : <Overview onSelect={setSelectedSku} />}
+        {selectedItem
+          ? <ItemDetail item={selectedItem} avgPenalty={avgPenalty} />
+          : <Overview allItems={allItems} onSelect={setSelectedSku} />
+        }
       </div>
     </div>
   );

@@ -1,21 +1,6 @@
-import { chargebackData, customerPenalties, yearlyPenalties } from "../data/mockData";
-
-const GRAND_TOTAL = chargebackData.reduce((s, r) => s + r.amount, 0);
-const CUSTOMER_TOTAL = customerPenalties.reduce((s, r) => s + r.amount, 0);
-
-// Peak month (2024)
-const peakYr = yearlyPenalties.find((y) => y.peakMonth);
-const peakMonthLabel = peakYr?.peakMonth ?? "";
-const peakMonthAmt = peakYr?.peakMonthAmount ?? 0;
-
-// YoY change (2023 → 2024 op+pa)
-const yr2023 = yearlyPenalties.find((y) => y.year === "2023");
-const yr2024 = yearlyPenalties.find((y) => y.year === "2024");
-const total2023 = (yr2023?.operational ?? 0) + (yr2023?.postAudit ?? 0);
-const total2024 = (yr2024?.operational ?? 0) + (yr2024?.postAudit ?? 0);
-const yoyPct = total2023 > 0 ? Math.round(((total2024 - total2023) / total2023) * 100) : 0;
-const avgMonthly2024 = total2024 / 12;
-const peakMultiplier = avgMonthly2024 > 0 ? (peakMonthAmt / avgMonthly2024).toFixed(1) : "—";
+import { useState, useEffect } from "react";
+import { api } from "../api/client";
+import type { ChargebackRow, CustomerPenalty, YearlyPenalty } from "../data/mockData";
 
 const TYPE_CONFIG = {
   operational:   { label: "Operational",  pill: "bg-red-50 text-red-700 border border-red-200" },
@@ -25,7 +10,34 @@ const TYPE_CONFIG = {
 };
 
 export function ChargebackTable() {
-  const maxPenalty = Math.max(...yearlyPenalties.map((y) => y.operational + y.postAudit));
+  const [chargebackData, setChargebackData] = useState<ChargebackRow[]>([]);
+  const [customerPenalties, setCustomerPenalties] = useState<CustomerPenalty[]>([]);
+  const [yearlyPenalties, setYearlyPenalties] = useState<YearlyPenalty[]>([]);
+
+  useEffect(() => {
+    api.getChargebacks().then((raw: any) => {
+      setChargebackData(raw.causeCodeRows ?? []);
+      setCustomerPenalties(raw.customerPenalties ?? []);
+      setYearlyPenalties(raw.yearlyPenalties ?? []);
+    });
+  }, []);
+
+  const GRAND_TOTAL = chargebackData.reduce((s, r) => s + r.amount, 0);
+  const CUSTOMER_TOTAL = customerPenalties.reduce((s, r) => s + r.amount, 0);
+
+  const peakYr = yearlyPenalties.find((y) => y.peakMonth);
+  const peakMonthLabel = peakYr?.peakMonth ?? "";
+  const peakMonthAmt = peakYr?.peakMonthAmount ?? 0;
+
+  const yr2023 = yearlyPenalties.find((y) => y.year === "2023");
+  const yr2024 = yearlyPenalties.find((y) => y.year === "2024");
+  const total2023 = (yr2023?.operational ?? 0) + (yr2023?.postAudit ?? 0);
+  const total2024 = (yr2024?.operational ?? 0) + (yr2024?.postAudit ?? 0);
+  const yoyPct = total2023 > 0 ? Math.round(((total2024 - total2023) / total2023) * 100) : 0;
+  const avgMonthly2024 = total2024 / 12;
+  const peakMultiplier = avgMonthly2024 > 0 ? (peakMonthAmt / avgMonthly2024).toFixed(1) : "—";
+
+  const maxPenalty = yearlyPenalties.length > 0 ? Math.max(...yearlyPenalties.map((y) => y.operational + y.postAudit)) : 1;
 
   return (
     <div className="space-y-6">
