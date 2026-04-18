@@ -8,21 +8,21 @@ function CostBar({ freight, chargeback }: { freight: number; chargeback: number 
   return (
     <div className="space-y-2">
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-gray-500 mb-0.5">
+        <div className="flex justify-between text-xs mb-0.5" style={{ color: "#6B6560" }}>
           <span>Freight cost</span>
-          <span className="mono font-semibold text-gray-700">${freight.toLocaleString()}</span>
+          <span className="mono font-semibold" style={{ color: "#403A34" }}>${freight.toLocaleString()}</span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full rounded-full bg-slate-500" style={{ width: `${freightPct}%` }} />
+        <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
+          <div className="h-full rounded-full" style={{ width: `${freightPct}%`, backgroundColor: "#403A34" }} />
         </div>
       </div>
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-gray-500 mb-0.5">
+        <div className="flex justify-between text-xs mb-0.5" style={{ color: "#6B6560" }}>
           <span>Penalty exposure (without transfer)</span>
-          <span className="mono font-semibold text-red-600">${chargeback.toLocaleString()}</span>
+          <span className="mono font-semibold" style={{ color: "#7A0F1D" }}>${chargeback.toLocaleString()}</span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full rounded-full bg-red-400" style={{ width: `${cbPct}%` }} />
+        <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
+          <div className="h-full rounded-full" style={{ width: `${cbPct}%`, backgroundColor: "#A6192E" }} />
         </div>
       </div>
     </div>
@@ -56,19 +56,23 @@ function RecCard({ rec }: { rec: Recommendation }) {
     }
   }
 
+  const headerBg = isTransfer ? "#FDF6F6" : "#FDF9EC";
+  const headerBorder = isTransfer ? "#F4D5D8" : "#E5B664";
+  const topBorderColor = isTransfer ? "#7A0F1D" : "#B97A15";
+
   return (
-    <div className={`bg-white rounded-xl border-2 overflow-hidden shadow-sm ${
-      isTransfer ? "border-red-200" : "border-amber-200"
-    }`}>
+    <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: `1px solid ${headerBorder}`, borderTopWidth: "3px", borderTopColor: topBorderColor, boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
       {/* Header */}
-      <div className={`flex items-center justify-between px-5 py-3.5 ${isTransfer ? "bg-red-50" : "bg-amber-50"}`}>
+      <div className="flex items-center justify-between px-5 py-3.5" style={{ backgroundColor: headerBg, borderBottom: `1px solid ${headerBorder}` }}>
         <div className="flex items-center gap-2.5">
-          <h3 className="text-sm font-bold text-gray-900">{rec.item_name}</h3>
-          <span className="mono text-[11px] text-gray-400 bg-white/70 rounded px-1.5 py-0.5">{rec.sku}</span>
+          <h3 className="text-sm font-bold" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{rec.item_name}</h3>
+          <span className="mono text-[11px] rounded px-1.5 py-0.5" style={{ color: "#8E8680", backgroundColor: "rgba(255,255,255,0.7)" }}>{rec.sku}</span>
         </div>
-        <div className={`flex items-center gap-1.5 text-sm font-bold rounded-lg px-3.5 py-1.5 ${
-          isTransfer ? "text-white" : "border border-amber-300 text-amber-700 bg-white"
-        }`} style={isTransfer ? { backgroundColor: "#0E1B2E" } : {}}>
+        <div className="flex items-center gap-1.5 text-sm font-bold rounded-lg px-3.5 py-1.5" style={
+          isTransfer
+            ? { backgroundColor: "#14110F", color: "#FFFFFF" }
+            : { border: "1px solid #E5B664", color: "#8C5A0F", backgroundColor: "#FFFFFF" }
+        }>
           {isTransfer ? "↗ Transfer" : "⏳ Wait"}
         </div>
       </div>
@@ -77,38 +81,41 @@ function RecCard({ rec }: { rec: Recommendation }) {
       <div className="p-5">
         {/* Route */}
         <div className="flex items-center gap-2 mb-5">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Route</span>
-          <span className="inline-flex items-center text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-full px-3 py-1">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>Route</span>
+          <span className="inline-flex items-center text-xs font-semibold rounded-full px-3 py-1" style={{ color: "#125F54", backgroundColor: "#EEF7F5", border: "1px solid #7AC4B8" }}>
             {rec.source_dc}
           </span>
-          <span className="text-gray-400 text-sm">→</span>
-          <span className="inline-flex items-center text-xs font-semibold text-gray-700 bg-gray-100 border border-gray-200 rounded-full px-3 py-1">
+          <span className="text-sm" style={{ color: "#B8B1AA" }}>→</span>
+          <span className="inline-flex items-center text-xs font-semibold rounded-full px-3 py-1" style={{ color: "#403A34", backgroundColor: "#FAF7F1", border: "1px solid #D6CFC7" }}>
             {rec.destination_dc}
           </span>
-          <span className="text-sm text-gray-500 mono">· {rec.transfer_units.toLocaleString()} units</span>
+          <span className="text-sm mono" style={{ color: "#6B6560" }}>· {rec.transfer_units.toLocaleString()} units</span>
         </div>
 
         {/* Cost visual */}
         <div className="mb-5">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Cost Comparison</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] mb-3" style={{ color: "#8E8680" }}>Cost Comparison</p>
           <CostBar freight={rec.transfer_cost} chargeback={rec.avoided_penalty} />
-          <div className={`mt-3 p-3 rounded-lg ${netPositive ? "bg-emerald-50 border border-emerald-200" : "bg-gray-50 border border-gray-200"}`}>
-            <p className="text-[11px] font-bold uppercase tracking-widest mb-0.5" style={{ color: netPositive ? "#0A7B4B" : "#6B7280" }}>
+          <div className="mt-3 p-3 rounded-lg" style={{
+            backgroundColor: netPositive ? "#EEF7F5" : "#FAF7F1",
+            border: `1px solid ${netPositive ? "#7AC4B8" : "#D6CFC7"}`,
+          }}>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] mb-0.5" style={{ color: netPositive ? "#125F54" : "#6B6560" }}>
               Net value
             </p>
-            <p className={`mono text-xl font-bold ${netPositive ? "text-emerald-700" : "text-gray-500"}`}>
+            <p className="mono text-xl font-bold" style={{ color: netPositive ? "#125F54" : "#6B6560" }}>
               {netPositive ? `+$${rec.transfer_value.toLocaleString()}` : `−$${Math.abs(rec.transfer_value).toLocaleString()}`}
             </p>
             {!netPositive && (
-              <p className="text-[11px] text-gray-400 mt-0.5">Freight exceeds penalty avoided — wait for PO</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "#8E8680" }}>Freight exceeds penalty avoided — wait for PO</p>
             )}
           </div>
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-2 pt-4 border-t border-gray-100 items-center">
+        <div className="flex gap-2 pt-4 items-center" style={{ borderTop: "1px solid #F2EDE5" }}>
           {approved ? (
-            <span className="text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-5 py-2.5">
+            <span className="text-sm font-semibold rounded-lg px-5 py-2.5" style={{ color: "#125F54", backgroundColor: "#EEF7F5", border: "1px solid #7AC4B8" }}>
               ✓ Transfer logged
             </span>
           ) : isTransfer ? (
@@ -117,29 +124,30 @@ function RecCard({ rec }: { rec: Recommendation }) {
                 onClick={handleApprove}
                 disabled={approving}
                 className="text-sm font-bold text-white rounded-lg px-5 py-2.5 disabled:opacity-60 transition-opacity"
-                style={{ backgroundColor: "#0E1B2E" }}
+                style={{ backgroundColor: "#7A0F1D" }}
               >
                 {approving ? "Submitting…" : "Approve Transfer"}
               </button>
-              <button className="text-sm font-medium text-gray-600 border border-gray-200 rounded-lg px-5 py-2.5 hover:bg-gray-50">
+              <button className="text-sm font-semibold rounded-lg px-5 py-2.5 transition-colors" style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}>
                 Override — Wait for PO
               </button>
             </>
           ) : (
             <>
-              <button className="text-sm font-semibold text-amber-700 border border-amber-300 bg-amber-50 rounded-lg px-5 py-2.5 hover:bg-amber-100">
+              <button className="text-sm font-semibold rounded-lg px-5 py-2.5 transition-colors" style={{ color: "#8C5A0F", border: "1px solid #E5B664", backgroundColor: "#FEF7E8" }}>
                 Set PO Watch Alert
               </button>
               <button
                 onClick={handleApprove}
                 disabled={approving}
-                className="text-sm font-medium text-gray-700 border border-gray-200 rounded-lg px-5 py-2.5 hover:bg-gray-50 disabled:opacity-60"
+                className="text-sm font-semibold rounded-lg px-5 py-2.5 disabled:opacity-60 transition-colors"
+                style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
               >
                 {approving ? "Submitting…" : "Override — Transfer Now"}
               </button>
             </>
           )}
-          {error && <p className="text-xs text-red-600 ml-2">{error}</p>}
+          {error && <p className="text-xs ml-2" style={{ color: "#7A0F1D" }}>{error}</p>}
         </div>
       </div>
     </div>
@@ -162,68 +170,64 @@ export function TransferPanel() {
 
   return (
     <div className="space-y-5">
-      {/* Info banners */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-teal-200 rounded-xl px-5 py-4 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">Hub Logic</p>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            <strong className="text-gray-900">DC-SF is the redistribution hub</strong>, not a peer DC.
+        <div className="rounded-xl px-5 py-4" style={{ backgroundColor: "#FFFFFF", border: "1px solid #7AC4B8", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: "#125F54" }}>Hub Logic</p>
+          <p className="text-sm leading-relaxed" style={{ color: "#6B6560" }}>
+            <strong style={{ color: "#14110F" }}>DC-SF is the redistribution hub</strong>, not a peer DC.
             2023–2025: exported 3.29M units, received only 248K.
             Always check SF first for any NJ or LA shortage.
           </p>
-          <div className="flex gap-4 mt-3 pt-3 border-t border-teal-100">
-            {[["SF→NJ", "$0.51/unit"], ["SF→LA", "$0.17/unit"], ["Reverse", "$1.55/unit ⚠"]].map(([route, cost]) => (
-              <div key={route}>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{route}</p>
-                <p className={`mono text-xs font-semibold ${route === "Reverse" ? "text-red-500" : "text-gray-700"}`}>{cost}</p>
+          <div className="flex gap-4 mt-3 pt-3" style={{ borderTop: "1px solid #DCEFEB" }}>
+            {[["SF→NJ", "$0.51/unit", false], ["SF→LA", "$0.17/unit", false], ["Reverse", "$1.55/unit ⚠", true]].map(([route, cost, warn]) => (
+              <div key={route as string}>
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>{route}</p>
+                <p className="mono text-xs font-semibold" style={{ color: warn ? "#7A0F1D" : "#403A34" }}>{cost}</p>
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-white border border-amber-200 rounded-xl px-5 py-4 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">PO Reliability Risk</p>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            <strong className="text-gray-900">81.5% of inbound POs arrive late</strong> by an average of 28 days.
+        <div className="rounded-xl px-5 py-4" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E5B664", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: "#8C5A0F" }}>PO Reliability Risk</p>
+          <p className="text-sm leading-relaxed" style={{ color: "#6B6560" }}>
+            <strong style={{ color: "#14110F" }}>81.5% of inbound POs arrive late</strong> by an average of 28 days.
             NJ has the worst delay at 24.6 days avg. Never treat an expected PO arrival as certain.
           </p>
-          <div className="mt-3 pt-3 border-t border-amber-100">
-            <p className="text-xs text-amber-700 font-medium">
+          <div className="mt-3 pt-3" style={{ borderTop: "1px solid #FBEACB" }}>
+            <p className="text-xs font-medium" style={{ color: "#8C5A0F" }}>
               Rule: DC below 14d supply + PO more than 2 weeks out → initiate transfer
             </p>
           </div>
         </div>
       </div>
 
-      {/* State: loading / error / empty */}
       {loading && (
-        <div className="bg-white rounded-xl border border-gray-200 px-6 py-8 text-center text-sm text-gray-400 shadow-sm">
+        <div className="rounded-xl px-6 py-8 text-center text-sm" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", color: "#8E8680" }}>
           Loading recommendations…
         </div>
       )}
       {error && (
-        <div className="bg-red-50 rounded-xl border border-red-200 px-6 py-4 text-sm text-red-700 shadow-sm">
+        <div className="rounded-xl px-6 py-4 text-sm" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8", color: "#7A0F1D" }}>
           {error}
         </div>
       )}
       {!loading && !error && recs.length === 0 && (
-        <div className="bg-emerald-50 rounded-xl border border-emerald-200 px-6 py-8 text-center text-sm text-emerald-700 shadow-sm">
+        <div className="rounded-xl px-6 py-8 text-center text-sm" style={{ backgroundColor: "#EEF7F5", border: "1px solid #7AC4B8", color: "#125F54" }}>
           No imbalances detected. All DCs are within healthy supply thresholds.
         </div>
       )}
 
-      {/* Summary pill */}
       {!loading && recs.length > 0 && (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span className="font-semibold text-gray-900">{recs.length} recommendations</span>
+        <div className="flex items-center gap-2 text-sm" style={{ color: "#6B6560" }}>
+          <span className="font-semibold" style={{ color: "#14110F" }}>{recs.length} recommendations</span>
           · {transferCount > 0 ? (
-            <span className="font-semibold text-red-600">{transferCount} require immediate transfer</span>
+            <span className="font-semibold" style={{ color: "#7A0F1D" }}>{transferCount} require immediate transfer</span>
           ) : (
             <span>none require immediate action</span>
           )}
         </div>
       )}
 
-      {/* Recommendation cards */}
       {recs.map((rec) => (
         <RecCard key={`${rec.sku}-${rec.source_dc}-${rec.destination_dc}`} rec={rec} />
       ))}

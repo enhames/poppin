@@ -12,7 +12,6 @@ type Tab = "imbalances" | "chargebacks" | "transfers" | "alerts" | "charts";
 const URGENT_REQUESTS_TOTAL = 2029;
 const PENALTY_EXPOSURE = 745000;
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
 function Icon({ d, size = 16 }: { d: string; size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -53,37 +52,38 @@ function KpiCard({
   trend?: { label: string; isNegative?: boolean };
   accent?: "critical" | "warning" | "ok" | "neutral" | "default";
 }) {
-  const accentBar = {
-    critical: "bg-[#A6192E]", // PoP Crimson
-    warning: "bg-[#D4AF37]",  // PoP Gold
-    ok: "bg-emerald-500",
-    neutral: "bg-slate-400",
-    default: "bg-slate-300",
+  const borderColor = {
+    critical: "#7A0F1D",
+    warning:  "#B97A15",
+    ok:       "#1E8574",
+    neutral:  "#B8B1AA",
+    default:  "#D6CFC7",
   }[accent];
 
   const valueColor = {
-    critical: "text-[#A6192E]",
-    warning: "text-amber-700",
-    ok: "text-emerald-700",
-    neutral: "text-slate-700",
-    default: "text-gray-900",
+    critical: "#7A0F1D",
+    warning:  "#8C5A0F",
+    ok:       "#125F54",
+    neutral:  "#403A34",
+    default:  "#14110F",
   }[accent];
 
+  const trendColors = trend?.isNegative
+    ? { bg: "#FBEEEF", text: "#7A0F1D", border: "#F4D5D8" }
+    : { bg: "#EEF7F5", text: "#125F54", border: "#7AC4B8" };
+
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-      <div className={`h-1 w-full ${accentBar}`} />
+    <div className="bg-white rounded-xl border border-[#E8E2DA] overflow-hidden" style={{ boxShadow: "0 1px 0 rgba(20,17,15,0.04), 0 1px 2px rgba(20,17,15,0.05)", borderTopWidth: "3px", borderTopColor: borderColor }}>
       <div className="p-5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">{label}</p>
-        <p className={`mono text-3xl font-bold leading-none mb-2 ${valueColor}`}>{value}</p>
+        <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] mb-3" style={{ color: "#6B6560" }}>{label}</p>
+        <p className="font-display text-[30px] font-bold leading-none mb-2 mono" style={{ color: valueColor, fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 96" }}>{value}</p>
         {trend && (
-          <div className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5 mb-2 ${
-            trend.isNegative ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-700"
-          }`}>
+          <div className="inline-flex items-center gap-1 text-[11px] font-semibold rounded-full px-2.5 py-0.5 mb-2 border" style={{ backgroundColor: trendColors.bg, color: trendColors.text, borderColor: trendColors.border }}>
             <span>{trend.isNegative ? "▲" : "▼"}</span>
             {trend.label}
           </div>
         )}
-        <p className="text-xs text-gray-400 leading-relaxed">{context}</p>
+        <p className="text-[11.5px] leading-relaxed" style={{ color: "#6B6560" }}>{context}</p>
       </div>
     </div>
   );
@@ -107,46 +107,46 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen flex font-sans bg-gray-50">
+    <div className="min-h-screen flex font-sans" style={{ backgroundColor: "#F2EDE5" }}>
 
-      {/* ── Sidebar (PoP Brand Theme) ── */}
-      <aside className="w-64 flex-shrink-0 flex flex-col bg-[#1A0B0C] border-r border-[#D4AF37]/20 min-h-screen">
+      {/* ── Sidebar ── */}
+      <aside className="w-64 flex-shrink-0 flex flex-col min-h-screen" style={{ backgroundColor: "#14110F", borderRight: "1px solid rgba(212,175,55,0.15)" }}>
 
         {/* Logo */}
-        <div className="px-6 pt-7 pb-5 border-b border-white/10">
-          <div className="flex items-center gap-2.5 mb-0.5">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black bg-[#A6192E] shadow-[0_0_10px_rgba(166,25,46,0.5)]">
+        <div className="px-6 pt-7 pb-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-[10px] font-black" style={{ backgroundColor: "#7A0F1D", boxShadow: "0 0 10px rgba(122,15,29,0.5)" }}>
               PoP
             </div>
-            <span className="text-white font-bold text-sm tracking-wide">Prince of Peace</span>
+            <span className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Prince of Peace</span>
           </div>
-          <p className="text-[11px] font-medium mt-1 text-[#D4AF37]/80">
+          <p className="text-[10.5px] font-semibold tracking-[0.16em] uppercase mt-0.5" style={{ color: "#F4D35E" }}>
             Inventory Command Center
           </p>
         </div>
 
         {/* DC Status */}
-        <div className="px-4 py-4 border-b border-white/10">
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-gray-500">
+        <div className="px-4 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: "#6B6560" }}>
             Distribution Centers
           </p>
           {[
-            { name: "DC-SF · Livermore", role: "Hub · 27.6% volume", dot: "#D4AF37" }, // Gold
-            { name: "DC-NJ · New Jersey", role: "Primary · 54.3% volume", dot: "#A6192E" }, // Crimson
-            { name: "DC-LA · Los Angeles", role: "18.1% volume", dot: "#475569" }, // Slate
+            { name: "DC-SF · Livermore", role: "Hub · 27.6% volume", dot: "#1E8574" },
+            { name: "DC-NJ · New Jersey", role: "Primary · 54.3% volume", dot: "#7A0F1D" },
+            { name: "DC-LA · Los Angeles", role: "18.1% volume", dot: "#6B6560" },
           ].map((dc) => (
             <div key={dc.name} className="flex items-start gap-2 mb-2.5">
               <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: dc.dot }} />
               <div>
-                <p className="text-xs font-semibold leading-tight text-gray-200">{dc.name}</p>
-                <p className="text-[11px] text-gray-500">{dc.role}</p>
+                <p className="text-xs font-semibold leading-tight" style={{ color: "#D6CFC7" }}>{dc.name}</p>
+                <p className="text-[11px]" style={{ color: "#6B6560" }}>{dc.role}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-3 space-y-1">
+        <nav className="flex-1 px-3 py-3 space-y-0.5">
           {(Object.keys(NAV_LABELS) as Tab[]).map((tab) => {
             const active = activeTab === tab;
             const badge = tab === "alerts" ? criticalCount : tab === "transfers" ? transferCount : null;
@@ -154,20 +154,23 @@ export default function App() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-all relative group ${
-                  active 
-                    ? "bg-white/10 text-white border-l-2 border-[#D4AF37]" 
-                    : "text-gray-400 border-l-2 border-transparent hover:bg-white/5 hover:text-gray-200"
-                }`}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-all relative group"
+                style={{
+                  backgroundColor: active ? "rgba(255,255,255,0.08)" : "transparent",
+                  color: active ? "#FFFFFF" : "#8E8680",
+                  borderLeft: `2px solid ${active ? "#D4AF37" : "transparent"}`,
+                }}
               >
-                <span className={active ? "text-[#D4AF37]" : "text-gray-500 group-hover:text-gray-400"}>
+                <span style={{ color: active ? "#D4AF37" : "#6B6560" }}>
                   <Icon d={NAV_ICONS[tab]} size={15} />
                 </span>
                 <span className="flex-1">{NAV_LABELS[tab]}</span>
                 {badge !== null && badge! > 0 && (
-                  <span className={`text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 ${
-                    tab === "alerts" ? "bg-[#A6192E] text-white" : "bg-[#D4AF37]/20 text-[#D4AF37]"
-                  }`}>
+                  <span className="text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0" style={
+                    tab === "alerts"
+                      ? { backgroundColor: "#7A0F1D", color: "#fff" }
+                      : { backgroundColor: "rgba(212,175,55,0.2)", color: "#D4AF37" }
+                  }>
                     {badge}
                   </span>
                 )}
@@ -177,12 +180,12 @@ export default function App() {
         </nav>
 
         {/* Footer Status */}
-        <div className="px-4 py-4 space-y-2 border-t border-white/10">
-          <p className="text-[11px] text-gray-500">
+        <div className="px-4 py-4 space-y-2" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <p className="text-[11px]" style={{ color: "#6B6560" }}>
             Snapshot: Live Data · ~800 SKUs
           </p>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#A6192E]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A6192E] animate-pulse" />
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: "#A6192E" }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#7A0F1D" }} />
             {criticalCount} critical alerts active
           </div>
         </div>
@@ -192,17 +195,21 @@ export default function App() {
       <main className="flex-1 flex flex-col min-h-screen overflow-auto">
 
         {/* Page header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-20 px-8 py-4">
+        <header className="sticky top-0 z-20 px-8 py-4" style={{ backgroundColor: "#FFFFFF", borderBottom: "1px solid #E8E2DA" }}>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{NAV_LABELS[activeTab]}</h1>
-              <p className="text-xs text-gray-500 mt-0.5 max-w-2xl">{NAV_DESC[activeTab]}</p>
+              <h1 className="font-bold" style={{ fontSize: "20px", color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48", letterSpacing: "-0.01em" }}>{NAV_LABELS[activeTab]}</h1>
+              <p className="text-xs mt-0.5 max-w-2xl" style={{ color: "#6B6560" }}>{NAV_DESC[activeTab]}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="text-sm font-medium text-gray-600 border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+              <button className="text-sm font-semibold rounded-lg px-4 py-2 transition-colors" style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}>
                 Export Report
               </button>
-              <button className="text-sm font-semibold text-white rounded-lg px-4 py-2 bg-[#A6192E] hover:bg-[#851425] transition-colors shadow-sm">
+              <button className="text-sm font-bold text-white rounded-lg px-4 py-2 transition-colors" style={{ backgroundColor: "#7A0F1D" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5E0B15")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}>
                 Refresh Data
               </button>
             </div>
@@ -211,7 +218,6 @@ export default function App() {
 
         <div className="px-8 py-7 space-y-7 flex-1">
 
-          {/* KPI Strip - ONLY visible on the imbalances tab */}
           {activeTab === "imbalances" && (
             <div className="grid grid-cols-4 gap-5">
               <KpiCard
@@ -242,7 +248,6 @@ export default function App() {
             </div>
           )}
 
-          {/* Tab Content */}
           {activeTab === "imbalances" && <InventoryTable />}
           {activeTab === "chargebacks" && <ChargebackTable />}
           {activeTab === "transfers" && <TransferPanel />}
@@ -250,45 +255,44 @@ export default function App() {
 
           {activeTab === "alerts" && (
             <div className="space-y-6">
-              {/* Alert header row */}
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
-                  <span className="font-semibold text-gray-900">{alertsData.length} active alerts</span>
+                <p className="text-sm" style={{ color: "#6B6560" }}>
+                  <span className="font-semibold" style={{ color: "#14110F" }}>{alertsData.length} active alerts</span>
                   {" "}· sorted by severity · based on estimated DC positions
                 </p>
-                <button className="text-sm font-medium border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-50">
+                <button className="text-sm font-semibold rounded-lg px-4 py-2" style={{ border: "1px solid #D6CFC7", color: "#403A34", backgroundColor: "#FFFFFF" }}>
                   Mark all reviewed
                 </button>
               </div>
 
               <AlertsBanner />
 
-              {/* URGENT Spreadsheet - "before" story */}
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+              {/* URGENT Spreadsheet */}
+              <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+                <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#A6192E] bg-red-50 border border-red-200 rounded-full px-3 py-1">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest rounded-full px-3 py-1" style={{ color: "#7A0F1D", backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
                         Manual Process
                       </span>
-                      <h3 className="text-base font-bold text-gray-900">Current fulfillment workflow</h3>
+                      <h3 className="text-base font-bold" style={{ color: "#14110F" }}>Current fulfillment workflow</h3>
                     </div>
-                    <p className="text-sm text-gray-500 mt-1 max-w-2xl">
-                      Without centralized visibility, operations managers must manually detect stockouts and log urgent transfer requests. 
+                    <p className="text-sm mt-1 max-w-2xl" style={{ color: "#6B6560" }}>
+                      Without centralized visibility, operations managers must manually detect stockouts and log urgent transfer requests.
                       This results in blind transfers with no cost-tradeoff analysis.
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-6">
-                    <p className="mono text-4xl font-bold text-[#A6192E]">{URGENT_REQUESTS_TOTAL}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Manual Requests Logged</p>
+                    <p className="mono text-4xl font-bold" style={{ color: "#7A0F1D" }}>{URGENT_REQUESTS_TOTAL}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "#8E8680" }}>Manual Requests Logged</p>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
-                      <tr className="bg-gray-50">
+                      <tr style={{ backgroundColor: "#FAF7F1" }}>
                         {["Request #", "SKU", "Product", "Qty", "Note", "Date"].map((h) => (
-                          <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-gray-500 border-b border-gray-200">
+                          <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560", borderBottom: "1px solid #E8E2DA" }}>
                             {h}
                           </th>
                         ))}
@@ -298,15 +302,15 @@ export default function App() {
                       {urgentRequestSample.map((r, i) => {
                         const isUrgent = /urgent|out of stock|asap/i.test(r.note);
                         return (
-                          <tr key={r.id} className={`border-b border-gray-100 hover:bg-gray-50 ${i % 2 === 0 ? "" : "bg-gray-50/50"}`}>
-                            <td className="px-5 py-3 mono text-gray-400 text-xs">{r.id}</td>
-                            <td className="px-5 py-3 mono font-semibold text-gray-800">{r.sku}</td>
-                            <td className="px-5 py-3 text-gray-700">{r.product}</td>
-                            <td className="px-5 py-3 mono text-gray-600">{r.qty}</td>
+                          <tr key={r.id} style={{ borderBottom: "1px solid #F2EDE5", backgroundColor: i % 2 === 0 ? "#FFFFFF" : "#FAF7F1" }}>
+                            <td className="px-5 py-3 mono text-xs" style={{ color: "#B8B1AA" }}>{r.id}</td>
+                            <td className="px-5 py-3 mono font-semibold" style={{ color: "#403A34" }}>{r.sku}</td>
+                            <td className="px-5 py-3" style={{ color: "#403A34" }}>{r.product}</td>
+                            <td className="px-5 py-3 mono" style={{ color: "#6B6560" }}>{r.qty}</td>
                             <td className="px-5 py-3">
-                              <span className={`font-semibold ${isUrgent ? "text-[#A6192E]" : "text-gray-700"}`}>{r.note}</span>
+                              <span className="font-semibold" style={{ color: isUrgent ? "#7A0F1D" : "#403A34" }}>{r.note}</span>
                             </td>
-                            <td className="px-5 py-3 mono text-gray-400 text-xs">{r.date}</td>
+                            <td className="px-5 py-3 mono text-xs" style={{ color: "#B8B1AA" }}>{r.date}</td>
                           </tr>
                         );
                       })}
@@ -316,61 +320,61 @@ export default function App() {
               </div>
 
               {/* Before / After */}
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="px-6 py-5 border-b border-gray-200">
-                  <h3 className="text-base font-bold text-gray-900">Cost Tradeoff Analysis: Wait vs. Transfer</h3>
-                  <p className="text-sm text-gray-500 mt-0.5">
+              <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+                <div className="px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
+                  <h3 className="text-base font-bold" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Cost Tradeoff Analysis: Wait vs. Transfer</h3>
+                  <p className="text-sm mt-0.5" style={{ color: "#6B6560" }}>
                     Scenario: F-04130 · Ginger Chews Plus+ 3oz — DC-NJ stockout on Dollar General order.
                   </p>
                 </div>
-                <div className="grid grid-cols-2 divide-x divide-gray-200">
-                  <div className="p-6">
+                <div className="grid grid-cols-2" style={{ borderTop: "none" }}>
+                  <div className="p-6" style={{ borderRight: "1px solid #E8E2DA" }}>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-xs font-bold uppercase tracking-widest text-[#A6192E] bg-red-50 border border-red-200 rounded-full px-3 py-1">
+                      <span className="text-xs font-bold uppercase tracking-widest rounded-full px-3 py-1" style={{ color: "#7A0F1D", backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
                         Without System Intervention
                       </span>
                     </div>
-                    <ol className="space-y-3 text-sm text-gray-600">
+                    <ol className="space-y-3 text-sm" style={{ color: "#6B6560" }}>
                       {[
                         "Order hits DC-NJ. System shows 0 available units.",
-                        <>Ops manager logs request: <span className="font-semibold text-[#A6192E]">"URGENT! F-04130, 4 pallets"</span>.</>,
+                        <span key="2">Ops manager logs request: <span className="font-semibold" style={{ color: "#7A0F1D" }}>"URGENT! F-04130, 4 pallets"</span>.</span>,
                         "Manual stock check causes 3–5 day processing delay.",
-                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold text-[#A6192E]">$851</span></>,
-                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold text-[#A6192E]">$851</span></>,
+                        <span key="4">Order is split. Short-ship penalty issued: <span className="mono font-bold" style={{ color: "#7A0F1D" }}>$851</span></span>,
+                        <span key="5">Second shipment late. Late-delivery penalty: <span className="mono font-bold" style={{ color: "#7A0F1D" }}>$851</span></span>,
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
-                          <span className="mono text-gray-300 flex-shrink-0 font-medium">{i + 1}.</span>
+                          <span className="mono flex-shrink-0 font-medium" style={{ color: "#D6CFC7" }}>{i + 1}.</span>
                           <span>{step}</span>
                         </li>
                       ))}
-                      <li className="flex gap-3 pt-2 border-t border-gray-100 mt-1">
-                        <span className="mono font-bold text-[#A6192E] flex-shrink-0">→</span>
-                        <span className="font-semibold text-[#A6192E]">$1,702 total penalty exposure.</span>
+                      <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #F2EDE5" }}>
+                        <span className="mono font-bold flex-shrink-0" style={{ color: "#7A0F1D" }}>→</span>
+                        <span className="font-semibold" style={{ color: "#7A0F1D" }}>$1,702 total penalty exposure.</span>
                       </li>
                     </ol>
                   </div>
-                  <div className="p-6 bg-[#F0FDF4]">
+                  <div className="p-6" style={{ backgroundColor: "#EEF7F5" }}>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
+                      <span className="text-xs font-bold uppercase tracking-widest rounded-full px-3 py-1" style={{ color: "#125F54", backgroundColor: "#DCEFEB", border: "1px solid #7AC4B8" }}>
                         With StockShift Intelligence
                       </span>
                     </div>
-                    <ol className="space-y-3 text-sm text-gray-600">
+                    <ol className="space-y-3 text-sm" style={{ color: "#403A34" }}>
                       {[
-                        <>System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</>,
-                        <>Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</>,
-                        <>Cost Model: Transfer SF→NJ · <span className="mono font-bold text-gray-900">$1,043 freight</span> · Risk avoided: $1,702</>,
+                        <span key="1">System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</span>,
+                        <span key="2">Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</span>,
+                        <span key="3">Cost Model: Transfer SF→NJ · <span className="mono font-bold" style={{ color: "#14110F" }}>$1,043 freight</span> · Risk avoided: $1,702</span>,
                         "Ops manager approves transfer in dashboard. Initiated same day.",
                         "DC-NJ ships order on time, in full. Zero penalties incurred.",
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
-                          <span className="mono text-gray-300 flex-shrink-0 font-medium">{i + 1}.</span>
+                          <span className="mono flex-shrink-0 font-medium" style={{ color: "#7AC4B8" }}>{i + 1}.</span>
                           <span>{step}</span>
                         </li>
                       ))}
-                      <li className="flex gap-3 pt-2 border-t border-emerald-100 mt-1">
-                        <span className="mono font-bold text-emerald-700 flex-shrink-0">→</span>
-                        <span className="font-semibold text-emerald-700">Net saving: $659. Imbalance resolved proactively.</span>
+                      <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #DCEFEB" }}>
+                        <span className="mono font-bold flex-shrink-0" style={{ color: "#125F54" }}>→</span>
+                        <span className="font-semibold" style={{ color: "#125F54" }}>Net saving: $659. Imbalance resolved proactively.</span>
                       </li>
                     </ol>
                   </div>

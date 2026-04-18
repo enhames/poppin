@@ -75,19 +75,19 @@ function buildInventoryRows(raw: RawInventory) {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const STATUS = {
-  critical: { label: "Critical", dot: "bg-red-500", text: "text-red-700", pill: "bg-red-50 text-red-700 border border-red-200" },
-  warning:  { label: "Warning",  dot: "bg-amber-400", text: "text-amber-700", pill: "bg-amber-50 text-amber-700 border border-amber-200" },
-  ok:       { label: "OK",       dot: "bg-emerald-500", text: "text-emerald-700", pill: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
-  inactive: { label: "Dead Stock", dot: "bg-slate-400", text: "text-slate-700", pill: "bg-slate-100 text-slate-700 border border-slate-200" },
+  critical: { label: "Critical",  dot: "bg-[#7A0F1D]", text: "text-[#7A0F1D]", pill: "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]" },
+  warning:  { label: "Warning",   dot: "bg-[#B97A15]", text: "text-[#8C5A0F]", pill: "bg-[#FEF7E8] text-[#8C5A0F] border border-[#E5B664]" },
+  ok:       { label: "OK",        dot: "bg-[#1E8574]", text: "text-[#125F54]", pill: "bg-[#EEF7F5] text-[#125F54] border border-[#7AC4B8]" },
+  inactive: { label: "Dead Stock", dot: "bg-[#8E8680]", text: "text-[#403A34]", pill: "bg-[#FAF7F1] text-[#403A34] border border-[#D6CFC7]" },
 };
 
 function dosColor(days: number) {
-  if (days === 9999) return { text: "text-gray-500", bg: "bg-gray-200" }; 
-  if (days === 0) return { text: "text-red-600", bg: "bg-red-500" };
-  if (days < 14)  return { text: "text-red-500",   bg: "bg-red-400" };
-  if (days < 30)  return { text: "text-amber-600", bg: "bg-amber-400" };
-  if (days < 60)  return { text: "text-amber-500", bg: "bg-amber-300" };
-  return            { text: "text-emerald-600", bg: "bg-emerald-400" };
+  if (days === 9999) return { text: "text-[#8E8680]", bg: "bg-[#B8B1AA]" };
+  if (days === 0)    return { text: "text-[#7A0F1D]", bg: "bg-[#7A0F1D]" };
+  if (days < 14)     return { text: "text-[#7A0F1D]", bg: "bg-[#A6192E]" };
+  if (days < 30)     return { text: "text-[#8C5A0F]", bg: "bg-[#B97A15]" };
+  if (days < 60)     return { text: "text-[#8C5A0F]", bg: "bg-[#E5B664]" };
+  return               { text: "text-[#125F54]", bg: "bg-[#1E8574]" };
 }
 
 function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
@@ -98,13 +98,13 @@ function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
 
   return (
     <div className="text-right min-w-[90px]">
-      {isHub && <p className="text-[10px] font-bold uppercase tracking-widest text-teal-600 mb-0.5">Hub</p>}
-      <p className={`mono text-base font-bold leading-none ${isEmpty ? "text-red-500" : "text-gray-900"}`}>
+      {isHub && <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: "#125F54" }}>Hub</p>}
+      <p className={`mono text-base font-bold leading-none`} style={{ color: isEmpty ? "#7A0F1D" : "#14110F" }}>
         {isEmpty ? "—" : slot.available.toLocaleString()}
       </p>
-      <p className="text-[11px] text-gray-400 mt-0.5 mono">{isNoDemand ? "—" : `${slot.velocityPerDay}/day`}</p>
+      <p className="text-[11px] mt-0.5 mono" style={{ color: "#8E8680" }}>{isNoDemand ? "—" : `${slot.velocityPerDay}/day`}</p>
       <div className="flex items-center justify-end gap-1.5 mt-1.5">
-        <div className="w-12 h-1 rounded-full bg-gray-100 overflow-hidden">
+        <div className="w-12 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
           <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${pct}%` }} />
         </div>
         <span className={`mono text-[11px] font-semibold ${col.text} whitespace-nowrap`}>
@@ -128,51 +128,51 @@ function DetailModal({ row, onClose }: { row: any; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
       onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden" style={{ boxShadow: "0 12px 32px -8px rgba(20,17,15,0.2)" }} onClick={(e) => e.stopPropagation()}>
 
         {/* Modal header */}
-        <div className="flex items-start justify-between px-6 py-5 border-b border-gray-200">
+        <div className="flex items-start justify-between px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
           <div>
             <div className="flex items-center gap-2.5">
               <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2.5 py-1 ${statusCfg.pill}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                 {statusCfg.label}
               </span>
-              <span className="mono text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5">{row.sku}</span>
+              <span className="mono text-xs rounded px-2 py-0.5" style={{ color: "#8E8680", backgroundColor: "#FAF7F1" }}>{row.sku}</span>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mt-1.5">{row.product}</h3>
-            <p className="text-sm text-gray-400">{row.category}</p>
+            <h3 className="text-lg font-bold mt-1.5" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{row.product}</h3>
+            <p className="text-sm" style={{ color: "#8E8680" }}>{row.category}</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 ml-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-xl">
+          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl transition-colors" style={{ color: "#B8B1AA" }}>
             ×
           </button>
         </div>
 
         {/* DC cards */}
-        <div className="grid grid-cols-3 gap-4 p-6 border-b border-gray-100">
+        <div className="grid grid-cols-3 gap-4 p-6" style={{ borderBottom: "1px solid #F2EDE5" }}>
           {DC_KEYS.map(({ key, label, role }) => {
             const slot = row[key];
             const col = dosColor(slot.daysSupply);
             const isNoDemand = slot.daysSupply === 9999;
             return (
-              <div key={key} className="rounded-xl border border-gray-200 p-4">
+              <div key={key} className="rounded-xl p-4" style={{ border: "1px solid #E8E2DA" }}>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500">{label}</p>
-                  {role && <p className="text-[10px] text-gray-400">{role}</p>}
+                  <p className="text-xs font-semibold" style={{ color: "#6B6560" }}>{label}</p>
+                  {role && <p className="text-[10px]" style={{ color: "#8E8680" }}>{role}</p>}
                 </div>
-                <p className={`mono text-2xl font-bold mt-2 ${slot.available === 0 ? "text-red-500" : "text-gray-900"}`}>
+                <p className="mono text-2xl font-bold mt-2" style={{ color: slot.available === 0 ? "#7A0F1D" : "#14110F" }}>
                   {slot.available.toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-400 mono">avail · {slot.onHand.toLocaleString()} on-hand</p>
+                <p className="text-xs mono" style={{ color: "#8E8680" }}>avail · {slot.onHand.toLocaleString()} on-hand</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
                     <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${isNoDemand ? 0 : Math.min(slot.daysSupply / 300 * 100, 100)}%` }} />
                   </div>
                   <span className={`mono text-xs font-bold ${col.text}`}>
                     {isNoDemand ? "No Demand" : `${slot.daysSupply}d`}
                   </span>
                 </div>
-                <p className="mono text-xs text-gray-400 mt-1">{isNoDemand ? "—" : `${slot.velocityPerDay} units/day`}</p>
+                <p className="mono text-xs mt-1" style={{ color: "#8E8680" }}>{isNoDemand ? "—" : `${slot.velocityPerDay} units/day`}</p>
               </div>
             );
           })}
@@ -181,15 +181,15 @@ function DetailModal({ row, onClose }: { row: any; onClose: () => void }) {
         {/* Actions */}
         <div className="px-6 py-4 flex gap-2">
           {row.status === "critical" || row.status === "warning" ? (
-            <button className="text-sm font-semibold text-white rounded-lg px-5 py-2.5 bg-[#A6192E] hover:bg-red-800 transition-colors">
+            <button className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors" style={{ backgroundColor: "#7A0F1D" }}>
               Initiate Transfer
             </button>
           ) : row.status === "inactive" ? (
-            <button className="text-sm font-semibold text-white rounded-lg px-5 py-2.5 bg-slate-800 hover:bg-slate-900 transition-colors">
+            <button className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors" style={{ backgroundColor: "#14110F" }}>
               Flag for Liquidation
             </button>
           ) : null}
-          <button onClick={onClose} className="text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-4 py-2.5 hover:bg-gray-50 ml-auto">
+          <button onClick={onClose} className="text-sm font-medium rounded-lg px-4 py-2.5 ml-auto transition-colors" style={{ color: "#6B6560", border: "1px solid #D6CFC7" }}>
             Close
           </button>
         </div>
@@ -238,46 +238,50 @@ export function InventoryTable() {
           {loadError}
         </div>
       )}
-      <div className="flex items-start gap-3 bg-white border border-red-200 rounded-xl px-5 py-3.5 text-sm shadow-sm">
-        <span className="font-bold text-[#A6192E] flex-shrink-0">ACTION REQUIRED</span>
-        <p className="text-gray-500">
-          Showing <strong className="text-gray-700">{inventoryData.length} SKUs</strong> currently facing shortages or marked as dead stock (No Demand). Healthy inventory is hidden.
+      <div className="rounded-xl px-5 py-3.5 text-sm flex items-start gap-3" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
+        <span className="font-bold flex-shrink-0" style={{ color: "#7A0F1D" }}>ACTION REQUIRED</span>
+        <p style={{ color: "#6B6560" }}>
+          Showing <strong style={{ color: "#14110F" }}>{inventoryData.length} SKUs</strong> currently facing shortages or marked as dead stock (No Demand). Healthy inventory is hidden.
         </p>
       </div>
 
       <div className="flex items-center justify-between flex-wrap gap-3 mt-4 mb-4">
-        <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm">
+        <div className="flex items-center gap-1.5 rounded-xl p-1.5" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA" }}>
           {(["all", "critical", "warning", "inactive"] as FilterStatus[]).map((f) => {
             const active = filter === f;
-            const dot = f === "critical" ? "bg-red-500" : f === "warning" ? "bg-amber-400" : f === "inactive" ? "bg-slate-400" : "";
+            const dotColor = f === "critical" ? "#7A0F1D" : f === "warning" ? "#B97A15" : f === "inactive" ? "#8E8680" : "";
             const label = f === "all" ? "All At Risk" : f === "inactive" ? "Dead Stock" : f.charAt(0).toUpperCase() + f.slice(1);
             return (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  active ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+                style={{
+                  backgroundColor: active ? "#14110F" : "transparent",
+                  color: active ? "#FFFFFF" : "#6B6560",
+                }}
               >
-                {f !== "all" && <span className={`w-1.5 h-1.5 rounded-full ${active ? "opacity-80" : ""} ${dot}`} />}
+                {f !== "all" && <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: active ? "rgba(255,255,255,0.6)" : dotColor }} />}
                 {label}
-                <span className={`mono text-[11px] ${active ? "opacity-70" : "text-gray-400"}`}>({counts[f]})</span>
+                <span className="mono text-[11px]" style={{ opacity: 0.6 }}>({counts[f]})</span>
               </button>
             );
           })}
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-400">
+        <div className="flex items-center gap-2 text-sm" style={{ color: "#8E8680" }}>
           <span>Sort:</span>
           {([["status", "Risk Level"], ["chargebackRisk", "CB Exposure"], ["companyDaysSupply", "Days Supply"]] as [SortKey, string][]).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setSort(key)}
-              className={`px-3 py-1.5 rounded-lg border text-sm transition-all ${
-                sort === key
-                  ? "border-gray-800 text-gray-900 font-semibold bg-white shadow-sm"
-                  : "border-gray-200 text-gray-500 hover:border-gray-400 bg-white"
-              }`}
+              className="px-3 py-1.5 rounded-lg text-sm transition-all"
+              style={{
+                border: `1px solid ${sort === key ? "#14110F" : "#D6CFC7"}`,
+                color: sort === key ? "#14110F" : "#6B6560",
+                fontWeight: sort === key ? 700 : 400,
+                backgroundColor: "#FFFFFF",
+              }}
             >
               {label}
             </button>
@@ -285,39 +289,41 @@ export function InventoryTable() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm relative">
+      <div className="rounded-xl overflow-hidden relative" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-gray-200 bg-[#F9FAFB]">
-                <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-widest text-gray-400 min-w-[220px]">Product</th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                  DC-SF <span className="font-normal text-teal-500">(Hub)</span>
+              <tr style={{ borderBottom: "1px solid #E8E2DA", backgroundColor: "#FAF7F1" }}>
+                <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-[0.14em] min-w-[220px]" style={{ color: "#6B6560" }}>Product</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>
+                  DC-SF <span className="font-normal" style={{ color: "#1E8574" }}>(Hub)</span>
                 </th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-NJ</th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-LA</th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">Company</th>
-                <th className="px-3 py-3.5 text-center text-[11px] font-bold uppercase tracking-widest text-gray-400">Status</th>
-                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">CB Risk</th>
-                <th className="px-4 py-3.5 sticky right-0 bg-[#F9FAFB] z-10 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)]" />
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>DC-NJ</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>DC-LA</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>Company</th>
+                <th className="px-3 py-3.5 text-center text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>Status</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560" }}>CB Risk</th>
+                <th className="px-4 py-3.5 sticky right-0 z-10" style={{ backgroundColor: "#FAF7F1", boxShadow: "-5px 0 10px -5px rgba(20,17,15,0.06)" }} />
               </tr>
             </thead>
             <tbody>
               {rows.map((row, i) => {
                 const s = STATUS[row.status as keyof typeof STATUS];
-                const bgClass = i % 2 === 1 ? "bg-gray-50/40" : "bg-white";
-                
+
                 return (
                   <tr
                     key={row.sku}
-                    className={`border-b border-gray-100 hover:bg-blue-50/30 cursor-pointer transition-colors group ${bgClass}`}
+                    className="cursor-pointer transition-colors group"
+                    style={{ borderBottom: "1px solid #F2EDE5", backgroundColor: i % 2 === 1 ? "#FAF7F1" : "#FFFFFF" }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#FDF9EC")}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = i % 2 === 1 ? "#FAF7F1" : "#FFFFFF")}
                     onClick={() => setSelected(row)}
                   >
                     <td className="px-4 py-4">
-                      <p className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">{row.product}</p>
-                      <p className="mono text-[11px] text-gray-400 mt-0.5">{row.sku} · {row.category}</p>
+                      <p className="font-semibold text-sm leading-tight line-clamp-2" style={{ color: "#14110F" }}>{row.product}</p>
+                      <p className="mono text-[11px] mt-0.5" style={{ color: "#8E8680" }}>{row.sku} · {row.category}</p>
                       {row.note && (
-                        <p className={`text-[11px] mt-1 max-w-[200px] leading-tight line-clamp-1 ${row.status === 'inactive' ? 'text-slate-500' : 'text-amber-600'}`}>
+                        <p className="text-[11px] mt-1 max-w-[200px] leading-tight line-clamp-1" style={{ color: row.status === 'inactive' ? "#8E8680" : "#8C5A0F" }}>
                           {row.status === 'inactive' ? 'ℹ' : '⚠'} {row.note.slice(0, 55)}…
                         </p>
                       )}
@@ -328,8 +334,8 @@ export function InventoryTable() {
                     <td className="px-3 py-4"><DcCell slot={row.dcLA} /></td>
 
                     <td className="px-3 py-4 text-right">
-                      <p className="mono text-base font-bold text-gray-900">{row.companyDaysSupply === 9999 ? "No Demand" : `${row.companyDaysSupply}d`}</p>
-                      <p className="mono text-[11px] text-gray-400 whitespace-nowrap">{row.companyAvailable.toLocaleString()} avail</p>
+                      <p className="mono text-base font-bold" style={{ color: "#14110F" }}>{row.companyDaysSupply === 9999 ? "No Demand" : `${row.companyDaysSupply}d`}</p>
+                      <p className="mono text-[11px] whitespace-nowrap" style={{ color: "#8E8680" }}>{row.companyAvailable.toLocaleString()} avail</p>
                     </td>
 
                     <td className="px-3 py-4 text-center">
@@ -341,32 +347,35 @@ export function InventoryTable() {
 
                     <td className="px-3 py-4 text-right">
                       {row.chargebackRisk > 0 ? (
-                        <span className="mono text-sm font-bold text-red-600">${row.chargebackRisk.toLocaleString()}</span>
+                        <span className="mono text-sm font-bold" style={{ color: "#7A0F1D" }}>${row.chargebackRisk.toLocaleString()}</span>
                       ) : (
-                        <span className="mono text-sm text-gray-300">—</span>
+                        <span className="mono text-sm" style={{ color: "#D6CFC7" }}>—</span>
                       )}
                     </td>
 
-                    <td className={`px-4 py-4 sticky right-0 z-10 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors ${bgClass} group-hover:bg-blue-50`}>
+                    <td className="px-4 py-4 sticky right-0 z-10 transition-colors" style={{ backgroundColor: i % 2 === 1 ? "#FAF7F1" : "#FFFFFF", boxShadow: "-5px 0 10px -5px rgba(20,17,15,0.06)" }}>
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         {row.status === "critical" || row.status === "warning" ? (
                           <button
                             onClick={(e) => { e.stopPropagation(); setSelected(row); }}
-                            className="text-xs font-semibold text-white rounded-lg px-3 py-1.5 whitespace-nowrap bg-[#A6192E] hover:bg-red-800 transition-colors shadow-sm"
+                            className="text-xs font-bold text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
+                            style={{ backgroundColor: "#7A0F1D" }}
                           >
                             Transfer
                           </button>
                         ) : row.status === "inactive" ? (
-                           <button
+                          <button
                             onClick={(e) => { e.stopPropagation(); setSelected(row); }}
-                            className="text-xs font-semibold text-white rounded-lg px-3 py-1.5 whitespace-nowrap bg-slate-800 hover:bg-slate-900 transition-colors shadow-sm"
+                            className="text-xs font-bold text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
+                            style={{ backgroundColor: "#14110F" }}
                           >
                             Liquidate
                           </button>
                         ) : null}
                         <button
                           onClick={(e) => { e.stopPropagation(); setSelected(row); }}
-                          className="text-xs font-medium text-gray-600 border border-gray-200 bg-white rounded-lg px-3 py-1.5 hover:bg-gray-50 whitespace-nowrap shadow-sm"
+                          className="text-xs font-semibold rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
+                          style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
                         >
                           Details
                         </button>
