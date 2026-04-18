@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.venv/
+__pycache__/
+*.pyc
+
+# Pipeline artifacts
+backend/live_inventory.json
+
+# Raw data extracts
+backend/data/*.csv
+backend/data/*.xlsx
+backend/all_data

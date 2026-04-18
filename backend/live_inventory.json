@@ -1,0 +1,1541 @@
+{
+    "METADATA": {
+        "avg_penalty_cost": 680.16,
+        "avg_transfer_cost": 3186.42
+    },
+    "ITEMS": {
+        "AC-B16BK ": {
+            "item_name": "AM GSG Root (Mixed) 1 lb Bag",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 4507,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1044,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 3345,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "AC-B3SLJ": {
+            "item_name": "AM GSG Slices 3 oz Bag-Jumbo",
+            "avg_daily_demand": 11.86,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 966,
+                    "incoming_stock": 0,
+                    "days_of_supply": 81
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 32,
+                    "incoming_stock": 0,
+                    "days_of_supply": 2
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 233,
+                    "incoming_stock": 0,
+                    "days_of_supply": 19
+                }
+            }
+        },
+        "AC-B4BK": {
+            "item_name": "AM GSG Root (Mixed) 4 oz Bag",
+            "avg_daily_demand": 180.09,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 8137,
+                    "incoming_stock": 0,
+                    "days_of_supply": 45
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1718,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 5244,
+                    "incoming_stock": 0,
+                    "days_of_supply": 29
+                }
+            }
+        },
+        "AC-B6SLJ ": {
+            "item_name": "AM GSG Slices 6 oz Bag-Jumbo",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1216,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 636,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 106,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "AC-B8BK": {
+            "item_name": "AM GSG Root (Mixed) 8 oz Bag",
+            "avg_daily_demand": 104.88,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 6644,
+                    "incoming_stock": 0,
+                    "days_of_supply": 63
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1706,
+                    "incoming_stock": 0,
+                    "days_of_supply": 16
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 2371,
+                    "incoming_stock": 0,
+                    "days_of_supply": 22
+                }
+            }
+        },
+        "AC-B9SL": {
+            "item_name": "POP AM GSG Root Slices 9 oz",
+            "avg_daily_demand": 645.65,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "AC-B9SLE": {
+            "item_name": "POP AM GSG Root Slices 9 oz",
+            "avg_daily_demand": 88.29,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "A-61012": {
+            "item_name": "Wild AM GSG Instant Tea 3gx10x8",
+            "avg_daily_demand": 27.05,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 3773,
+                    "incoming_stock": 0,
+                    "days_of_supply": 139
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 3533,
+                    "incoming_stock": 0,
+                    "days_of_supply": 130
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 3070,
+                    "incoming_stock": 0,
+                    "days_of_supply": 113
+                }
+            }
+        },
+        "A-61117": {
+            "item_name": "AM GSG Candy 1 lb / Bag",
+            "avg_daily_demand": 22.08,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1668,
+                    "incoming_stock": 4504,
+                    "days_of_supply": 75
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 5740,
+                    "days_of_supply": 0
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 23858,
+                    "incoming_stock": 3248,
+                    "days_of_supply": 1080
+                }
+            }
+        },
+        "A-61150": {
+            "item_name": "AM GSG Candy 6 oz Bag",
+            "avg_daily_demand": 51.26,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 57994,
+                    "incoming_stock": 10985,
+                    "days_of_supply": 1131
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 21593,
+                    "incoming_stock": 11044,
+                    "days_of_supply": 421
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 57545,
+                    "incoming_stock": 7552,
+                    "days_of_supply": 1122
+                }
+            }
+        },
+        "A-61220": {
+            "item_name": "AM GSG RT Tea 20 Bags",
+            "avg_daily_demand": 19.19,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 4992,
+                    "incoming_stock": 0,
+                    "days_of_supply": 260
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1903,
+                    "incoming_stock": 0,
+                    "days_of_supply": 99
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 7013,
+                    "incoming_stock": 0,
+                    "days_of_supply": 365
+                }
+            }
+        },
+        "A-61243": {
+            "item_name": "AM GSG RT Tea 40 Bags",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 5855,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 8457,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 3787,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "A-61260N": {
+            "item_name": "AM GSG RT Tea 60 Bags",
+            "avg_daily_demand": 25.57,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 4245,
+                    "incoming_stock": 0,
+                    "days_of_supply": 166
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 6743,
+                    "incoming_stock": 0,
+                    "days_of_supply": 263
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 2263,
+                    "incoming_stock": 0,
+                    "days_of_supply": 88
+                }
+            }
+        },
+        "A-61280": {
+            "item_name": "AM GSG RT Tea 80 Bags",
+            "avg_daily_demand": 0.53,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "F-20141": {
+            "item_name": "Ferrero Coll. 24 pcs (w/Hazelnut)#20148",
+            "avg_daily_demand": 22.41,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 800,
+                    "incoming_stock": 2738,
+                    "days_of_supply": 35
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 432,
+                    "incoming_stock": 13802,
+                    "days_of_supply": 19
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 800,
+                    "incoming_stock": 5003,
+                    "days_of_supply": 35
+                }
+            }
+        },
+        "F-12122": {
+            "item_name": "Ferrero Rocher 12 Pcs",
+            "avg_daily_demand": 22.57,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 612,
+                    "incoming_stock": 3108,
+                    "days_of_supply": 27
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 3048,
+                    "incoming_stock": 12802,
+                    "days_of_supply": 135
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 2268,
+                    "incoming_stock": 4275,
+                    "days_of_supply": 100
+                }
+            }
+        },
+        "F-12402": {
+            "item_name": "Ferrero Rocher 24 Pcs Diamond",
+            "avg_daily_demand": 42.05,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1502,
+                    "incoming_stock": 4630,
+                    "days_of_supply": 35
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 2020,
+                    "incoming_stock": 22897,
+                    "days_of_supply": 48
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 462,
+                    "incoming_stock": 9652,
+                    "days_of_supply": 10
+                }
+            }
+        },
+        "F-12418": {
+            "item_name": "Ferrero Rocher 24 pcs Diamond Display(48)",
+            "avg_daily_demand": 1.58,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 8,
+                    "incoming_stock": 270,
+                    "days_of_supply": 5
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 11,
+                    "incoming_stock": 956,
+                    "days_of_supply": 6
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 457,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "F-12998": {
+            "item_name": "Ferrero Rocher 48's Flat Gift Box",
+            "avg_daily_demand": 2.72,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 88,
+                    "days_of_supply": 0
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 165,
+                    "days_of_supply": 0
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 127,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "F-50140": {
+            "item_name": "Gavottes Crepes 1250g #011120",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 281,
+                    "incoming_stock": 340,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 847,
+                    "incoming_stock": 2590,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 844,
+                    "incoming_stock": 3290,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-50139": {
+            "item_name": "Gavottes Crepes 500g",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 3,
+                    "incoming_stock": 900,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 173,
+                    "incoming_stock": 2600,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 341,
+                    "incoming_stock": 4900,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-76010": {
+            "item_name": "Kjeldsens 1 lb Danish Cookie(#98838)",
+            "avg_daily_demand": 15.65,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 8388,
+                    "incoming_stock": 2520,
+                    "days_of_supply": 535
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 3721,
+                    "incoming_stock": 3657,
+                    "days_of_supply": 237
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 10476,
+                    "incoming_stock": 4944,
+                    "days_of_supply": 669
+                }
+            }
+        },
+        "F-00491": {
+            "item_name": "Loacker Wafer Hazelnut 250g(#10491)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 14314,
+                    "incoming_stock": 3807,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 8910,
+                    "incoming_stock": 5696,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 20370,
+                    "incoming_stock": 8701,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-97000": {
+            "item_name": "MX Eggrolls (32pcs)",
+            "avg_daily_demand": 5.15,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1152,
+                    "incoming_stock": 0,
+                    "days_of_supply": 223
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 2976,
+                    "incoming_stock": 4855,
+                    "days_of_supply": 577
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 1128,
+                    "incoming_stock": 0,
+                    "days_of_supply": 219
+                }
+            }
+        },
+        "F-00372": {
+            "item_name": "Loacker GP Bisc Noisette Choc 3.53oz(#10392)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1164,
+                    "incoming_stock": 692,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 720,
+                    "incoming_stock": 878,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 1272,
+                    "incoming_stock": 819,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-00378": {
+            "item_name": "Loacker GP Dark Hazelnut 3.53oz(#10338)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 192,
+                    "incoming_stock": 567,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 300,
+                    "incoming_stock": 788,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 1141,
+                    "incoming_stock": 692,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-00375": {
+            "item_name": "Loacker GP Bisc Cappuc Choc 3.53oz(#10398)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 924,
+                    "incoming_stock": 615,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1320,
+                    "incoming_stock": 567,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 1015,
+                    "incoming_stock": 502,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-00373": {
+            "item_name": "Loacker GP White Coconut 3.53oz",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 576,
+                    "incoming_stock": 567,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1199,
+                    "incoming_stock": 519,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 1186,
+                    "incoming_stock": 462,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-00376": {
+            "item_name": "Loacker GP Bisc Coconut Choc 3.53oz(#10396)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 441,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 768,
+                    "incoming_stock": 514,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 936,
+                    "incoming_stock": 567,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-00377": {
+            "item_name": "Loacker GP Bisc Orange Choc 3.53oz(#10397)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 378,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 20,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 671,
+                    "incoming_stock": 441,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "F-04076": {
+            "item_name": "POP Ginger Chews Assorted 8 oz",
+            "avg_daily_demand": 92.42,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 50657,
+                    "incoming_stock": 69166,
+                    "days_of_supply": 548
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 212329,
+                    "incoming_stock": 68331,
+                    "days_of_supply": 2297
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 10592,
+                    "incoming_stock": 0,
+                    "days_of_supply": 114
+                }
+            }
+        },
+        "F-04117": {
+            "item_name": "POP Ginger Chews Blood Orange 4 oz (12ct/cs)",
+            "avg_daily_demand": 234.02,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 24393,
+                    "incoming_stock": 22142,
+                    "days_of_supply": 104
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1071,
+                    "incoming_stock": 82852,
+                    "days_of_supply": 4
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 36048,
+                    "incoming_stock": 19228,
+                    "days_of_supply": 154
+                }
+            }
+        },
+        "F-04075": {
+            "item_name": "POP Ginger Chews Blood Orange 8 oz",
+            "avg_daily_demand": 163.92,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 34586,
+                    "incoming_stock": 46924,
+                    "days_of_supply": 210
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 48180,
+                    "incoming_stock": 25034,
+                    "days_of_supply": 293
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 5589,
+                    "incoming_stock": 3178,
+                    "days_of_supply": 34
+                }
+            }
+        },
+        "F-04221": {
+            "item_name": "POP Ginger Chews Lemon 2 oz(24ct/cs)",
+            "avg_daily_demand": 57.77,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "F-04112": {
+            "item_name": "POP Ginger Chews Lemon 4 oz (12ct/cs)",
+            "avg_daily_demand": 477.2,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 54246,
+                    "incoming_stock": 78784,
+                    "days_of_supply": 113
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 134488,
+                    "incoming_stock": 174542,
+                    "days_of_supply": 281
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 32886,
+                    "incoming_stock": 26648,
+                    "days_of_supply": 68
+                }
+            }
+        },
+        "F-04071": {
+            "item_name": "POP Ginger Chews Lemon 8 oz",
+            "avg_daily_demand": 322.95,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 72353,
+                    "incoming_stock": 114904,
+                    "days_of_supply": 224
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 64730,
+                    "incoming_stock": 58414,
+                    "days_of_supply": 200
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 13782,
+                    "incoming_stock": 6480,
+                    "days_of_supply": 42
+                }
+            }
+        },
+        "F-04074": {
+            "item_name": "POP Ginger Chews Lychee 8 oz",
+            "avg_daily_demand": 222.98,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 24294,
+                    "incoming_stock": 69302,
+                    "days_of_supply": 108
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 15064,
+                    "incoming_stock": 22263,
+                    "days_of_supply": 67
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 4016,
+                    "incoming_stock": 3630,
+                    "days_of_supply": 18
+                }
+            }
+        },
+        "F-04114": {
+            "item_name": "POP Ginger Chews Mango 4 oz (12ct/cs)",
+            "avg_daily_demand": 334.17,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 55014,
+                    "incoming_stock": 69630,
+                    "days_of_supply": 164
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 99872,
+                    "incoming_stock": 122366,
+                    "days_of_supply": 298
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 25120,
+                    "incoming_stock": 14984,
+                    "days_of_supply": 75
+                }
+            }
+        },
+        "F-04073": {
+            "item_name": "POP Ginger Chews Mango 8 oz",
+            "avg_daily_demand": 306.03,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 132706,
+                    "incoming_stock": 140303,
+                    "days_of_supply": 433
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 57987,
+                    "incoming_stock": 49883,
+                    "days_of_supply": 189
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 3307,
+                    "incoming_stock": 1904,
+                    "days_of_supply": 10
+                }
+            }
+        },
+        "F-04001": {
+            "item_name": "POP Ginger Chews Original 1 lb Bulk",
+            "avg_daily_demand": 48.83,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 4943,
+                    "incoming_stock": 12600,
+                    "days_of_supply": 101
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 14224,
+                    "incoming_stock": 20010,
+                    "days_of_supply": 291
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 20767,
+                    "incoming_stock": 10407,
+                    "days_of_supply": 425
+                }
+            }
+        },
+        "F-04211": {
+            "item_name": "POP Ginger Chews Original 2 oz",
+            "avg_daily_demand": 3212.34,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 2038,
+                    "incoming_stock": 10372,
+                    "days_of_supply": 0
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 3496,
+                    "incoming_stock": 53095,
+                    "days_of_supply": 1
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 1471,
+                    "incoming_stock": 14686,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "F-04220": {
+            "item_name": "POP Ginger Chews Original 2 oz(24ct/cs)",
+            "avg_daily_demand": 55.87,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "F-04111": {
+            "item_name": "POP Ginger Chews Original 4 oz (12ct/cs)",
+            "avg_daily_demand": 895.91,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 164895,
+                    "incoming_stock": 142000,
+                    "days_of_supply": 184
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 326488,
+                    "incoming_stock": 320886,
+                    "days_of_supply": 364
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 221764,
+                    "incoming_stock": 168084,
+                    "days_of_supply": 247
+                }
+            }
+        },
+        "F-04070": {
+            "item_name": "POP Ginger Chews Original 8 oz",
+            "avg_daily_demand": 464.74,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 98959,
+                    "incoming_stock": 185340,
+                    "days_of_supply": 212
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 86316,
+                    "incoming_stock": 81265,
+                    "days_of_supply": 185
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 17918,
+                    "incoming_stock": 6480,
+                    "days_of_supply": 38
+                }
+            }
+        },
+        "F-04118": {
+            "item_name": "POP Ginger Chews Pineapple Coconut 4 oz (12ct/cs)",
+            "avg_daily_demand": 130.18,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 7951,
+                    "incoming_stock": 22938,
+                    "days_of_supply": 61
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 82440,
+                    "incoming_stock": 36172,
+                    "days_of_supply": 633
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 16421,
+                    "incoming_stock": 13014,
+                    "days_of_supply": 126
+                }
+            }
+        },
+        "F-04131": {
+            "item_name": "POP Ginger Chews Plus+ Lemon 3 oz",
+            "avg_daily_demand": 43.06,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 5870,
+                    "incoming_stock": 2037,
+                    "days_of_supply": 136
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 15200,
+                    "incoming_stock": 10594,
+                    "days_of_supply": 352
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 14395,
+                    "incoming_stock": 3746,
+                    "days_of_supply": 334
+                }
+            }
+        },
+        "F-04130": {
+            "item_name": "POP Ginger Chews Plus+ Original 3 oz",
+            "avg_daily_demand": 70.09,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 79511,
+                    "incoming_stock": 14283,
+                    "days_of_supply": 1134
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 29824,
+                    "incoming_stock": 30356,
+                    "days_of_supply": 425
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 30960,
+                    "incoming_stock": 10254,
+                    "days_of_supply": 441
+                }
+            }
+        },
+        "D-04037": {
+            "item_name": "POP Ginger H Cytl.Lemon 10ct(6x6)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 16703,
+                    "incoming_stock": 14558,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 24769,
+                    "incoming_stock": 12854,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 2997,
+                    "incoming_stock": 1870,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-04061": {
+            "item_name": "POP Ginger Honey Cytl Original 10ct(6x6)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 34934,
+                    "incoming_stock": 15674,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 35897,
+                    "incoming_stock": 25532,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 22044,
+                    "incoming_stock": 4465,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-04043": {
+            "item_name": "POP In Ginger H Cytl w/Lemon 18gx30",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 853,
+                    "incoming_stock": 1935,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 13210,
+                    "incoming_stock": 13030,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 16238,
+                    "incoming_stock": 6596,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-04032": {
+            "item_name": "POP In Ginger H Cytl w/Turmeric 10ct(6x6)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 13621,
+                    "incoming_stock": 5395,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 10710,
+                    "incoming_stock": 3692,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 10895,
+                    "incoming_stock": 740,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-04033": {
+            "item_name": "POP In Ginger H Cytl w/Turmeric 18gx25",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1404,
+                    "incoming_stock": 3815,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 12154,
+                    "incoming_stock": 9485,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 3519,
+                    "incoming_stock": 2920,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-04011": {
+            "item_name": "POP In Ginger Honey Cytl 18gx30",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1927,
+                    "incoming_stock": 3200,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 25853,
+                    "incoming_stock": 24945,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 9788,
+                    "incoming_stock": 11680,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "J-63006": {
+            "item_name": "Mazola Corn Oil 128 oz (1 gal)",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 3594,
+                    "incoming_stock": 15636,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 12641,
+                    "incoming_stock": 30995,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 1470,
+                    "incoming_stock": 15686,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "J-63004": {
+            "item_name": "Mazola Corn Oil 40 oz",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 5424,
+                    "incoming_stock": 4071,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 4980,
+                    "incoming_stock": 2778,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 8028,
+                    "incoming_stock": 3786,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "J-72402": {
+            "item_name": "Totole Chicken Bouillon 2.2 lbs",
+            "avg_daily_demand": 26.95,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 6094,
+                    "incoming_stock": 11614,
+                    "days_of_supply": 226
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 48,
+                    "incoming_stock": 0,
+                    "days_of_supply": 1
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 480,
+                    "incoming_stock": 0,
+                    "days_of_supply": 17
+                }
+            }
+        },
+        "T-47010": {
+            "item_name": "Kwan Loong Oil 2 fl oz",
+            "avg_daily_demand": 23.49,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 40794,
+                    "incoming_stock": 22021,
+                    "days_of_supply": 1736
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 42877,
+                    "incoming_stock": 21739,
+                    "days_of_supply": 1825
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 198762,
+                    "incoming_stock": 60198,
+                    "days_of_supply": 8461
+                }
+            }
+        },
+        "T-22010": {
+            "item_name": "Tiger Balm 18g Red, Ext/St(MM)",
+            "avg_daily_demand": 123.99,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 160190,
+                    "incoming_stock": 119732,
+                    "days_of_supply": 1291
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 451477,
+                    "incoming_stock": 250034,
+                    "days_of_supply": 3641
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 86295,
+                    "incoming_stock": 67391,
+                    "days_of_supply": 695
+                }
+            }
+        },
+        "T-31510": {
+            "item_name": "Tiger Balm 18g, Ultra/St",
+            "avg_daily_demand": 712.17,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 318941,
+                    "incoming_stock": 180820,
+                    "days_of_supply": 447
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 640977,
+                    "incoming_stock": 379273,
+                    "days_of_supply": 900
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 125744,
+                    "incoming_stock": 90598,
+                    "days_of_supply": 176
+                }
+            }
+        },
+        "T-31510R": {
+            "item_name": "Tiger Balm 18g, Ultra/St - RFID",
+            "avg_daily_demand": 12.51,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 64788,
+                    "incoming_stock": 27679,
+                    "days_of_supply": 5178
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 109997,
+                    "incoming_stock": 50962,
+                    "days_of_supply": 8792
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "T-31541": {
+            "item_name": "Tiger Balm 50g, Ultra/St",
+            "avg_daily_demand": 79.38,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 41701,
+                    "incoming_stock": 28259,
+                    "days_of_supply": 525
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 138926,
+                    "incoming_stock": 115044,
+                    "days_of_supply": 1750
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 29109,
+                    "incoming_stock": 33535,
+                    "days_of_supply": 366
+                }
+            }
+        },
+        "T-32300": {
+            "item_name": "Tiger Balm Patch - Large",
+            "avg_daily_demand": 35.95,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 70258,
+                    "incoming_stock": 19821,
+                    "days_of_supply": 1954
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 128431,
+                    "incoming_stock": 60704,
+                    "days_of_supply": 3572
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 21175,
+                    "incoming_stock": 6861,
+                    "days_of_supply": 589
+                }
+            }
+        },
+        "T-32206": {
+            "item_name": "Tiger Balm Patch Warm (MM)",
+            "avg_daily_demand": 409.21,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 252287,
+                    "incoming_stock": 1688579,
+                    "days_of_supply": 616
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 317891,
+                    "incoming_stock": 3664109,
+                    "days_of_supply": 776
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 136719,
+                    "incoming_stock": 807339,
+                    "days_of_supply": 334
+                }
+            }
+        },
+        "T-32224": {
+            "item_name": "Tiger Balm Single Patch (2x12)",
+            "avg_daily_demand": 48.98,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 3084,
+                    "incoming_stock": 0,
+                    "days_of_supply": 62
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 5000,
+                    "incoming_stock": 0,
+                    "days_of_supply": 102
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 0,
+                    "incoming_stock": 0,
+                    "days_of_supply": 0
+                }
+            }
+        },
+        "T-32202": {
+            "item_name": "Tiger Balm Single Patch 12ct/disp",
+            "avg_daily_demand": 2943.72,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 5232,
+                    "incoming_stock": 42979,
+                    "days_of_supply": 1
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1869144,
+                    "incoming_stock": 365657,
+                    "days_of_supply": 634
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 499680,
+                    "incoming_stock": 79108,
+                    "days_of_supply": 169
+                }
+            }
+        },
+        "T-31520": {
+            "item_name": "Tiger Balm Ultra 10g",
+            "avg_daily_demand": 1075.9,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 2473,
+                    "incoming_stock": 77789,
+                    "days_of_supply": 2
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 17028,
+                    "incoming_stock": 135190,
+                    "days_of_supply": 15
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 6544,
+                    "incoming_stock": 70567,
+                    "days_of_supply": 6
+                }
+            }
+        },
+        "D-03052": {
+            "item_name": "POP HT Blood Pressure 1.8gx18",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 670,
+                    "incoming_stock": 132236,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 2852,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 2614,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-03053": {
+            "item_name": "POP HT Blood Sugar 1.8gx18",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 3790,
+                    "incoming_stock": 150540,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 4349,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 3219,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-03054": {
+            "item_name": "POP HT Cholesterol 1.8gx18",
+            "avg_daily_demand": 0,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 22847,
+                    "incoming_stock": 89064,
+                    "days_of_supply": 9999
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 4226,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 7153,
+                    "incoming_stock": 0,
+                    "days_of_supply": 9999
+                }
+            }
+        },
+        "D-13206": {
+            "item_name": "POP OG Green Tea 1.8gx100 (6ct/cs)",
+            "avg_daily_demand": 32.91,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 2949,
+                    "incoming_stock": 13616,
+                    "days_of_supply": 89
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 7026,
+                    "incoming_stock": 21926,
+                    "days_of_supply": 213
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 6449,
+                    "incoming_stock": 4517,
+                    "days_of_supply": 195
+                }
+            }
+        },
+        "D-14206": {
+            "item_name": "POP OG Jasmine Tea 1.8gx100 (6ct/cs)",
+            "avg_daily_demand": 24.56,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 4512,
+                    "incoming_stock": 13097,
+                    "days_of_supply": 183
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 4834,
+                    "incoming_stock": 13355,
+                    "days_of_supply": 196
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 2716,
+                    "incoming_stock": 4050,
+                    "days_of_supply": 110
+                }
+            }
+        },
+        "D-15206": {
+            "item_name": "POP OG Oolong Tea 1.8gx100 (6ct/cs)",
+            "avg_daily_demand": 31.7,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 1028,
+                    "incoming_stock": 9532,
+                    "days_of_supply": 32
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 1320,
+                    "incoming_stock": 17796,
+                    "days_of_supply": 41
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 502,
+                    "incoming_stock": 8304,
+                    "days_of_supply": 15
+                }
+            }
+        },
+        "D-18206": {
+            "item_name": "POP OG White Tea 1.8gx100 (6ct/cs)",
+            "avg_daily_demand": 22.5,
+            "inventory_by_dc": {
+                "Site 1 - SF": {
+                    "stock_on_hand": 5374,
+                    "incoming_stock": 9073,
+                    "days_of_supply": 238
+                },
+                "Site 2 - NJ": {
+                    "stock_on_hand": 5762,
+                    "incoming_stock": 12899,
+                    "days_of_supply": 256
+                },
+                "Site 3 - LA": {
+                    "stock_on_hand": 4385,
+                    "incoming_stock": 5058,
+                    "days_of_supply": 194
+                }
+            }
+        }
+    }
+}

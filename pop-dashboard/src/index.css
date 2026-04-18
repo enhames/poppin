@@ -1,1 +1,66 @@
 @import "tailwindcss";
+
+:root {
+  --font-sans: "Space Grotesk", sans-serif;
+  --font-mono: "DM Mono", monospace;
+
+  /* Sidebar */
+  --sidebar-bg: #0E1B2E;
+  --sidebar-border: #1C2E45;
+  --sidebar-text: #7C90A8;
+  --sidebar-text-active: #E0ECF8;
+  --sidebar-active-bg: #1A3050;
+
+  /* Surface */
+  --bg: #F2F4F8;
+  --surface: #FFFFFF;
+  --border: #E4E8EF;
+  --border-strong: #CDD2DA;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+
+  /* Status */
+  --critical: #C8381C;
+  --critical-bg: #FFF1EE;
+  --critical-border: #F9C5B8;
+  --critical-mid: #E05235;
+
+  --warning: #B45309;
+  --warning-bg: #FFFBEB;
+  --warning-border: #FCD34D;
+  --warning-mid: #D97706;
+
+  --ok: #0A7B4B;
+  --ok-bg: #EDFAF4;
+  --ok-border: #86EFAC;
+  --ok-mid: #059669;
+
+  --accent: #0E8A8A;
+  --accent-bg: #EFF9F9;
+  --accent-border: #A7E3E3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--text-primary);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mono { font-family: var(--font-mono); }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* Smooth transitions */
+button, a { transition: all 120ms ease; }
