@@ -19,6 +19,32 @@ export interface TransferApproval {
   units: number;
 }
 
+export interface DashboardSummary {
+  urgentRequestTotal: number;
+  penaltyExposure: number;
+  transferRecommendedCount: number;
+  estimatedNetSavings: number;
+  pendingInboundPos: number;
+  dcDistribution: Array<{
+    site: string;
+    name: string;
+    role: string;
+    sharePct: number;
+    stockOnHand: number;
+  }>;
+}
+
+export interface DashboardScenario {
+  sku: string;
+  product: string;
+  sourceDc: string;
+  destinationDc: string;
+  transferUnits: number;
+  transferCost: number;
+  penaltyExposure: number;
+  netSaving: number;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
@@ -33,6 +59,13 @@ export const api = {
   getAlerts: () => get<unknown[]>("/api/alerts"),
 
   getChargebacks: () => get<unknown>("/api/chargebacks"),
+
+  getDashboardSummary: () => get<DashboardSummary>("/api/dashboard/summary"),
+
+  getDashboardScenario: async () => {
+    const raw = await get<{ scenario: DashboardScenario | null }>("/api/dashboard/scenario");
+    return raw.scenario;
+  },
 
   approveTransfer: async (payload: TransferApproval) => {
     const res = await fetch("/api/transfers", {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { urgentRequestSample } from "./data/mockData";
-import { api } from "./api/client";
+import { api, type DashboardScenario, type DashboardSummary } from "./api/client";
 import { AlertsBanner } from "./components/AlertsBanner";
 import { InventoryTable } from "./components/InventoryTable";
 import { ChargebackTable } from "./components/ChargebackTable";
@@ -8,10 +8,6 @@ import { TransferPanel } from "./components/TransferPanel";
 import { InventoryCharts } from "./components/InventoryCharts";
 
 type Tab = "imbalances" | "chargebacks" | "transfers" | "alerts" | "charts";
-
-const URGENT_REQUESTS_TOTAL = 2029;
-const PENALTY_EXPOSURE = 745000;
-/* TODO: HARDCODED */
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 function Icon({ d, size = 16 }: { d: string; size?: number }) {
@@ -96,6 +92,8 @@ export default function App() {
   const [criticalCount, setCriticalCount] = useState(0);
   const [transferCount, setTransferCount] = useState(0);
   const [alertsData, setAlertsData] = useState<any[]>([]);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [scenario, setScenario] = useState<DashboardScenario | null>(null);
 
   useEffect(() => {
     api.getAlerts().then((alerts: any[]) => {
@@ -105,6 +103,11 @@ export default function App() {
     api.getRecommendations().then((recs) => {
       setTransferCount(recs.filter((r) => r.recommendation === "TRANSFER").length);
     });
+    api.getDashboardSummary().then((s) => {
+      setSummary(s);
+      setTransferCount(s.transferRecommendedCount);
+    });
+    api.getDashboardScenario().then(setScenario);
   }, []);
 
   return (
@@ -131,17 +134,22 @@ export default function App() {
           <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-gray-500">
             Distribution Centers
           </p>
-          {/* TODO: HARDCODED */}
-          {[
-            { name: "DC-SF · Livermore", role: "Hub · 27.6% volume", dot: "#D4AF37" }, // Gold
-            { name: "DC-NJ · New Jersey", role: "Primary · 54.3% volume", dot: "#A6192E" }, // Crimson
-            { name: "DC-LA · Los Angeles", role: "18.1% volume", dot: "#475569" }, // Slate
-          ].map((dc) => (
+          {(summary?.dcDistribution ?? []).map((dc) => (
             <div key={dc.name} className="flex items-start gap-2 mb-2.5">
-              <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: dc.dot }} />
+              <div
+                className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                style={{
+                  backgroundColor:
+                    dc.site === "Site 1 - SF"
+                      ? "#D4AF37"
+                      : dc.site === "Site 2 - NJ"
+                        ? "#A6192E"
+                        : "#475569",
+                }}
+              />
               <div>
                 <p className="text-xs font-semibold leading-tight text-gray-200">{dc.name}</p>
-                <p className="text-[11px] text-gray-500">{dc.role}</p>
+                <p className="text-[11px] text-gray-500">{dc.role} · {dc.sharePct}% volume</p>
               </div>
             </div>
           ))}
@@ -218,7 +226,7 @@ export default function App() {
             <div className="grid grid-cols-4 gap-5">
               <KpiCard
                 label="Total Chargeback Exposure"
-                value={`$${(PENALTY_EXPOSURE/1000).toFixed(0)}K`}
+                value={`$${((summary?.penaltyExposure ?? 0) / 1000).toFixed(0)}K`}
                 trend={{ label: "Active Risk", isNegative: true }}
                 context="Projected penalty exposure from current site-level imbalances."
                 accent="critical"
@@ -232,14 +240,12 @@ export default function App() {
               <KpiCard
                 label="Transfers Recommended"
                 value={String(transferCount)}
-                /* TODO: HARDCODED */
-                context="Estimated Net Savings: $42,100 if all approved today."
+                context={`Estimated Net Savings: $${Math.round(summary?.estimatedNetSavings ?? 0).toLocaleString()} if all approved today.`}
                 accent="warning"
               />
               <KpiCard
                 label="Pending Inbound POs"
-                /* TODO: HARDCODED */
-                value="24"
+                value={String(summary?.pendingInboundPos ?? 0)}
                 context="Shipments en route. Evaluate 'Wait vs. Transfer' tradeoffs."
                 accent="neutral"
               />
@@ -284,8 +290,8 @@ export default function App() {
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-6">
-                    <p className="mono text-4xl font-bold text-[#A6192E]">{URGENT_REQUESTS_TOTAL}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Manual Requests Logged</p>
+                    <p className="mono text-4xl font-bold text-[#A6192E]">{summary?.urgentRequestTotal ?? 0}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Transfer Actions Logged</p>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -326,7 +332,9 @@ export default function App() {
                 <div className="px-6 py-5 border-b border-gray-200">
                   <h3 className="text-base font-bold text-gray-900">Cost Tradeoff Analysis: Wait vs. Transfer</h3>
                   <p className="text-sm text-gray-500 mt-0.5">
-                    Scenario: F-04130 · Ginger Chews Plus+ 3oz — DC-NJ stockout on Dollar General order.
+                    {scenario
+                      ? `Scenario: ${scenario.sku} · ${scenario.product} — ${scenario.destinationDc} stockout risk.`
+                      : "Scenario unavailable (no current transfer recommendation)."}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 divide-x divide-gray-200">
@@ -341,8 +349,8 @@ export default function App() {
                         "Order hits DC-NJ. System shows 0 available units.",
                         <>Ops manager logs request: <span className="font-semibold text-[#A6192E]">"URGENT! F-04130, 4 pallets"</span>.</>,
                         "Manual stock check causes 3–5 day processing delay.",
-                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold text-[#A6192E]">$851</span></>,
-                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold text-[#A6192E]">$851</span></>,
+                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold text-[#A6192E]">${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
+                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold text-[#A6192E]">${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
                           <span className="mono text-gray-300 flex-shrink-0 font-medium">{i + 1}.</span>
@@ -351,7 +359,9 @@ export default function App() {
                       ))}
                       <li className="flex gap-3 pt-2 border-t border-gray-100 mt-1">
                         <span className="mono font-bold text-[#A6192E] flex-shrink-0">→</span>
-                        <span className="font-semibold text-[#A6192E]">$1,702 total penalty exposure.</span>
+                        <span className="font-semibold text-[#A6192E]">
+                          ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()} total penalty exposure.
+                        </span>
                       </li>
                     </ol>
                   </div>
@@ -365,7 +375,7 @@ export default function App() {
                       {[
                         <>System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</>,
                         <>Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</>,
-                        <>Cost Model: Transfer SF→NJ · <span className="mono font-bold text-gray-900">$1,043 freight</span> · Risk avoided: $1,702</>,
+                        <>Cost Model: Transfer {scenario?.sourceDc ?? "—"}→{scenario?.destinationDc ?? "—"} · <span className="mono font-bold text-gray-900">${Math.round(scenario?.transferCost ?? 0).toLocaleString()} freight</span> · Risk avoided: ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()}</>,
                         "Ops manager approves transfer in dashboard. Initiated same day.",
                         "DC-NJ ships order on time, in full. Zero penalties incurred.",
                       ].map((step, i) => (
@@ -376,7 +386,9 @@ export default function App() {
                       ))}
                       <li className="flex gap-3 pt-2 border-t border-emerald-100 mt-1">
                         <span className="mono font-bold text-emerald-700 flex-shrink-0">→</span>
-                        <span className="font-semibold text-emerald-700">Net saving: $659. Imbalance resolved proactively.</span>
+                        <span className="font-semibold text-emerald-700">
+                          Net saving: ${Math.round(scenario?.netSaving ?? 0).toLocaleString()}. Imbalance resolved proactively.
+                        </span>
                       </li>
                     </ol>
                   </div>
