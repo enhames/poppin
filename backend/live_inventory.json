@@ -1,12 +1,20 @@
 {
     "METADATA": {
         "avg_penalty_cost": 680.16,
-        "avg_transfer_cost": 3186.42
+        "transfer_cost_by_lane": {
+            "LA->NJ": 308.83,
+            "LA->SF": 97.18,
+            "NJ->LA": 272.4,
+            "NJ->SF": 269.16,
+            "SF->LA": 54.7,
+            "SF->NJ": 270.42
+        }
     },
     "ITEMS": {
         "AC-B16BK ": {
             "item_name": "AM GSG Root (Mixed) 1 lb Bag",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 16.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 4507,
@@ -28,6 +36,7 @@
         "AC-B3SLJ": {
             "item_name": "AM GSG Slices 3 oz Bag-Jumbo",
             "avg_daily_demand": 11.86,
+            "cases_per_pallet": 16,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 966,
@@ -49,6 +58,7 @@
         "AC-B4BK": {
             "item_name": "AM GSG Root (Mixed) 4 oz Bag",
             "avg_daily_demand": 180.09,
+            "cases_per_pallet": 16.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 8137,
@@ -70,6 +80,7 @@
         "AC-B6SLJ ": {
             "item_name": "AM GSG Slices 6 oz Bag-Jumbo",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 16,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1216,
@@ -91,6 +102,7 @@
         "AC-B8BK": {
             "item_name": "AM GSG Root (Mixed) 8 oz Bag",
             "avg_daily_demand": 104.88,
+            "cases_per_pallet": 16.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 6644,
@@ -112,6 +124,7 @@
         "AC-B9SL": {
             "item_name": "POP AM GSG Root Slices 9 oz",
             "avg_daily_demand": 645.65,
+            "cases_per_pallet": 16,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -133,6 +146,7 @@
         "AC-B9SLE": {
             "item_name": "POP AM GSG Root Slices 9 oz",
             "avg_daily_demand": 88.29,
+            "cases_per_pallet": 16,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -154,6 +168,7 @@
         "A-61012": {
             "item_name": "Wild AM GSG Instant Tea 3gx10x8",
             "avg_daily_demand": 27.05,
+            "cases_per_pallet": 24,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 3773,
@@ -175,6 +190,7 @@
         "A-61117": {
             "item_name": "AM GSG Candy 1 lb / Bag",
             "avg_daily_demand": 22.08,
+            "cases_per_pallet": 45.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1668,
@@ -196,6 +212,7 @@
         "A-61150": {
             "item_name": "AM GSG Candy 6 oz Bag",
             "avg_daily_demand": 51.26,
+            "cases_per_pallet": 60.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 57994,
@@ -217,6 +234,7 @@
         "A-61220": {
             "item_name": "AM GSG RT Tea 20 Bags",
             "avg_daily_demand": 19.19,
+            "cases_per_pallet": 24.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 4992,
@@ -238,6 +256,7 @@
         "A-61243": {
             "item_name": "AM GSG RT Tea 40 Bags",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 24.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 5855,
@@ -259,6 +278,7 @@
         "A-61260N": {
             "item_name": "AM GSG RT Tea 60 Bags",
             "avg_daily_demand": 25.57,
+            "cases_per_pallet": 24.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 4245,
@@ -280,6 +300,7 @@
         "A-61280": {
             "item_name": "AM GSG RT Tea 80 Bags",
             "avg_daily_demand": 0.53,
+            "cases_per_pallet": 24,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -301,6 +322,7 @@
         "F-20141": {
             "item_name": "Ferrero Coll. 24 pcs (w/Hazelnut)#20148",
             "avg_daily_demand": 22.41,
+            "cases_per_pallet": 72.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 800,
@@ -322,6 +344,7 @@
         "F-12122": {
             "item_name": "Ferrero Rocher 12 Pcs",
             "avg_daily_demand": 22.57,
+            "cases_per_pallet": 96.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 612,
@@ -343,6 +366,7 @@
         "F-12402": {
             "item_name": "Ferrero Rocher 24 Pcs Diamond",
             "avg_daily_demand": 42.05,
+            "cases_per_pallet": 90.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1502,
@@ -364,6 +388,7 @@
         "F-12418": {
             "item_name": "Ferrero Rocher 24 pcs Diamond Display(48)",
             "avg_daily_demand": 1.58,
+            "cases_per_pallet": 5.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 8,
@@ -385,6 +410,7 @@
         "F-12998": {
             "item_name": "Ferrero Rocher 48's Flat Gift Box",
             "avg_daily_demand": 2.72,
+            "cases_per_pallet": 36.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -406,6 +432,7 @@
         "F-50140": {
             "item_name": "Gavottes Crepes 1250g #011120",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 36,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 281,
@@ -427,6 +454,7 @@
         "F-50139": {
             "item_name": "Gavottes Crepes 500g",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 60,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 3,
@@ -448,6 +476,7 @@
         "F-76010": {
             "item_name": "Kjeldsens 1 lb Danish Cookie(#98838)",
             "avg_daily_demand": 15.65,
+            "cases_per_pallet": 42,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 8388,
@@ -469,6 +498,7 @@
         "F-00491": {
             "item_name": "Loacker Wafer Hazelnut 250g(#10491)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 126,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 14314,
@@ -490,6 +520,7 @@
         "F-97000": {
             "item_name": "MX Eggrolls (32pcs)",
             "avg_daily_demand": 5.15,
+            "cases_per_pallet": 84,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1152,
@@ -511,6 +542,7 @@
         "F-00372": {
             "item_name": "Loacker GP Bisc Noisette Choc 3.53oz(#10392)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 126.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1164,
@@ -532,6 +564,7 @@
         "F-00378": {
             "item_name": "Loacker GP Dark Hazelnut 3.53oz(#10338)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 126.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 192,
@@ -553,6 +586,7 @@
         "F-00375": {
             "item_name": "Loacker GP Bisc Cappuc Choc 3.53oz(#10398)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 126.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 924,
@@ -574,6 +608,7 @@
         "F-00373": {
             "item_name": "Loacker GP White Coconut 3.53oz",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 126.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 576,
@@ -595,6 +630,7 @@
         "F-00376": {
             "item_name": "Loacker GP Bisc Coconut Choc 3.53oz(#10396)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 126.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -616,6 +652,7 @@
         "F-00377": {
             "item_name": "Loacker GP Bisc Orange Choc 3.53oz(#10397)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 126.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -637,6 +674,7 @@
         "F-04076": {
             "item_name": "POP Ginger Chews Assorted 8 oz",
             "avg_daily_demand": 92.42,
+            "cases_per_pallet": 112.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 50657,
@@ -658,6 +696,7 @@
         "F-04117": {
             "item_name": "POP Ginger Chews Blood Orange 4 oz (12ct/cs)",
             "avg_daily_demand": 234.02,
+            "cases_per_pallet": 240.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 24393,
@@ -679,6 +718,7 @@
         "F-04075": {
             "item_name": "POP Ginger Chews Blood Orange 8 oz",
             "avg_daily_demand": 163.92,
+            "cases_per_pallet": 112.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 34586,
@@ -700,6 +740,7 @@
         "F-04221": {
             "item_name": "POP Ginger Chews Lemon 2 oz(24ct/cs)",
             "avg_daily_demand": 57.77,
+            "cases_per_pallet": 70,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -721,6 +762,7 @@
         "F-04112": {
             "item_name": "POP Ginger Chews Lemon 4 oz (12ct/cs)",
             "avg_daily_demand": 477.2,
+            "cases_per_pallet": 240.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 54246,
@@ -742,6 +784,7 @@
         "F-04071": {
             "item_name": "POP Ginger Chews Lemon 8 oz",
             "avg_daily_demand": 322.95,
+            "cases_per_pallet": 112.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 72353,
@@ -763,6 +806,7 @@
         "F-04074": {
             "item_name": "POP Ginger Chews Lychee 8 oz",
             "avg_daily_demand": 222.98,
+            "cases_per_pallet": 112.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 24294,
@@ -784,6 +828,7 @@
         "F-04114": {
             "item_name": "POP Ginger Chews Mango 4 oz (12ct/cs)",
             "avg_daily_demand": 334.17,
+            "cases_per_pallet": 240.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 55014,
@@ -805,6 +850,7 @@
         "F-04073": {
             "item_name": "POP Ginger Chews Mango 8 oz",
             "avg_daily_demand": 306.03,
+            "cases_per_pallet": 112.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 132706,
@@ -826,6 +872,7 @@
         "F-04001": {
             "item_name": "POP Ginger Chews Original 1 lb Bulk",
             "avg_daily_demand": 48.83,
+            "cases_per_pallet": 70.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 4943,
@@ -847,6 +894,7 @@
         "F-04211": {
             "item_name": "POP Ginger Chews Original 2 oz",
             "avg_daily_demand": 3212.34,
+            "cases_per_pallet": 70.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 2038,
@@ -868,6 +916,7 @@
         "F-04220": {
             "item_name": "POP Ginger Chews Original 2 oz(24ct/cs)",
             "avg_daily_demand": 55.87,
+            "cases_per_pallet": 70,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
@@ -889,6 +938,7 @@
         "F-04111": {
             "item_name": "POP Ginger Chews Original 4 oz (12ct/cs)",
             "avg_daily_demand": 895.91,
+            "cases_per_pallet": 240.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 164895,
@@ -910,6 +960,7 @@
         "F-04070": {
             "item_name": "POP Ginger Chews Original 8 oz",
             "avg_daily_demand": 464.74,
+            "cases_per_pallet": 112.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 98959,
@@ -931,6 +982,7 @@
         "F-04118": {
             "item_name": "POP Ginger Chews Pineapple Coconut 4 oz (12ct/cs)",
             "avg_daily_demand": 130.18,
+            "cases_per_pallet": 240.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 7951,
@@ -952,6 +1004,7 @@
         "F-04131": {
             "item_name": "POP Ginger Chews Plus+ Lemon 3 oz",
             "avg_daily_demand": 43.06,
+            "cases_per_pallet": 50.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 5870,
@@ -973,6 +1026,7 @@
         "F-04130": {
             "item_name": "POP Ginger Chews Plus+ Original 3 oz",
             "avg_daily_demand": 70.09,
+            "cases_per_pallet": 50.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 79511,
@@ -994,6 +1048,7 @@
         "D-04037": {
             "item_name": "POP Ginger H Cytl.Lemon 10ct(6x6)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 36.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 16703,
@@ -1015,6 +1070,7 @@
         "D-04061": {
             "item_name": "POP Ginger Honey Cytl Original 10ct(6x6)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 36.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 34934,
@@ -1036,6 +1092,7 @@
         "D-04043": {
             "item_name": "POP In Ginger H Cytl w/Lemon 18gx30",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 25.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 853,
@@ -1057,6 +1114,7 @@
         "D-04032": {
             "item_name": "POP In Ginger H Cytl w/Turmeric 10ct(6x6)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 36.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 13621,
@@ -1078,6 +1136,7 @@
         "D-04033": {
             "item_name": "POP In Ginger H Cytl w/Turmeric 18gx25",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 25.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1404,
@@ -1099,6 +1158,7 @@
         "D-04011": {
             "item_name": "POP In Ginger Honey Cytl 18gx30",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 25.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1927,
@@ -1120,6 +1180,7 @@
         "J-63006": {
             "item_name": "Mazola Corn Oil 128 oz (1 gal)",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 36.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 3594,
@@ -1141,6 +1202,7 @@
         "J-63004": {
             "item_name": "Mazola Corn Oil 40 oz",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 36.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 5424,
@@ -1162,6 +1224,7 @@
         "J-72402": {
             "item_name": "Totole Chicken Bouillon 2.2 lbs",
             "avg_daily_demand": 26.95,
+            "cases_per_pallet": 60.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 6094,
@@ -1183,6 +1246,7 @@
         "T-47010": {
             "item_name": "Kwan Loong Oil 2 fl oz",
             "avg_daily_demand": 23.49,
+            "cases_per_pallet": 120,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 40794,
@@ -1204,6 +1268,7 @@
         "T-22010": {
             "item_name": "Tiger Balm 18g Red, Ext/St(MM)",
             "avg_daily_demand": 123.99,
+            "cases_per_pallet": 72.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 160190,
@@ -1225,6 +1290,7 @@
         "T-31510": {
             "item_name": "Tiger Balm 18g, Ultra/St",
             "avg_daily_demand": 712.17,
+            "cases_per_pallet": 72.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 318941,
@@ -1246,6 +1312,7 @@
         "T-31510R": {
             "item_name": "Tiger Balm 18g, Ultra/St - RFID",
             "avg_daily_demand": 12.51,
+            "cases_per_pallet": 72,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 64788,
@@ -1267,6 +1334,7 @@
         "T-31541": {
             "item_name": "Tiger Balm 50g, Ultra/St",
             "avg_daily_demand": 79.38,
+            "cases_per_pallet": 98.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 41701,
@@ -1288,6 +1356,7 @@
         "T-32300": {
             "item_name": "Tiger Balm Patch - Large",
             "avg_daily_demand": 35.95,
+            "cases_per_pallet": 40.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 70258,
@@ -1309,6 +1378,7 @@
         "T-32206": {
             "item_name": "Tiger Balm Patch Warm (MM)",
             "avg_daily_demand": 409.21,
+            "cases_per_pallet": 56.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 252287,
@@ -1330,6 +1400,7 @@
         "T-32224": {
             "item_name": "Tiger Balm Single Patch (2x12)",
             "avg_daily_demand": 48.98,
+            "cases_per_pallet": 56,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 3084,
@@ -1351,6 +1422,7 @@
         "T-32202": {
             "item_name": "Tiger Balm Single Patch 12ct/disp",
             "avg_daily_demand": 2943.72,
+            "cases_per_pallet": 100.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 5232,
@@ -1372,6 +1444,7 @@
         "T-31520": {
             "item_name": "Tiger Balm Ultra 10g",
             "avg_daily_demand": 1075.9,
+            "cases_per_pallet": 119.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 2473,
@@ -1393,6 +1466,7 @@
         "D-03052": {
             "item_name": "POP HT Blood Pressure 1.8gx18",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 125.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 670,
@@ -1414,6 +1488,7 @@
         "D-03053": {
             "item_name": "POP HT Blood Sugar 1.8gx18",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 125.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 3790,
@@ -1435,6 +1510,7 @@
         "D-03054": {
             "item_name": "POP HT Cholesterol 1.8gx18",
             "avg_daily_demand": 0,
+            "cases_per_pallet": 125.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 22847,
@@ -1456,6 +1532,7 @@
         "D-13206": {
             "item_name": "POP OG Green Tea 1.8gx100 (6ct/cs)",
             "avg_daily_demand": 32.91,
+            "cases_per_pallet": 136.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 2949,
@@ -1477,6 +1554,7 @@
         "D-14206": {
             "item_name": "POP OG Jasmine Tea 1.8gx100 (6ct/cs)",
             "avg_daily_demand": 24.56,
+            "cases_per_pallet": 136.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 4512,
@@ -1498,6 +1576,7 @@
         "D-15206": {
             "item_name": "POP OG Oolong Tea 1.8gx100 (6ct/cs)",
             "avg_daily_demand": 31.7,
+            "cases_per_pallet": 136.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 1028,
@@ -1519,6 +1598,7 @@
         "D-18206": {
             "item_name": "POP OG White Tea 1.8gx100 (6ct/cs)",
             "avg_daily_demand": 22.5,
+            "cases_per_pallet": 136.0,
             "inventory_by_dc": {
                 "Site 1 - SF": {
                     "stock_on_hand": 5374,
