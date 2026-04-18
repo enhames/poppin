@@ -33,6 +33,7 @@ function CostBar({ freight, chargeback }: { freight: number; chargeback: number 
 function RecCard({ rec }: { rec: Recommendation }) {
   const [approving, setApproving] = useState(false);
   const [approved, setApproved] = useState(false);
+  const [overridden, setOverridden] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isTransfer = rec.recommendation === "TRANSFER";
@@ -119,6 +120,10 @@ function RecCard({ rec }: { rec: Recommendation }) {
             <span className="text-sm font-semibold rounded-lg px-5 py-2.5" style={{ color: "#125F54", backgroundColor: "#EEF7F5", border: "1px solid #7AC4B8" }}>
               ✓ Transfer logged
             </span>
+          ) : overridden ? (
+            <span className="text-sm font-semibold rounded-lg px-5 py-2.5" style={{ color: "#8C5A0F", backgroundColor: "#FEF7E8", border: "1px solid #E5B664" }}>
+              ⏳ Waiting for PO
+            </span>
           ) : isTransfer ? (
             <>
               <button
@@ -129,24 +134,25 @@ function RecCard({ rec }: { rec: Recommendation }) {
               >
                 {approving ? "Submitting…" : "Approve Transfer"}
               </button>
-              <button className="text-sm font-semibold rounded-lg px-5 py-2.5 transition-colors" style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}>
+              <button
+                onClick={() => setOverridden(true)}
+                className="text-sm font-semibold rounded-lg px-5 py-2.5 transition-colors"
+                style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
+              >
                 Override — Wait for PO
               </button>
             </>
           ) : (
-            <>
-              <button className="text-sm font-semibold rounded-lg px-5 py-2.5 transition-colors" style={{ color: "#8C5A0F", border: "1px solid #E5B664", backgroundColor: "#FEF7E8" }}>
-                Set PO Watch Alert
-              </button>
-              <button
-                onClick={handleApprove}
-                disabled={approving}
-                className="text-sm font-semibold rounded-lg px-5 py-2.5 disabled:opacity-60 transition-colors"
-                style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
-              >
-                {approving ? "Submitting…" : "Override — Transfer Now"}
-              </button>
-            </>
+            <button
+              onClick={handleApprove}
+              disabled={approving}
+              className="text-sm font-semibold rounded-lg px-5 py-2.5 disabled:opacity-60 transition-colors"
+              style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+            >
+              {approving ? "Submitting…" : "Override — Transfer Now"}
+            </button>
           )}
           {error && <p className="text-xs ml-2" style={{ color: "#7A0F1D" }}>{error}</p>}
         </div>

@@ -88,17 +88,27 @@ function KpiCard({
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("imbalances");
-  const [criticalCount, setCriticalCount] = useState(0);
   const [transferCount, setTransferCount] = useState(0);
   const [alertsData, setAlertsData] = useState<any[]>([]);
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<Set<string>>(new Set());
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [scenario, setScenario] = useState<DashboardScenario | null>(null);
   const [urgentRequests, setUrgentRequests] = useState<UrgentRequest[]>([]);
 
+  const visibleAlerts = alertsData.filter((a: any) => !dismissedAlertIds.has(a.id));
+  const criticalCount = visibleAlerts.filter((a: any) => a.severity === "critical").length;
+
+  function dismissAlert(id: string) {
+    setDismissedAlertIds((prev) => new Set([...prev, id]));
+  }
+
+  function dismissAllAlerts() {
+    setDismissedAlertIds(new Set(alertsData.map((a: any) => a.id)));
+  }
+
   useEffect(() => {
     api.getAlerts().then((alerts: any[]) => {
       setAlertsData(alerts);
-      setCriticalCount(alerts.filter((a) => a.severity === "critical").length);
     });
     api.getDashboardSummary().then((s) => {
       setSummary(s);
@@ -210,11 +220,6 @@ export default function App() {
               <p className="text-xs mt-0.5 max-w-2xl" style={{ color: "#6B6560" }}>{NAV_DESC[activeTab]}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="text-sm font-semibold rounded-lg px-4 py-2 transition-colors" style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}>
-                Export Report
-              </button>
               <button className="text-sm font-bold text-white rounded-lg px-4 py-2 transition-colors" style={{ backgroundColor: "#7A0F1D" }}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5E0B15")}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}>
@@ -265,15 +270,21 @@ export default function App() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <p className="text-sm" style={{ color: "#6B6560" }}>
-                  <span className="font-semibold" style={{ color: "#14110F" }}>{alertsData.length} active alerts</span>
+                  <span className="font-semibold" style={{ color: "#14110F" }}>{visibleAlerts.length} active alerts</span>
                   {" "}· sorted by severity · based on estimated DC positions
                 </p>
-                <button className="text-sm font-semibold rounded-lg px-4 py-2" style={{ border: "1px solid #D6CFC7", color: "#403A34", backgroundColor: "#FFFFFF" }}>
+                <button
+                  onClick={dismissAllAlerts}
+                  className="text-sm font-semibold rounded-lg px-4 py-2 transition-colors"
+                  style={{ border: "1px solid #D6CFC7", color: "#403A34", backgroundColor: "#FFFFFF" }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
+                >
                   Mark all reviewed
                 </button>
               </div>
 
-              <AlertsBanner />
+              <AlertsBanner alerts={visibleAlerts} onDismiss={dismissAlert} />
 
               {/* URGENT Spreadsheet */}
               <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>

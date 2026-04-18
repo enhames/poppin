@@ -426,11 +426,6 @@ function DetailModal({ row, onClose, onTransfer }: {
               Initiate Transfer
             </button>
           )}
-          {row.status === "inactive" && (
-            <button className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors" style={{ backgroundColor: "#14110F" }}>
-              Flag for Liquidation
-            </button>
-          )}
           <button onClick={onClose} className="text-sm font-medium rounded-lg px-4 py-2.5 ml-auto transition-colors" style={{ color: "#6B6560", border: "1px solid #D6CFC7" }}>
             Close
           </button>
@@ -623,14 +618,6 @@ export function InventoryTable() {
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}
                           >
                             Transfer
-                          </button>
-                        ) : row.status === "inactive" ? (
-                          <button
-                            onClick={e => { e.stopPropagation(); setSelected(row); }}
-                            className="text-xs font-bold text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
-                            style={{ backgroundColor: "#14110F" }}
-                          >
-                            Liquidate
                           </button>
                         ) : null}
                       </div>
