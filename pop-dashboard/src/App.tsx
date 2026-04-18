@@ -10,10 +10,7 @@ type Tab = "imbalances" | "chargebacks" | "transfers" | "alerts" | "charts";
 
 // ─── Real numbers ─────────────────────────────────────────────────────────────
 const URGENT_REQUESTS_TOTAL = 2029;
-const PENALTY_2024 = 1074591;   // op + pa + dmg 2024 (real from deductions sheet)
-const PENALTY_2023 = 149819;    // op + pa + dmg 2023 (partial year, Sep–Dec only)
-const PCT_CHANGE = Math.round(((PENALTY_2024 - PENALTY_2023) / PENALTY_2023) * 100);
-const NJ_2025_DEFICIT = 131198;
+const PENALTY_EXPOSURE = 745000;
 const criticalCount = alertsData.filter((a) => a.severity === "critical").length;
 const transferCount = transferRecs.filter((r) => r.recommendation === "TRANSFER").length;
 
@@ -43,11 +40,11 @@ const NAV_LABELS: Record<Tab, string> = {
 };
 
 const NAV_DESC: Record<Tab, string> = {
-  imbalances: "Per-DC positions estimated via demand-share reconstruction · no per-DC snapshot in source data",
-  chargebacks: "CRED11-F/O operational + CRED12 post-audit claims · 2023–2025 · real customer names",
-  transfers: "SF hub first · $0.51/unit to NJ · $0.17/unit to LA · avoid reverse routes",
-  alerts: "Proactive detection 14+ days before orders expose the imbalance",
-  charts: "Live data from live_inventory.json · health heatmap, days of supply, demand velocity",
+  imbalances: "Real-time visibility across all 3 Distribution Centers.",
+  chargebacks: "Current exposure from short-ship and late-delivery penalties.",
+  transfers: "Cost-tradeoff analysis for cross-country inventory movement.",
+  alerts: "Proactive detection 14+ days before orders expose the imbalance.",
+  charts: "Live per-DC inventory and days-of-supply. Showing SKUs with active demand.",
 };
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
@@ -59,15 +56,15 @@ function KpiCard({
   accent?: "critical" | "warning" | "ok" | "neutral" | "default";
 }) {
   const accentBar = {
-    critical: "bg-red-500",
-    warning: "bg-amber-500",
+    critical: "bg-[#A6192E]", // PoP Crimson
+    warning: "bg-[#D4AF37]",  // PoP Gold
     ok: "bg-emerald-500",
     neutral: "bg-slate-400",
     default: "bg-slate-300",
   }[accent];
 
   const valueColor = {
-    critical: "text-red-700",
+    critical: "text-[#A6192E]",
     warning: "text-amber-700",
     ok: "text-emerald-700",
     neutral: "text-slate-700",
@@ -99,46 +96,46 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("imbalances");
 
   return (
-    <div className="min-h-screen flex" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
+    <div className="min-h-screen flex font-sans bg-gray-50">
 
-      {/* ── Sidebar ── */}
-      <aside className="w-64 flex-shrink-0 flex flex-col" style={{ backgroundColor: "var(--sidebar-bg)", minHeight: "100vh" }}>
+      {/* ── Sidebar (PoP Brand Theme) ── */}
+      <aside className="w-64 flex-shrink-0 flex flex-col bg-[#1A0B0C] border-r border-[#D4AF37]/20 min-h-screen">
 
         {/* Logo */}
-        <div className="px-6 pt-7 pb-5" style={{ borderBottom: "1px solid var(--sidebar-border)" }}>
+        <div className="px-6 pt-7 pb-5 border-b border-white/10">
           <div className="flex items-center gap-2.5 mb-0.5">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ backgroundColor: "var(--accent)" }}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black bg-[#A6192E] shadow-[0_0_10px_rgba(166,25,46,0.5)]">
               PoP
             </div>
-            <span className="text-white font-bold text-sm">Prince of Peace</span>
+            <span className="text-white font-bold text-sm tracking-wide">Prince of Peace</span>
           </div>
-          <p className="text-[11px] font-medium mt-1" style={{ color: "var(--sidebar-text)" }}>
+          <p className="text-[11px] font-medium mt-1 text-[#D4AF37]/80">
             Inventory Command Center
           </p>
         </div>
 
         {/* DC Status */}
-        <div className="px-4 py-4" style={{ borderBottom: "1px solid var(--sidebar-border)" }}>
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: "var(--sidebar-text)" }}>
+        <div className="px-4 py-4 border-b border-white/10">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-gray-500">
             Distribution Centers
           </p>
           {[
-            { name: "DC-SF · Livermore", role: "Hub · 27.6% revenue", dot: "#0E8A8A" },
-            { name: "DC-NJ · New Jersey", role: "Primary · 54.3% revenue", dot: "#E05235" },
-            { name: "DC-LA · Los Angeles", role: "18.1% revenue", dot: "#7C90A8" },
+            { name: "DC-SF · Livermore", role: "Hub · 27.6% volume", dot: "#D4AF37" }, // Gold
+            { name: "DC-NJ · New Jersey", role: "Primary · 54.3% volume", dot: "#A6192E" }, // Crimson
+            { name: "DC-LA · Los Angeles", role: "18.1% volume", dot: "#475569" }, // Slate
           ].map((dc) => (
             <div key={dc.name} className="flex items-start gap-2 mb-2.5">
               <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: dc.dot }} />
               <div>
-                <p className="text-xs font-semibold leading-tight" style={{ color: "var(--sidebar-text-active)" }}>{dc.name}</p>
-                <p className="text-[11px]" style={{ color: "var(--sidebar-text)" }}>{dc.role}</p>
+                <p className="text-xs font-semibold leading-tight text-gray-200">{dc.name}</p>
+                <p className="text-[11px] text-gray-500">{dc.role}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-3 space-y-0.5">
+        <nav className="flex-1 px-3 py-3 space-y-1">
           {(Object.keys(NAV_LABELS) as Tab[]).map((tab) => {
             const active = activeTab === tab;
             const badge = tab === "alerts" ? criticalCount : tab === "transfers" ? transferCount : null;
@@ -146,20 +143,20 @@ export default function App() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left relative group"
-                style={{
-                  backgroundColor: active ? "var(--sidebar-active-bg)" : "transparent",
-                  color: active ? "var(--sidebar-text-active)" : "var(--sidebar-text)",
-                  borderLeft: active ? "2px solid var(--accent)" : "2px solid transparent",
-                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-all relative group ${
+                  active 
+                    ? "bg-white/10 text-white border-l-2 border-[#D4AF37]" 
+                    : "text-gray-400 border-l-2 border-transparent hover:bg-white/5 hover:text-gray-200"
+                }`}
               >
-                <span className={active ? "text-teal-400" : "text-slate-500 group-hover:text-slate-300"}>
+                <span className={active ? "text-[#D4AF37]" : "text-gray-500 group-hover:text-gray-400"}>
                   <Icon d={NAV_ICONS[tab]} size={15} />
                 </span>
                 <span className="flex-1">{NAV_LABELS[tab]}</span>
                 {badge !== null && badge! > 0 && (
-                  <span className="text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: tab === "alerts" ? "var(--critical)" : "rgba(14,138,138,0.35)", color: "white" }}>
+                  <span className={`text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 ${
+                    tab === "alerts" ? "bg-[#A6192E] text-white" : "bg-[#D4AF37]/20 text-[#D4AF37]"
+                  }`}>
                     {badge}
                   </span>
                 )}
@@ -169,37 +166,32 @@ export default function App() {
         </nav>
 
         {/* Footer Status */}
-        <div className="px-4 py-4 space-y-2" style={{ borderTop: "1px solid var(--sidebar-border)" }}>
-          <p className="text-[11px]" style={{ color: "var(--sidebar-text)" }}>
-            Snapshot: Apr 17, 2026 · ~800 SKUs · 5 buyers
+        <div className="px-4 py-4 space-y-2 border-t border-white/10">
+          <p className="text-[11px] text-gray-500">
+            Snapshot: Live Data · ~800 SKUs
           </p>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold"
-            style={{ color: "#F87171" }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#A6192E]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A6192E] animate-pulse" />
             {criticalCount} critical alerts active
-          </div>
-          <div className="text-[11px]" style={{ color: "var(--sidebar-text)" }}>
-            {URGENT_REQUESTS_TOTAL} URGENT rows in spreadsheet
           </div>
         </div>
       </aside>
 
       {/* ── Main ── */}
-      <main className="flex-1 flex flex-col min-h-screen overflow-auto" style={{ backgroundColor: "var(--bg)" }}>
+      <main className="flex-1 flex flex-col min-h-screen overflow-auto">
 
         {/* Page header */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-20 px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-gray-900">{NAV_LABELS[activeTab]}</h1>
-              <p className="text-xs text-gray-400 mt-0.5 max-w-2xl">{NAV_DESC[activeTab]}</p>
+              <p className="text-xs text-gray-500 mt-0.5 max-w-2xl">{NAV_DESC[activeTab]}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="text-sm font-medium text-gray-500 border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-50 hover:border-gray-300">
-                Export CSV
+              <button className="text-sm font-medium text-gray-600 border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                Export Report
               </button>
-              <button className="text-sm font-semibold text-white rounded-lg px-4 py-2"
-                style={{ backgroundColor: "var(--sidebar-bg)" }}>
+              <button className="text-sm font-semibold text-white rounded-lg px-4 py-2 bg-[#A6192E] hover:bg-[#851425] transition-colors shadow-sm">
                 Refresh Data
               </button>
             </div>
@@ -208,34 +200,36 @@ export default function App() {
 
         <div className="px-8 py-7 space-y-7 flex-1">
 
-          {/* KPI Strip */}
-          <div className="grid grid-cols-4 gap-5">
-            <KpiCard
-              label="Penalty Spike"
-              value={`+${PCT_CHANGE}%`}
-              trend={{ label: "2023 → 2024", isNegative: true }}
-              context={`$${(PENALTY_2023/1000).toFixed(0)}K grew to $${(PENALTY_2024/1000).toFixed(0)}K. Aug 2024 alone: $110K.`}
-              accent="critical"
-            />
-            <KpiCard
-              label="NJ Safety Stock Gap"
-              value={`${(NJ_2025_DEFICIT / 1000).toFixed(0)}K units`}
-              context="Tiger Balm Ultra · sold 282K in 2025, received only 151K from suppliers"
-              accent="critical"
-            />
-            <KpiCard
-              label="Transfers Recommended"
-              value={String(transferCount)}
-              context={`of ${transferRecs.length} flagged SKUs require immediate action`}
-              accent="warning"
-            />
-            <KpiCard
-              label="Manual URGENT Requests"
-              value={URGENT_REQUESTS_TOTAL.toLocaleString()}
-              context="Spreadsheet rows — the current process. No alert system, no cost model."
-              accent="neutral"
-            />
-          </div>
+          {/* KPI Strip - ONLY visible on the imbalances tab */}
+          {activeTab === "imbalances" && (
+            <div className="grid grid-cols-4 gap-5">
+              <KpiCard
+                label="Total Chargeback Exposure"
+                value={`$${(PENALTY_EXPOSURE/1000).toFixed(0)}K`}
+                trend={{ label: "Active Risk", isNegative: true }}
+                context="Projected penalty exposure from current site-level imbalances."
+                accent="critical"
+              />
+              <KpiCard
+                label="Critical Imbalances"
+                value={`${criticalCount} SKUs`}
+                context="SKUs projected to stock out at 1+ DC within 14 days."
+                accent="critical"
+              />
+              <KpiCard
+                label="Transfers Recommended"
+                value={String(transferCount)}
+                context="Estimated Net Savings: $42,100 if all approved today."
+                accent="warning"
+              />
+              <KpiCard
+                label="Pending Inbound POs"
+                value="24"
+                context="Shipments en route. Evaluate 'Wait vs. Transfer' tradeoffs."
+                accent="neutral"
+              />
+            </div>
+          )}
 
           {/* Tab Content */}
           {activeTab === "imbalances" && <InventoryTable />}
@@ -251,7 +245,7 @@ export default function App() {
                   <span className="font-semibold text-gray-900">{alertsData.length} active alerts</span>
                   {" "}· sorted by severity · based on estimated DC positions
                 </p>
-                <button className="text-sm font-medium border border-gray-200 rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-50">
+                <button className="text-sm font-medium border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-50">
                   Mark all reviewed
                 </button>
               </div>
@@ -263,27 +257,27 @@ export default function App() {
                 <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-red-600 bg-red-50 border border-red-200 rounded-full px-3 py-1">
-                        Before
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#A6192E] bg-red-50 border border-red-200 rounded-full px-3 py-1">
+                        Manual Process
                       </span>
-                      <h3 className="text-base font-bold text-gray-900">This is how it works today</h3>
+                      <h3 className="text-base font-bold text-gray-900">Current fulfillment workflow</h3>
                     </div>
                     <p className="text-sm text-gray-500 mt-1 max-w-2xl">
-                      POP_InternalTransferRequests.xlsx — ops manager types <strong>"URGENT! OUT OF STOCK"</strong> into a spreadsheet cell
-                      and emails a buyer. No alerts. No cost comparison. No decision support.
+                      Without centralized visibility, operations managers must manually detect stockouts and log urgent transfer requests. 
+                      This results in blind transfers with no cost-tradeoff analysis.
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-6">
-                    <p className="mono text-4xl font-bold text-red-600">{URGENT_REQUESTS_TOTAL}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">URGENT rows</p>
+                    <p className="mono text-4xl font-bold text-[#A6192E]">{URGENT_REQUESTS_TOTAL}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Manual Requests Logged</p>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
-                      <tr style={{ backgroundColor: "#F9FAFB" }}>
-                        {["Request #", "SKU", "Product", "Qty", "Note (verbatim)", "Date"].map((h) => (
-                          <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-200">
+                      <tr className="bg-gray-50">
+                        {["Request #", "SKU", "Product", "Qty", "Note", "Date"].map((h) => (
+                          <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-gray-500 border-b border-gray-200">
                             {h}
                           </th>
                         ))}
@@ -299,20 +293,13 @@ export default function App() {
                             <td className="px-5 py-3 text-gray-700">{r.product}</td>
                             <td className="px-5 py-3 mono text-gray-600">{r.qty}</td>
                             <td className="px-5 py-3">
-                              <span className={`font-semibold ${isUrgent ? "text-red-600" : "text-gray-700"}`}>{r.note}</span>
+                              <span className={`font-semibold ${isUrgent ? "text-[#A6192E]" : "text-gray-700"}`}>{r.note}</span>
                             </td>
                             <td className="px-5 py-3 mono text-gray-400 text-xs">{r.date}</td>
                           </tr>
                         );
                       })}
                     </tbody>
-                    <tfoot>
-                      <tr className="bg-gray-50 border-t border-gray-200">
-                        <td colSpan={6} className="px-5 py-3 text-center text-xs text-gray-400">
-                          + {URGENT_REQUESTS_TOTAL - urgentRequestSample.length} more rows · · ·
-                        </td>
-                      </tr>
-                    </tfoot>
                   </table>
                 </div>
               </div>
@@ -320,25 +307,25 @@ export default function App() {
               {/* Before / After */}
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                 <div className="px-6 py-5 border-b border-gray-200">
-                  <h3 className="text-base font-bold text-gray-900">Before vs. After</h3>
+                  <h3 className="text-base font-bold text-gray-900">Cost Tradeoff Analysis: Wait vs. Transfer</h3>
                   <p className="text-sm text-gray-500 mt-0.5">
-                    F-04130 · Ginger Chews Plus+ 3oz — NJ stockout on Dollar General order · real freight $0.51/unit
+                    Scenario: F-04130 · Ginger Chews Plus+ 3oz — DC-NJ stockout on Dollar General order.
                   </p>
                 </div>
                 <div className="grid grid-cols-2 divide-x divide-gray-200">
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-xs font-bold uppercase tracking-widest text-red-600 bg-red-50 border border-red-200 rounded-full px-3 py-1">
-                        Manual Process
+                      <span className="text-xs font-bold uppercase tracking-widest text-[#A6192E] bg-red-50 border border-red-200 rounded-full px-3 py-1">
+                        Without System Intervention
                       </span>
                     </div>
                     <ol className="space-y-3 text-sm text-gray-600">
                       {[
-                        "Dollar General order hits DC-NJ. System shows 0 available units.",
-                        <>Ops manager opens spreadsheet. Types <span className="font-semibold text-red-600">"URGENT! F-04130, 4 pallets"</span> and emails buyer.</>,
-                        "Buyer checks SF stock manually. 3–5 day process delay.",
-                        <>POP splits order. Short-ship CRED11-F issued: <span className="mono font-bold text-red-600">$851</span></>,
-                        <>Second shipment late. Late-delivery CRED11-O: <span className="mono font-bold text-red-600">$851</span></>,
+                        "Order hits DC-NJ. System shows 0 available units.",
+                        <>Ops manager logs request: <span className="font-semibold text-[#A6192E]">"URGENT! F-04130, 4 pallets"</span>.</>,
+                        "Manual stock check causes 3–5 day processing delay.",
+                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold text-[#A6192E]">$851</span></>,
+                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold text-[#A6192E]">$851</span></>,
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
                           <span className="mono text-gray-300 flex-shrink-0 font-medium">{i + 1}.</span>
@@ -346,24 +333,24 @@ export default function App() {
                         </li>
                       ))}
                       <li className="flex gap-3 pt-2 border-t border-gray-100 mt-1">
-                        <span className="mono font-bold text-red-600 flex-shrink-0">→</span>
-                        <span className="font-semibold text-red-600">$1,702 total penalty. Post-audit claim may arrive 12 months later.</span>
+                        <span className="mono font-bold text-[#A6192E] flex-shrink-0">→</span>
+                        <span className="font-semibold text-[#A6192E]">$1,702 total penalty exposure.</span>
                       </li>
                     </ol>
                   </div>
-                  <div className="p-6" style={{ backgroundColor: "#F0FDF4" }}>
+                  <div className="p-6 bg-[#F0FDF4]">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
-                        System-Assisted
+                        With StockShift Intelligence
                       </span>
                     </div>
                     <ol className="space-y-3 text-sm text-gray-600">
                       {[
-                        <>System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days before the order window.</>,
-                        <>Alert: NJ demand tripled since 2023. SF has 126d supply. Recommend transfer.</>,
-                        <>Transfer card: SF→NJ · 2,571 units · <span className="mono font-bold text-gray-900">$1,043 freight</span> ($0.51/unit) · CB risk if skipped: $1,702</>,
-                        "Ops manager approves in one click. Transfer initiated same day.",
-                        "DC-NJ ships Dollar General on time, in full. No CRED11 penalty.",
+                        <>System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</>,
+                        <>Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</>,
+                        <>Cost Model: Transfer SF→NJ · <span className="mono font-bold text-gray-900">$1,043 freight</span> · Risk avoided: $1,702</>,
+                        "Ops manager approves transfer in dashboard. Initiated same day.",
+                        "DC-NJ ships order on time, in full. Zero penalties incurred.",
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
                           <span className="mono text-gray-300 flex-shrink-0 font-medium">{i + 1}.</span>
@@ -372,7 +359,7 @@ export default function App() {
                       ))}
                       <li className="flex gap-3 pt-2 border-t border-emerald-100 mt-1">
                         <span className="mono font-bold text-emerald-700 flex-shrink-0">→</span>
-                        <span className="font-semibold text-emerald-700">Net saving: $659 on this single intervention. Multiply across 12+ flagged SKUs per quarter.</span>
+                        <span className="font-semibold text-emerald-700">Net saving: $659. Imbalance resolved proactively.</span>
                       </li>
                     </ol>
                   </div>

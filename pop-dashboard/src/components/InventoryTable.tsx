@@ -6,45 +6,52 @@ import type { SkuRow, DcSlot } from "../data/mockData";
 type LiveDc = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
 
 function dcSlot(dc: LiveDc, demand: number): DcSlot {
-  const dos = dc.days_of_supply === 9999 ? 0 : dc.days_of_supply;
   return {
     onHand: dc.stock_on_hand,
     allocated: 0,
     available: dc.stock_on_hand,
-    daysSupply: dos,
+    daysSupply: dc.days_of_supply,
     velocityPerDay: Math.round(demand * 10) / 10,
     isEstimated: false,
   };
 }
 
-function liveStatus(sfDos: number, njDos: number, laDos: number): "critical" | "warning" | "ok" {
+// FIX: Added 'inactive' status for items with 0 demand
+function liveStatus(sfDos: number, njDos: number, laDos: number, demand: number): "critical" | "warning" | "ok" | "inactive" {
+  if (demand === 0) return "inactive";
   const worst = Math.min(sfDos, njDos, laDos);
   if (worst < 14) return "critical";
   if (worst < 30) return "warning";
   return "ok";
 }
 
-const inventoryData: SkuRow[] = (() => {
+const inventoryData = (() => {
   const raw = liveInventoryRaw as {
     METADATA: { avg_penalty_cost: number; avg_transfer_cost: number };
     ITEMS: Record<string, { item_name: string; avg_daily_demand: number; inventory_by_dc: Record<string, LiveDc> }>;
   };
+  
   return Object.entries(raw.ITEMS)
-    .filter(([, item]) => item.avg_daily_demand > 0)
+    // FIX: Removed the filter that blocked 0 demand items so they can enter the table
     .map(([sku, item]) => {
       const dcMap = item.inventory_by_dc;
       const sfRaw = dcMap["Site 1 - SF"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
       const njRaw = dcMap["Site 2 - NJ"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
       const laRaw = dcMap["Site 3 - LA"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
       const demand = item.avg_daily_demand;
-      const sfDos = sfRaw.days_of_supply === 9999 ? 0 : sfRaw.days_of_supply;
-      const njDos = njRaw.days_of_supply === 9999 ? 0 : njRaw.days_of_supply;
-      const laDos = laRaw.days_of_supply === 9999 ? 0 : laRaw.days_of_supply;
+      
+      const sfDos = sfRaw.days_of_supply;
+      const njDos = njRaw.days_of_supply;
+      const laDos = laRaw.days_of_supply;
+      
       const totalStock = sfRaw.stock_on_hand + njRaw.stock_on_hand + laRaw.stock_on_hand;
-      const companyDos = demand > 0 ? Math.round(totalStock / demand) : 0;
-      const status = liveStatus(sfDos, njDos, laDos);
+      const companyDos = demand > 0 ? Math.round(totalStock / demand) : 9999;
+      const status = liveStatus(sfDos, njDos, laDos, demand);
       const worstDos = Math.min(sfDos, njDos, laDos);
-      const cbRisk = status === "critical" ? Math.round(raw.METADATA.avg_penalty_cost) : 0;
+      
+      const missingDays = Math.max(0, 14 - worstDos);
+      const cbRisk = status === "critical" ? Math.round(demand * missingDays * 4.25) : 0;
+      
       return {
         sku,
         product: item.item_name,
@@ -58,11 +65,13 @@ const inventoryData: SkuRow[] = (() => {
         status,
         chargebackRisk: cbRisk,
         inboundPo: worstDos === 0 ? null : null,
-        note: worstDos < 5 && status === "critical" ? `Lowest DC at ${worstDos}d · ${demand.toFixed(0)} units/day burn rate` : undefined,
-      } satisfies SkuRow;
+        note: status === "inactive" ? "Dead stock. No recent demand across all regions." : (worstDos < 5 && status === "critical" ? `Lowest DC at ${worstDos}d · ${demand.toFixed(0)} units/day burn rate` : undefined),
+      };
     })
+    // FIX: Keep critical, warning, AND inactive (dead stock). Only hide the healthy "ok" items.
+    .filter((row) => row.status !== "ok") 
     .sort((a, b) => {
-      const order = { critical: 0, warning: 1, ok: 2 };
+      const order = { critical: 0, warning: 1, inactive: 2, ok: 3 };
       return order[a.status] - order[b.status];
     });
 })();
@@ -72,9 +81,11 @@ const STATUS = {
   critical: { label: "Critical", dot: "bg-red-500", text: "text-red-700", pill: "bg-red-50 text-red-700 border border-red-200" },
   warning:  { label: "Warning",  dot: "bg-amber-400", text: "text-amber-700", pill: "bg-amber-50 text-amber-700 border border-amber-200" },
   ok:       { label: "OK",       dot: "bg-emerald-500", text: "text-emerald-700", pill: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+  inactive: { label: "Dead Stock", dot: "bg-slate-400", text: "text-slate-700", pill: "bg-slate-100 text-slate-700 border border-slate-200" },
 };
 
 function dosColor(days: number) {
+  if (days === 9999) return { text: "text-gray-500", bg: "bg-gray-200" }; 
   if (days === 0) return { text: "text-red-600", bg: "bg-red-500" };
   if (days < 14)  return { text: "text-red-500",   bg: "bg-red-400" };
   if (days < 30)  return { text: "text-amber-600", bg: "bg-amber-400" };
@@ -84,22 +95,23 @@ function dosColor(days: number) {
 
 function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
   const col = dosColor(slot.daysSupply);
-  const pct = Math.min((slot.daysSupply / 300) * 100, 100);
+  const isNoDemand = slot.daysSupply === 9999;
+  const pct = isNoDemand ? 0 : Math.min((slot.daysSupply / 300) * 100, 100);
   const isEmpty = slot.available === 0;
 
   return (
-    <div className="text-right min-w-[100px]">
+    <div className="text-right min-w-[90px]">
       {isHub && <p className="text-[10px] font-bold uppercase tracking-widest text-teal-600 mb-0.5">Hub</p>}
       <p className={`mono text-base font-bold leading-none ${isEmpty ? "text-red-500" : "text-gray-900"}`}>
         {isEmpty ? "—" : slot.available.toLocaleString()}
       </p>
-      <p className="text-[11px] text-gray-400 mt-0.5 mono">{slot.velocityPerDay}/day</p>
+      <p className="text-[11px] text-gray-400 mt-0.5 mono">{isNoDemand ? "—" : `${slot.velocityPerDay}/day`}</p>
       <div className="flex items-center justify-end gap-1.5 mt-1.5">
         <div className="w-12 h-1 rounded-full bg-gray-100 overflow-hidden">
           <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${pct}%` }} />
         </div>
-        <span className={`mono text-[11px] font-semibold ${col.text}`}>
-          {slot.daysSupply === 0 ? "0d" : `${slot.daysSupply}d`}
+        <span className={`mono text-[11px] font-semibold ${col.text} whitespace-nowrap`}>
+          {isNoDemand ? "No Demand" : slot.daysSupply === 0 ? "0d" : `${slot.daysSupply}d`}
         </span>
       </div>
     </div>
@@ -107,12 +119,14 @@ function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
 }
 
 // ─── Detail Modal ─────────────────────────────────────────────────────────────
-function DetailModal({ row, onClose }: { row: SkuRow; onClose: () => void }) {
+function DetailModal({ row, onClose }: { row: any; onClose: () => void }) {
   const DC_KEYS = [
     { key: "dcSF" as const, label: "DC-SF · Livermore", role: "Hub", accent: "teal" },
     { key: "dcNJ" as const, label: "DC-NJ · New Jersey", role: "Primary", accent: "red" },
     { key: "dcLA" as const, label: "DC-LA · Los Angeles", role: "", accent: "slate" },
   ];
+
+  const statusCfg = STATUS[row.status as keyof typeof STATUS];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
@@ -123,14 +137,14 @@ function DetailModal({ row, onClose }: { row: SkuRow; onClose: () => void }) {
         <div className="flex items-start justify-between px-6 py-5 border-b border-gray-200">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2.5 py-1 ${STATUS[row.status].pill}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${STATUS[row.status].dot}`} />
-                {STATUS[row.status].label}
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2.5 py-1 ${statusCfg.pill}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                {statusCfg.label}
               </span>
               <span className="mono text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5">{row.sku}</span>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mt-1.5">{row.product}</h3>
-            <p className="text-sm text-gray-400">{row.category}{row.unitCost > 0 ? ` · $${row.unitCost.toFixed(2)}/unit` : ""}</p>
+            <p className="text-sm text-gray-400">{row.category}</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 ml-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-xl">
             ×
@@ -142,6 +156,7 @@ function DetailModal({ row, onClose }: { row: SkuRow; onClose: () => void }) {
           {DC_KEYS.map(({ key, label, role }) => {
             const slot = row[key];
             const col = dosColor(slot.daysSupply);
+            const isNoDemand = slot.daysSupply === 9999;
             return (
               <div key={key} className="rounded-xl border border-gray-200 p-4">
                 <div>
@@ -154,64 +169,29 @@ function DetailModal({ row, onClose }: { row: SkuRow; onClose: () => void }) {
                 <p className="text-xs text-gray-400 mono">avail · {slot.onHand.toLocaleString()} on-hand</p>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                    <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${Math.min(slot.daysSupply / 300 * 100, 100)}%` }} />
+                    <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${isNoDemand ? 0 : Math.min(slot.daysSupply / 300 * 100, 100)}%` }} />
                   </div>
-                  <span className={`mono text-xs font-bold ${col.text}`}>{slot.daysSupply}d</span>
+                  <span className={`mono text-xs font-bold ${col.text}`}>
+                    {isNoDemand ? "No Demand" : `${slot.daysSupply}d`}
+                  </span>
                 </div>
-                <p className="mono text-xs text-gray-400 mt-1">{slot.velocityPerDay} units/day</p>
+                <p className="mono text-xs text-gray-400 mt-1">{isNoDemand ? "—" : `${slot.velocityPerDay} units/day`}</p>
               </div>
             );
           })}
         </div>
 
-        {/* Company totals + note */}
-        <div className="px-6 py-4 border-b border-gray-100">
-          <div className="flex gap-8 text-sm mb-3">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Company Available</p>
-              <p className="mono text-xl font-bold text-gray-900">{row.companyAvailable.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Company Days Supply</p>
-              <p className="mono text-xl font-bold text-gray-900">{row.companyDaysSupply}d</p>
-            </div>
-            {row.chargebackRisk > 0 && (
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">CB Exposure</p>
-                <p className="mono text-xl font-bold text-red-600">${row.chargebackRisk.toLocaleString()}</p>
-              </div>
-            )}
-          </div>
-          {row.note && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800 leading-relaxed">
-              {row.note}
-            </div>
-          )}
-        </div>
-
-        {/* Inbound PO */}
-        {row.inboundPo && (
-          <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
-            <p className="text-xs text-gray-500">
-              <span className="font-semibold">Inbound PO →</span> {row.inboundPo.dc} ·{" "}
-              <span className="mono">{row.inboundPo.qty.toLocaleString()} units</span> · ETA {row.inboundPo.eta}
-              <span className="text-amber-600 ml-2">· 81.5% of POs arrive late by avg 28d</span>
-            </p>
-          </div>
-        )}
-
         {/* Actions */}
         <div className="px-6 py-4 flex gap-2">
-          {row.status !== "ok" && (
-            <button className="text-sm font-semibold text-white rounded-lg px-5 py-2.5" style={{ backgroundColor: "#0E1B2E" }}>
+          {row.status === "critical" || row.status === "warning" ? (
+            <button className="text-sm font-semibold text-white rounded-lg px-5 py-2.5 bg-[#A6192E] hover:bg-red-800 transition-colors">
               Initiate Transfer
             </button>
-          )}
-          {row.inboundPo && (
-            <button className="text-sm font-medium text-gray-700 border border-gray-200 rounded-lg px-5 py-2.5 hover:bg-gray-50">
-              Track Inbound PO
+          ) : row.status === "inactive" ? (
+            <button className="text-sm font-semibold text-white rounded-lg px-5 py-2.5 bg-slate-800 hover:bg-slate-900 transition-colors">
+              Flag for Liquidation
             </button>
-          )}
+          ) : null}
           <button onClick={onClose} className="text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-4 py-2.5 hover:bg-gray-50 ml-auto">
             Close
           </button>
@@ -223,64 +203,62 @@ function DetailModal({ row, onClose }: { row: SkuRow; onClose: () => void }) {
 
 // ─── Main Table ───────────────────────────────────────────────────────────────
 type SortKey = "status" | "chargebackRisk" | "companyDaysSupply";
-type FilterStatus = "all" | "critical" | "warning" | "ok";
+type FilterStatus = "all" | "critical" | "warning" | "inactive";
 
 export function InventoryTable() {
-  const [selected, setSelected] = useState<SkuRow | null>(null);
+  const [selected, setSelected] = useState<any | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
   const [sort, setSort] = useState<SortKey>("status");
-  const statusOrder = { critical: 0, warning: 1, ok: 2 };
+  const statusOrder = { critical: 0, warning: 1, inactive: 2, ok: 3 };
 
+// 1. Update counts so "all" only counts active risks
   const counts = {
-    all: inventoryData.length,
+    all: inventoryData.filter((r) => r.status === "critical" || r.status === "warning").length,
     critical: inventoryData.filter((r) => r.status === "critical").length,
     warning: inventoryData.filter((r) => r.status === "warning").length,
-    ok: inventoryData.filter((r) => r.status === "ok").length,
+    inactive: inventoryData.filter((r) => r.status === "inactive").length,
   };
 
+  // 2. Tweak the filter logic so "all" excludes inactive (dead) stock
   const rows = inventoryData
-    .filter((r) => filter === "all" || r.status === filter)
+    .filter((r) => filter === "all" ? r.status !== "inactive" : r.status === filter)
     .sort((a, b) => {
-      if (sort === "status")           return statusOrder[a.status] - statusOrder[b.status];
-      if (sort === "chargebackRisk")   return b.chargebackRisk - a.chargebackRisk;
+      if (sort === "status") return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
+      if (sort === "chargebackRisk") return b.chargebackRisk - a.chargebackRisk;
       return a.companyDaysSupply - b.companyDaysSupply;
     });
 
   return (
     <>
-      {/* Data source note */}
-      <div className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-5 py-3.5 text-sm shadow-sm">
-        <span className="font-bold text-teal-600 flex-shrink-0">LIVE</span>
+      <div className="flex items-start gap-3 bg-white border border-red-200 rounded-xl px-5 py-3.5 text-sm shadow-sm">
+        <span className="font-bold text-[#A6192E] flex-shrink-0">ACTION REQUIRED</span>
         <p className="text-gray-500">
-          Per-DC inventory from <strong className="text-gray-700">live_inventory.json</strong> — real stock on hand and days of supply per warehouse.
-          Showing <strong className="text-gray-700">{inventoryData.length} SKUs</strong> with active demand.
+          Showing <strong className="text-gray-700">{inventoryData.length} SKUs</strong> currently facing shortages or marked as dead stock (No Demand). Healthy inventory is hidden.
         </p>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        {/* Filter pills */}
+      <div className="flex items-center justify-between flex-wrap gap-3 mt-4 mb-4">
         <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm">
-          {(["all", "critical", "warning", "ok"] as FilterStatus[]).map((f) => {
+          {(["all", "critical", "warning", "inactive"] as FilterStatus[]).map((f) => {
             const active = filter === f;
-            const dot = f === "critical" ? "bg-red-500" : f === "warning" ? "bg-amber-400" : f === "ok" ? "bg-emerald-500" : "";
+            const dot = f === "critical" ? "bg-red-500" : f === "warning" ? "bg-amber-400" : f === "inactive" ? "bg-slate-400" : "";
+            const label = f === "all" ? "All At Risk" : f === "inactive" ? "Dead Stock" : f.charAt(0).toUpperCase() + f.slice(1);
             return (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all capitalize ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   active ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
                 }`}
               >
                 {f !== "all" && <span className={`w-1.5 h-1.5 rounded-full ${active ? "opacity-80" : ""} ${dot}`} />}
-                {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+                {label}
                 <span className={`mono text-[11px] ${active ? "opacity-70" : "text-gray-400"}`}>({counts[f]})</span>
               </button>
             );
           })}
         </div>
 
-        {/* Sort */}
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <span>Sort:</span>
           {([["status", "Risk Level"], ["chargebackRisk", "CB Exposure"], ["companyDaysSupply", "Days Supply"]] as [SortKey, string][]).map(([key, label]) => (
@@ -299,66 +277,61 @@ export function InventoryTable() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm relative">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-gray-200" style={{ backgroundColor: "#F9FAFB" }}>
-                <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-widest text-gray-400">Product</th>
-                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">
+              <tr className="border-b border-gray-200 bg-[#F9FAFB]">
+                <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-widest text-gray-400 min-w-[220px]">Product</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">
                   DC-SF <span className="font-normal text-teal-500">(Hub)</span>
                 </th>
-                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-NJ</th>
-                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-LA</th>
-                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">Company</th>
-                <th className="px-5 py-3.5 text-center text-[11px] font-bold uppercase tracking-widest text-gray-400">Status</th>
-                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">CB Risk</th>
-                <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-widest text-gray-400">Inbound PO</th>
-                <th className="px-5 py-3.5" />
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-NJ</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-LA</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">Company</th>
+                <th className="px-3 py-3.5 text-center text-[11px] font-bold uppercase tracking-widest text-gray-400">Status</th>
+                <th className="px-3 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">CB Risk</th>
+                <th className="px-4 py-3.5 sticky right-0 bg-[#F9FAFB] z-10 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)]" />
               </tr>
             </thead>
             <tbody>
               {rows.map((row, i) => {
-                const s = STATUS[row.status];
+                const s = STATUS[row.status as keyof typeof STATUS];
+                const bgClass = i % 2 === 1 ? "bg-gray-50/40" : "bg-white";
+                
                 return (
                   <tr
                     key={row.sku}
-                    className={`border-b border-gray-100 hover:bg-blue-50/30 cursor-pointer transition-colors ${i % 2 === 1 ? "bg-gray-50/40" : ""}`}
+                    className={`border-b border-gray-100 hover:bg-blue-50/30 cursor-pointer transition-colors group ${bgClass}`}
                     onClick={() => setSelected(row)}
                   >
-                    {/* Product */}
-                    <td className="px-5 py-4">
-                      <p className="font-semibold text-gray-900 text-sm leading-tight">{row.product}</p>
+                    <td className="px-4 py-4">
+                      <p className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">{row.product}</p>
                       <p className="mono text-[11px] text-gray-400 mt-0.5">{row.sku} · {row.category}</p>
                       {row.note && (
-                        <p className="text-[11px] text-amber-600 mt-1 max-w-[200px] leading-tight line-clamp-1">
-                          ⚠ {row.note.slice(0, 55)}…
+                        <p className={`text-[11px] mt-1 max-w-[200px] leading-tight line-clamp-1 ${row.status === 'inactive' ? 'text-slate-500' : 'text-amber-600'}`}>
+                          {row.status === 'inactive' ? 'ℹ' : '⚠'} {row.note.slice(0, 55)}…
                         </p>
                       )}
                     </td>
 
-                    {/* DC cells */}
-                    <td className="px-5 py-4"><DcCell slot={row.dcSF} isHub /></td>
-                    <td className="px-5 py-4"><DcCell slot={row.dcNJ} /></td>
-                    <td className="px-5 py-4"><DcCell slot={row.dcLA} /></td>
+                    <td className="px-3 py-4"><DcCell slot={row.dcSF} isHub /></td>
+                    <td className="px-3 py-4"><DcCell slot={row.dcNJ} /></td>
+                    <td className="px-3 py-4"><DcCell slot={row.dcLA} /></td>
 
-                    {/* Company DoS */}
-                    <td className="px-5 py-4 text-right">
-                      <p className="mono text-base font-bold text-gray-900">{row.companyDaysSupply}d</p>
-                      <p className="mono text-[11px] text-gray-400">{row.companyAvailable.toLocaleString()} avail</p>
+                    <td className="px-3 py-4 text-right">
+                      <p className="mono text-base font-bold text-gray-900">{row.companyDaysSupply === 9999 ? "No Demand" : `${row.companyDaysSupply}d`}</p>
+                      <p className="mono text-[11px] text-gray-400 whitespace-nowrap">{row.companyAvailable.toLocaleString()} avail</p>
                     </td>
 
-                    {/* Status */}
-                    <td className="px-5 py-4 text-center">
-                      <span className={`inline-flex items-center gap-1.5 rounded-full text-xs font-semibold px-2.5 py-1 ${s.pill}`}>
+                    <td className="px-3 py-4 text-center">
+                      <span className={`inline-flex items-center gap-1.5 rounded-full text-xs font-semibold px-2.5 py-1 whitespace-nowrap ${s.pill}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
                         {s.label}
                       </span>
                     </td>
 
-                    {/* CB Risk */}
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-3 py-4 text-right">
                       {row.chargebackRisk > 0 ? (
                         <span className="mono text-sm font-bold text-red-600">${row.chargebackRisk.toLocaleString()}</span>
                       ) : (
@@ -366,34 +339,26 @@ export function InventoryTable() {
                       )}
                     </td>
 
-                    {/* Inbound PO */}
-                    <td className="px-5 py-4">
-                      {row.inboundPo ? (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-700">{row.inboundPo.dc}</p>
-                          <p className="mono text-[11px] text-gray-400">{row.inboundPo.qty.toLocaleString()} · {row.inboundPo.eta}</p>
-                          <p className="text-[10px] text-amber-500 mt-0.5">Late risk: 81.5%</p>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-300">None on file</span>
-                      )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-5 py-4">
+                    <td className={`px-4 py-4 sticky right-0 z-10 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors ${bgClass} group-hover:bg-blue-50`}>
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        {row.status !== "ok" && (
+                        {row.status === "critical" || row.status === "warning" ? (
                           <button
                             onClick={(e) => { e.stopPropagation(); setSelected(row); }}
-                            className="text-xs font-semibold text-white rounded-lg px-3 py-1.5 whitespace-nowrap"
-                            style={{ backgroundColor: "#0E1B2E" }}
+                            className="text-xs font-semibold text-white rounded-lg px-3 py-1.5 whitespace-nowrap bg-[#A6192E] hover:bg-red-800 transition-colors shadow-sm"
                           >
                             Transfer
                           </button>
-                        )}
+                        ) : row.status === "inactive" ? (
+                           <button
+                            onClick={(e) => { e.stopPropagation(); setSelected(row); }}
+                            className="text-xs font-semibold text-white rounded-lg px-3 py-1.5 whitespace-nowrap bg-slate-800 hover:bg-slate-900 transition-colors shadow-sm"
+                          >
+                            Liquidate
+                          </button>
+                        ) : null}
                         <button
                           onClick={(e) => { e.stopPropagation(); setSelected(row); }}
-                          className="text-xs font-medium text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 whitespace-nowrap"
+                          className="text-xs font-medium text-gray-600 border border-gray-200 bg-white rounded-lg px-3 py-1.5 hover:bg-gray-50 whitespace-nowrap shadow-sm"
                         >
                           Details
                         </button>
@@ -404,13 +369,6 @@ export function InventoryTable() {
               })}
             </tbody>
           </table>
-        </div>
-
-        {/* Table footer note */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
-          <p className="text-[11px] text-gray-400">
-            Available = on-hand minus allocated · DoS = Days of Supply (est.) · Freight: SF→NJ $0.51/unit · SF→LA $0.17/unit · Reverse to SF $1.55/unit (avoid)
-          </p>
         </div>
       </div>
 
