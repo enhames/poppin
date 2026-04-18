@@ -209,8 +209,8 @@ export function TransferPanel() {
 
       {/* Scatter plot visualization */}
       {!loading && !error && recs.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="text-sm font-bold text-gray-900 mb-4">Transfer Cost vs. Net Savings</h3>
+        <div className="rounded-xl p-5" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+          <h3 className="text-sm font-bold mb-4" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Transfer Cost vs. Net Savings</h3>
           <ScatterPlot data={sortedRecs} />
         </div>
       )}

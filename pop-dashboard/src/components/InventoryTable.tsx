@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { api } from "../api/client";
+import { api, type Recommendation } from "../api/client";
 import type { DcSlot } from "../data/mockData";
 
 // ─── Build SkuRows from live_inventory.json ────────────────────────────────────
@@ -16,7 +16,6 @@ function dcSlot(dc: LiveDc, demand: number): DcSlot {
   };
 }
 
-// FIX: Added 'inactive' status for items with 0 demand
 function liveStatus(sfDos: number, njDos: number, laDos: number, demand: number): "critical" | "warning" | "ok" | "inactive" {
   if (demand === 0) return "inactive";
   const worst = Math.min(sfDos, njDos, laDos);
@@ -31,6 +30,9 @@ type RawInventory = {
 };
 
 function buildInventoryRows(raw: RawInventory) {
+  const avgPenaltyCost = raw.METADATA?.avg_penalty_cost ?? 680;
+  const penaltyRatePerUnitDay = avgPenaltyCost / 160;
+
   return Object.entries(raw.ITEMS)
     .map(([sku, item]) => {
       const dcMap = item.inventory_by_dc;
@@ -48,13 +50,11 @@ function buildInventoryRows(raw: RawInventory) {
       const status = liveStatus(sfDos, njDos, laDos, demand);
       const worstDos = Math.min(sfDos, njDos, laDos);
       const missingDays = Math.max(0, 14 - worstDos);
-      /* TODO: HARDCODED */
-      const cbRisk = status === "critical" ? Math.round(demand * missingDays * 4.25) : 0;
+      const cbRisk = status === "critical" ? Math.round(demand * missingDays * penaltyRatePerUnitDay) : 0;
 
       return {
         sku,
         product: item.item_name,
-        /* TODO: HARDCODED */
         category: sku.startsWith("T-") ? "OTC Analgesic" : sku.startsWith("F-") ? "Candy & Snacks" : sku.startsWith("AC-") || sku.startsWith("A-") ? "Am. Ginseng" : "General",
         unitCost: 0,
         dcSF: dcSlot(sfRaw, demand),
@@ -65,6 +65,7 @@ function buildInventoryRows(raw: RawInventory) {
         status,
         chargebackRisk: cbRisk,
         inboundPo: null,
+        demand,
         note: status === "inactive" ? "Dead stock. No recent demand across all regions." : (worstDos < 5 && status === "critical" ? `Lowest DC at ${worstDos}d · ${demand.toFixed(0)} units/day burn rate` : undefined),
       };
     })
@@ -75,11 +76,20 @@ function buildInventoryRows(raw: RawInventory) {
     });
 }
 
+type RowType = ReturnType<typeof buildInventoryRows>[0];
+
+// ─── DC constants ─────────────────────────────────────────────────────────────
+const DC_SITES = [
+  { key: "dcSF" as const, site: "Site 1 - SF", label: "DC-SF · Livermore", role: "Hub" },
+  { key: "dcNJ" as const, site: "Site 2 - NJ", label: "DC-NJ · New Jersey", role: "Primary" },
+  { key: "dcLA" as const, site: "Site 3 - LA", label: "DC-LA · Los Angeles", role: "" },
+];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const STATUS = {
-  critical: { label: "Critical",  dot: "bg-[#7A0F1D]", text: "text-[#7A0F1D]", pill: "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]" },
-  warning:  { label: "Warning",   dot: "bg-[#B97A15]", text: "text-[#8C5A0F]", pill: "bg-[#FEF7E8] text-[#8C5A0F] border border-[#E5B664]" },
-  ok:       { label: "OK",        dot: "bg-[#1E8574]", text: "text-[#125F54]", pill: "bg-[#EEF7F5] text-[#125F54] border border-[#7AC4B8]" },
+  critical: { label: "Critical",   dot: "bg-[#7A0F1D]", text: "text-[#7A0F1D]", pill: "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]" },
+  warning:  { label: "Warning",    dot: "bg-[#B97A15]", text: "text-[#8C5A0F]", pill: "bg-[#FEF7E8] text-[#8C5A0F] border border-[#E5B664]" },
+  ok:       { label: "OK",         dot: "bg-[#1E8574]", text: "text-[#125F54]", pill: "bg-[#EEF7F5] text-[#125F54] border border-[#7AC4B8]" },
   inactive: { label: "Dead Stock", dot: "bg-[#8E8680]", text: "text-[#403A34]", pill: "bg-[#FAF7F1] text-[#403A34] border border-[#D6CFC7]" },
 };
 
@@ -92,7 +102,7 @@ function dosColor(days: number) {
   return               { text: "text-[#125F54]", bg: "bg-[#1E8574]" };
 }
 
-function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
+function DcCell({ slot }: { slot: DcSlot }) {
   const col = dosColor(slot.daysSupply);
   const isNoDemand = slot.daysSupply === 9999;
   const pct = isNoDemand ? 0 : Math.min((slot.daysSupply / 300) * 100, 100);
@@ -100,8 +110,7 @@ function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
 
   return (
     <div className="text-right min-w-[90px]">
-      {isHub && <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: "#125F54" }}>Hub</p>}
-      <p className={`mono text-base font-bold leading-none`} style={{ color: isEmpty ? "#7A0F1D" : "#14110F" }}>
+      <p className="mono text-base font-bold leading-none" style={{ color: isEmpty ? "#7A0F1D" : "#14110F" }}>
         {isEmpty ? "—" : slot.available.toLocaleString()}
       </p>
       <p className="text-[11px] mt-0.5 mono" style={{ color: "#8E8680" }}>{isNoDemand ? "—" : `${slot.velocityPerDay}/day`}</p>
@@ -117,20 +126,248 @@ function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
   );
 }
 
-// ─── Detail Modal ─────────────────────────────────────────────────────────────
-function DetailModal({ row, onClose }: { row: any; onClose: () => void }) {
-  const DC_KEYS = [
-    { key: "dcSF" as const, label: "DC-SF · Livermore", role: "Hub", accent: "teal" },
-    { key: "dcNJ" as const, label: "DC-NJ · New Jersey", role: "Primary", accent: "red" },
-    { key: "dcLA" as const, label: "DC-LA · Los Angeles", role: "", accent: "slate" },
-  ];
+// ─── Transfer Modal ───────────────────────────────────────────────────────────
+function TransferModal({ row, rec, onClose, onSuccess }: {
+  row: RowType;
+  rec: Recommendation | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const dcOptions = DC_SITES.map((d) => ({
+    ...d,
+    dos: row[d.key].daysSupply,
+    stock: row[d.key].available,
+  }));
 
+  const autoSource = dcOptions.reduce((best, dc) => dc.dos > best.dos ? dc : best).site;
+  const autoDest   = dcOptions.reduce((worst, dc) => dc.dos < worst.dos ? dc : worst).site;
+
+  const [sourceDc, setSourceDc] = useState(rec?.source_dc ?? autoSource);
+  const [destDc,   setDestDc]   = useState(rec?.destination_dc ?? autoDest);
+
+  const destDcData = dcOptions.find(d => d.site === destDc);
+  const demand = row.demand;
+  const defaultUnits = rec
+    ? Math.round(rec.transfer_units)
+    : Math.max(0, Math.round(Math.max(0, 14 - (destDcData?.dos ?? 0)) * demand));
+
+  const [units, setUnits] = useState(String(defaultUnits));
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const unitCount = parseInt(units, 10) || 0;
+  const sourceStock = dcOptions.find(d => d.site === sourceDc)?.stock ?? 0;
+  const sourceValid = unitCount > 0 && unitCount <= sourceStock && sourceDc !== destDc;
+
+  async function handleSubmit() {
+    if (!sourceValid) {
+      setError(sourceDc === destDc ? "Source and destination must differ." : `Only ${sourceStock.toLocaleString()} units available at source.`);
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await api.approveTransfer({
+        sku: row.sku.trim(),
+        item_name: row.product,
+        source_dc: sourceDc,
+        destination_dc: destDc,
+        units: unitCount,
+      });
+      setDone(true);
+      setTimeout(onSuccess, 1400);
+    } catch (e: any) {
+      setError(e?.message ?? "Transfer failed. Check backend connection.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+      onClick={onClose}>
+      <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden" style={{ boxShadow: "0 12px 32px -8px rgba(20,17,15,0.25)", borderTop: "3px solid #7A0F1D" }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="flex items-start justify-between px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] mb-1" style={{ color: "#7A0F1D" }}>Initiate Transfer</p>
+            <h3 className="text-lg font-bold leading-tight" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{row.product}</h3>
+            <p className="mono text-xs mt-0.5" style={{ color: "#8E8680" }}>{row.sku.trim()}</p>
+          </div>
+          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl" style={{ color: "#B8B1AA" }}>×</button>
+        </div>
+
+        {done ? (
+          <div className="px-6 py-10 text-center">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "#EEF7F5" }}>
+              <span className="text-2xl" style={{ color: "#125F54" }}>✓</span>
+            </div>
+            <p className="font-bold text-base" style={{ color: "#125F54" }}>Transfer logged</p>
+            <p className="text-sm mt-1" style={{ color: "#6B6560" }}>
+              {unitCount.toLocaleString()} units · {sourceDc} → {destDc}
+            </p>
+          </div>
+        ) : (
+          <div className="p-6 space-y-5">
+
+            {rec && (
+              <div className="rounded-lg px-4 py-3 text-sm" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
+                <p className="font-semibold" style={{ color: "#7A0F1D" }}>System recommendation active</p>
+                <p className="text-xs mt-0.5" style={{ color: "#6B6560" }}>{rec.reason}</p>
+              </div>
+            )}
+
+            {/* Source → Dest */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>Source DC</p>
+                <div className="space-y-1.5">
+                  {dcOptions.map(dc => (
+                    <button
+                      key={dc.site}
+                      onClick={() => {
+                        setSourceDc(dc.site);
+                        const newStock = dc.stock;
+                        setUnits(u => String(Math.min(parseInt(u, 10) || 0, newStock)));
+                      }}
+                      className="w-full text-left rounded-lg px-3 py-2.5 text-sm transition-all"
+                      style={{
+                        border: `1px solid ${sourceDc === dc.site ? "#7A0F1D" : "#D6CFC7"}`,
+                        backgroundColor: sourceDc === dc.site ? "#FBEEEF" : "#FFFFFF",
+                        color: "#14110F",
+                      }}
+                    >
+                      <p className="font-semibold text-xs">{dc.label}</p>
+                      <p className="mono text-[11px] mt-0.5" style={{ color: dc.dos < 14 ? "#A6192E" : "#6B6560" }}>
+                        {dc.stock.toLocaleString()} units · {dc.dos === 9999 ? "No demand" : `${dc.dos}d supply`}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>Destination DC</p>
+                <div className="space-y-1.5">
+                  {dcOptions.map(dc => (
+                    <button
+                      key={dc.site}
+                      onClick={() => setDestDc(dc.site)}
+                      className="w-full text-left rounded-lg px-3 py-2.5 text-sm transition-all"
+                      style={{
+                        border: `1px solid ${destDc === dc.site ? "#1E8574" : "#D6CFC7"}`,
+                        backgroundColor: destDc === dc.site ? "#EEF7F5" : "#FFFFFF",
+                        color: "#14110F",
+                      }}
+                    >
+                      <p className="font-semibold text-xs">{dc.label}</p>
+                      <p className="mono text-[11px] mt-0.5" style={{ color: dc.dos < 14 ? "#A6192E" : "#6B6560" }}>
+                        {dc.stock.toLocaleString()} units · {dc.dos === 9999 ? "No demand" : `${dc.dos}d supply`}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Units */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "#6B6560" }}>Units to Transfer</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={sourceStock}
+                  value={units}
+                  onChange={e => {
+                    const v = parseInt(e.target.value, 10);
+                    setUnits(isNaN(v) ? "" : String(Math.min(v, sourceStock)));
+                  }}
+                  className="flex-1 rounded-lg px-4 py-2.5 mono text-sm font-semibold outline-none transition-all"
+                  style={{ border: "1px solid #D6CFC7", color: "#14110F", backgroundColor: "#FFFFFF" }}
+                  onFocus={e => (e.currentTarget.style.borderColor = "#7A0F1D")}
+                  onBlur={e => (e.currentTarget.style.borderColor = "#D6CFC7")}
+                />
+                <button
+                  onClick={() => setUnits(String(sourceStock))}
+                  className="px-3 py-2.5 rounded-lg text-xs font-bold transition-colors"
+                  style={{ border: "1px solid #D6CFC7", color: "#403A34", backgroundColor: "#FAF7F1" }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FAF7F1")}
+                >
+                  Max
+                </button>
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: "#8E8680" }}>
+                {sourceStock.toLocaleString()} units available at source
+                {demand > 0 && ` · ${demand.toFixed(0)} units/day demand`}
+              </p>
+            </div>
+
+            {/* Cost summary (from recommendation) */}
+            {rec && (
+              <div className="rounded-lg p-4 space-y-2" style={{ backgroundColor: "#FAF7F1", border: "1px solid #E8E2DA" }}>
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: "#6B6560" }}>Freight cost</span>
+                  <span className="mono font-semibold" style={{ color: "#403A34" }}>${rec.transfer_cost.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: "#6B6560" }}>Penalty avoided</span>
+                  <span className="mono font-semibold" style={{ color: "#1E8574" }}>${rec.avoided_penalty.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm pt-2" style={{ borderTop: "1px solid #E8E2DA" }}>
+                  <span className="font-bold" style={{ color: "#14110F" }}>Net value</span>
+                  <span className="mono font-bold" style={{ color: rec.transfer_value > 0 ? "#125F54" : "#8C5A0F" }}>
+                    {rec.transfer_value > 0 ? "+" : ""}${rec.transfer_value.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <p className="text-sm rounded-lg px-4 py-2.5" style={{ backgroundColor: "#FBEEEF", color: "#7A0F1D", border: "1px solid #F4D5D8" }}>{error}</p>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={handleSubmit}
+                disabled={submitting || unitCount <= 0}
+                className="flex-1 text-sm font-bold text-white rounded-lg px-5 py-2.5 disabled:opacity-50 transition-opacity"
+                style={{ backgroundColor: "#7A0F1D" }}
+              >
+                {submitting ? "Submitting…" : "Approve Transfer"}
+              </button>
+              <button
+                onClick={onClose}
+                className="text-sm font-medium rounded-lg px-5 py-2.5 transition-colors"
+                style={{ color: "#6B6560", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Detail Modal ─────────────────────────────────────────────────────────────
+function DetailModal({ row, onClose, onTransfer }: {
+  row: RowType;
+  onClose: () => void;
+  onTransfer: () => void;
+}) {
   const statusCfg = STATUS[row.status as keyof typeof STATUS];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
       onClick={onClose}>
-      <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden" style={{ boxShadow: "0 12px 32px -8px rgba(20,17,15,0.2)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden" style={{ boxShadow: "0 12px 32px -8px rgba(20,17,15,0.2)" }} onClick={e => e.stopPropagation()}>
 
         {/* Modal header */}
         <div className="flex items-start justify-between px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
@@ -140,19 +377,17 @@ function DetailModal({ row, onClose }: { row: any; onClose: () => void }) {
                 <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                 {statusCfg.label}
               </span>
-              <span className="mono text-xs rounded px-2 py-0.5" style={{ color: "#8E8680", backgroundColor: "#FAF7F1" }}>{row.sku}</span>
+              <span className="mono text-xs rounded px-2 py-0.5" style={{ color: "#8E8680", backgroundColor: "#FAF7F1" }}>{row.sku.trim()}</span>
             </div>
             <h3 className="text-lg font-bold mt-1.5" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{row.product}</h3>
             <p className="text-sm" style={{ color: "#8E8680" }}>{row.category}</p>
           </div>
-          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl transition-colors" style={{ color: "#B8B1AA" }}>
-            ×
-          </button>
+          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl" style={{ color: "#B8B1AA" }}>×</button>
         </div>
 
         {/* DC cards */}
         <div className="grid grid-cols-3 gap-4 p-6" style={{ borderBottom: "1px solid #F2EDE5" }}>
-          {DC_KEYS.map(({ key, label, role }) => {
+          {DC_SITES.map(({ key, label, role }) => {
             const slot = row[key];
             const col = dosColor(slot.daysSupply);
             const isNoDemand = slot.daysSupply === 9999;
@@ -182,15 +417,20 @@ function DetailModal({ row, onClose }: { row: any; onClose: () => void }) {
 
         {/* Actions */}
         <div className="px-6 py-4 flex gap-2">
-          {row.status === "critical" || row.status === "warning" ? (
-            <button className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors" style={{ backgroundColor: "#7A0F1D" }}>
+          {(row.status === "critical" || row.status === "warning") && (
+            <button
+              onClick={() => { onClose(); onTransfer(); }}
+              className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors"
+              style={{ backgroundColor: "#7A0F1D" }}
+            >
               Initiate Transfer
             </button>
-          ) : row.status === "inactive" ? (
+          )}
+          {row.status === "inactive" && (
             <button className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors" style={{ backgroundColor: "#14110F" }}>
               Flag for Liquidation
             </button>
-          ) : null}
+          )}
           <button onClick={onClose} className="text-sm font-medium rounded-lg px-4 py-2.5 ml-auto transition-colors" style={{ color: "#6B6560", border: "1px solid #D6CFC7" }}>
             Close
           </button>
@@ -205,29 +445,48 @@ type SortKey = "status" | "chargebackRisk" | "companyDaysSupply";
 type FilterStatus = "all" | "critical" | "warning" | "inactive";
 
 export function InventoryTable() {
-  const [inventoryData, setInventoryData] = useState<ReturnType<typeof buildInventoryRows>>([]);
+  const [inventoryData, setInventoryData] = useState<RowType[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<any | null>(null);
+  const [selected, setSelected] = useState<RowType | null>(null);
+  const [transferTarget, setTransferTarget] = useState<RowType | null>(null);
+  const [transferredSkus, setTransferredSkus] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<FilterStatus>("all");
-  const [sort, setSort] = useState<SortKey>("status");
+  const [sort, setSort] = useState<SortKey>("chargebackRisk");
   const statusOrder = { critical: 0, warning: 1, inactive: 2, ok: 3 };
 
-  useEffect(() => {
+  function loadData() {
     api.getInventory()
       .then((raw) => setInventoryData(buildInventoryRows(raw as RawInventory)))
       .catch(() => setLoadError("Could not load inventory. Is the backend running?"));
-  }, []);
+    api.getRecommendations()
+      .then(setRecommendations)
+      .catch(() => {});
+  }
+
+  useEffect(() => { loadData(); }, []);
+
+  function openTransfer(row: RowType) {
+    setSelected(null);
+    setTransferTarget(row);
+  }
+
+  const getRecForRow = (row: RowType) =>
+    recommendations.find(r => r.sku.trim() === row.sku.trim() && r.recommendation === "TRANSFER") ?? null;
 
   const counts = {
-    all: inventoryData.filter((r) => r.status === "critical" || r.status === "warning").length,
-    critical: inventoryData.filter((r) => r.status === "critical").length,
-    warning: inventoryData.filter((r) => r.status === "warning").length,
-    inactive: inventoryData.filter((r) => r.status === "inactive").length,
+    all:      inventoryData.filter(r => r.status === "critical" || r.status === "warning").length,
+    critical: inventoryData.filter(r => r.status === "critical").length,
+    warning:  inventoryData.filter(r => r.status === "warning").length,
+    inactive: inventoryData.filter(r => r.status === "inactive").length,
   };
 
   const rows = inventoryData
-    .filter((r) => filter === "all" ? r.status !== "inactive" : r.status === filter)
+    .filter(r => filter === "all" ? r.status !== "inactive" : r.status === filter)
     .sort((a, b) => {
+      const aT = transferredSkus.has(a.sku.trim());
+      const bT = transferredSkus.has(b.sku.trim());
+      if (aT !== bT) return aT ? 1 : -1;
       if (sort === "status") return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
       if (sort === "chargebackRisk") return b.chargebackRisk - a.chargebackRisk;
       return a.companyDaysSupply - b.companyDaysSupply;
@@ -236,33 +495,27 @@ export function InventoryTable() {
   return (
     <>
       {loadError && (
-        <div className="bg-red-50 rounded-xl border border-red-200 px-5 py-3.5 text-sm text-red-700 shadow-sm mb-4">
+        <div className="rounded-xl px-5 py-3.5 text-sm mb-4" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8", color: "#7A0F1D" }}>
           {loadError}
         </div>
       )}
       <div className="rounded-xl px-5 py-3.5 text-sm flex items-start gap-3" style={{ backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
         <span className="font-bold flex-shrink-0" style={{ color: "#7A0F1D" }}>ACTION REQUIRED</span>
         <p style={{ color: "#6B6560" }}>
-          Showing <strong style={{ color: "#14110F" }}>{inventoryData.length} SKUs</strong> currently facing shortages or marked as dead stock (No Demand). Healthy inventory is hidden.
+          Showing <strong style={{ color: "#14110F" }}>{inventoryData.length} SKUs</strong> currently facing shortages or marked as dead stock. Healthy inventory is hidden.
         </p>
       </div>
 
       <div className="flex items-center justify-between flex-wrap gap-3 mt-4 mb-4">
         <div className="flex items-center gap-1.5 rounded-xl p-1.5" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA" }}>
-          {(["all", "critical", "warning", "inactive"] as FilterStatus[]).map((f) => {
+          {(["all", "critical", "warning", "inactive"] as FilterStatus[]).map(f => {
             const active = filter === f;
             const dotColor = f === "critical" ? "#7A0F1D" : f === "warning" ? "#B97A15" : f === "inactive" ? "#8E8680" : "";
             const label = f === "all" ? "All At Risk" : f === "inactive" ? "Dead Stock" : f.charAt(0).toUpperCase() + f.slice(1);
             return (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
+              <button key={f} onClick={() => setFilter(f)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
-                style={{
-                  backgroundColor: active ? "#14110F" : "transparent",
-                  color: active ? "#FFFFFF" : "#6B6560",
-                }}
-              >
+                style={{ backgroundColor: active ? "#14110F" : "transparent", color: active ? "#FFFFFF" : "#6B6560" }}>
                 {f !== "all" && <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: active ? "rgba(255,255,255,0.6)" : dotColor }} />}
                 {label}
                 <span className="mono text-[11px]" style={{ opacity: 0.6 }}>({counts[f]})</span>
@@ -274,17 +527,14 @@ export function InventoryTable() {
         <div className="flex items-center gap-2 text-sm" style={{ color: "#8E8680" }}>
           <span>Sort:</span>
           {([["status", "Risk Level"], ["chargebackRisk", "CB Exposure"], ["companyDaysSupply", "Days Supply"]] as [SortKey, string][]).map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => setSort(key)}
+            <button key={key} onClick={() => setSort(key)}
               className="px-3 py-1.5 rounded-lg text-sm transition-all"
               style={{
                 border: `1px solid ${sort === key ? "#14110F" : "#D6CFC7"}`,
                 color: sort === key ? "#14110F" : "#6B6560",
                 fontWeight: sort === key ? 700 : 400,
                 backgroundColor: "#FFFFFF",
-              }}
-            >
+              }}>
               {label}
             </button>
           ))}
@@ -311,27 +561,27 @@ export function InventoryTable() {
             <tbody>
               {rows.map((row, i) => {
                 const s = STATUS[row.status as keyof typeof STATUS];
-
+                const bgBase = i % 2 === 1 ? "#FAF7F1" : "#FFFFFF";
                 return (
                   <tr
                     key={row.sku}
-                    className="cursor-pointer transition-colors group"
-                    style={{ borderBottom: "1px solid #F2EDE5", backgroundColor: i % 2 === 1 ? "#FAF7F1" : "#FFFFFF" }}
+                    className="cursor-pointer transition-colors"
+                    style={{ borderBottom: "1px solid #F2EDE5", backgroundColor: bgBase }}
                     onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#FDF9EC")}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = i % 2 === 1 ? "#FAF7F1" : "#FFFFFF")}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = bgBase)}
                     onClick={() => setSelected(row)}
                   >
                     <td className="px-4 py-4">
                       <p className="font-semibold text-sm leading-tight line-clamp-2" style={{ color: "#14110F" }}>{row.product}</p>
-                      <p className="mono text-[11px] mt-0.5" style={{ color: "#8E8680" }}>{row.sku} · {row.category}</p>
+                      <p className="mono text-[11px] mt-0.5" style={{ color: "#8E8680" }}>{row.sku.trim()} · {row.category}</p>
                       {row.note && (
-                        <p className="text-[11px] mt-1 max-w-[200px] leading-tight line-clamp-1" style={{ color: row.status === 'inactive' ? "#8E8680" : "#8C5A0F" }}>
-                          {row.status === 'inactive' ? 'ℹ' : '⚠'} {row.note.slice(0, 55)}…
+                        <p className="text-[11px] mt-1 max-w-[200px] leading-tight line-clamp-1" style={{ color: row.status === "inactive" ? "#8E8680" : "#8C5A0F" }}>
+                          {row.status === "inactive" ? "ℹ" : "⚠"} {row.note.slice(0, 55)}…
                         </p>
                       )}
                     </td>
 
-                    <td className="px-3 py-4"><DcCell slot={row.dcSF} isHub /></td>
+                    <td className="px-3 py-4"><DcCell slot={row.dcSF} /></td>
                     <td className="px-3 py-4"><DcCell slot={row.dcNJ} /></td>
                     <td className="px-3 py-4"><DcCell slot={row.dcLA} /></td>
 
@@ -355,32 +605,34 @@ export function InventoryTable() {
                       )}
                     </td>
 
-                    <td className="px-4 py-4 sticky right-0 z-10 transition-colors" style={{ backgroundColor: i % 2 === 1 ? "#FAF7F1" : "#FFFFFF", boxShadow: "-5px 0 10px -5px rgba(20,17,15,0.06)" }}>
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        {row.status === "critical" || row.status === "warning" ? (
+                    <td
+                      className="px-4 py-4 sticky right-0 z-10 transition-colors"
+                      style={{ backgroundColor: bgBase, boxShadow: "-5px 0 10px -5px rgba(20,17,15,0.06)" }}
+                    >
+                      <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                        {transferredSkus.has(row.sku.trim()) ? (
+                          <span className="text-xs font-semibold rounded-lg px-3 py-1.5 whitespace-nowrap" style={{ color: "#125F54", backgroundColor: "#EEF7F5", border: "1px solid #7AC4B8" }}>
+                            ✓ Transferred
+                          </span>
+                        ) : (row.status === "critical" || row.status === "warning") ? (
                           <button
-                            onClick={(e) => { e.stopPropagation(); setSelected(row); }}
+                            onClick={() => openTransfer(row)}
                             className="text-xs font-bold text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
                             style={{ backgroundColor: "#7A0F1D" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5E0B15")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}
                           >
                             Transfer
                           </button>
                         ) : row.status === "inactive" ? (
                           <button
-                            onClick={(e) => { e.stopPropagation(); setSelected(row); }}
+                            onClick={e => { e.stopPropagation(); setSelected(row); }}
                             className="text-xs font-bold text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
                             style={{ backgroundColor: "#14110F" }}
                           >
                             Liquidate
                           </button>
                         ) : null}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setSelected(row); }}
-                          className="text-xs font-semibold rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
-                          style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
-                        >
-                          Details
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -391,7 +643,26 @@ export function InventoryTable() {
         </div>
       </div>
 
-      {selected && <DetailModal row={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <DetailModal
+          row={selected}
+          onClose={() => setSelected(null)}
+          onTransfer={() => openTransfer(selected)}
+        />
+      )}
+
+      {transferTarget && (
+        <TransferModal
+          row={transferTarget}
+          rec={getRecForRow(transferTarget)}
+          onClose={() => setTransferTarget(null)}
+          onSuccess={() => {
+            setTransferredSkus(prev => new Set([...prev, transferTarget.sku.trim()]));
+            setTransferTarget(null);
+            loadData();
+          }}
+        />
+      )}
     </>
   );
 }
