@@ -1,66 +1,105 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens: PoP Inventory Command Center ─── */
 :root {
-  --font-sans: "Space Grotesk", sans-serif;
-  --font-mono: "DM Mono", monospace;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", monospace;
+  --font-display: "Fraunces", "Space Grotesk", serif;
 
-  /* Sidebar */
-  --sidebar-bg: #0E1B2E;
-  --sidebar-border: #1C2E45;
-  --sidebar-text: #7C90A8;
-  --sidebar-text-active: #E0ECF8;
-  --sidebar-active-bg: #1A3050;
+  /* Inks */
+  --ink-950: #14110F;
+  --ink-900: #1D1916;
+  --ink-800: #2A2622;
+  --ink-700: #403A34;
+  --ink-600: #6B6560;
+  --ink-500: #8E8680;
+  --ink-400: #B8B1AA;
+  --ink-300: #D6CFC7;
+  --ink-200: #E8E2DA;
+  --ink-100: #F2EDE5;
+  --ink-050: #FAF7F1;
 
-  /* Surface */
-  --bg: #F2F4F8;
+  /* Oxblood — critical / brand red */
+  --oxblood-900: #4A0910;
+  --oxblood-800: #5E0B15;
+  --oxblood-700: #7A0F1D;
+  --oxblood-600: #96121F;
+  --oxblood-500: #A6192E;
+  --oxblood-200: #F4D5D8;
+  --oxblood-100: #FBEEEF;
+  --oxblood-050: #FDF6F6;
+
+  /* Gold — accent */
+  --gold-900: #6B4F0F;
+  --gold-700: #A67C1B;
+  --gold-500: #D4AF37;
+  --gold-400: #E2C358;
+  --gold-300: #F4D35E;
+  --gold-100: #FAEED1;
+  --gold-050: #FDF9EC;
+
+  /* Verdigris — ok / SF hub */
+  --verdigris-700: #125F54;
+  --verdigris-500: #1E8574;
+  --verdigris-300: #7AC4B8;
+  --verdigris-100: #DCEFEB;
+  --verdigris-050: #EEF7F5;
+
+  /* Amber — warning */
+  --amber-700: #8C5A0F;
+  --amber-500: #B97A15;
+  --amber-300: #E5B664;
+  --amber-100: #FBEACB;
+  --amber-050: #FEF7E8;
+
+  /* Semantic */
+  --app-bg: var(--ink-100);
   --surface: #FFFFFF;
-  --border: #E4E8EF;
-  --border-strong: #CDD2DA;
+  --border-hairline: var(--ink-200);
+  --border-default: var(--ink-300);
 
-  /* Text */
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
+  /* Legacy aliases used in components */
+  --bg: var(--ink-100);
+  --border: var(--ink-200);
+  --border-strong: var(--ink-300);
+  --text-primary: var(--ink-950);
+  --text-secondary: var(--ink-700);
+  --text-muted: var(--ink-600);
 
-  /* Status */
-  --critical: #C8381C;
-  --critical-bg: #FFF1EE;
-  --critical-border: #F9C5B8;
-  --critical-mid: #E05235;
+  --critical: var(--oxblood-700);
+  --critical-bg: var(--oxblood-100);
+  --critical-border: var(--oxblood-200);
 
-  --warning: #B45309;
-  --warning-bg: #FFFBEB;
-  --warning-border: #FCD34D;
-  --warning-mid: #D97706;
+  --warning: var(--amber-700);
+  --warning-bg: var(--amber-050);
+  --warning-border: var(--amber-300);
 
-  --ok: #0A7B4B;
-  --ok-bg: #EDFAF4;
-  --ok-border: #86EFAC;
-  --ok-mid: #059669;
+  --ok: var(--verdigris-700);
+  --ok-bg: var(--verdigris-050);
+  --ok-border: var(--verdigris-300);
 
-  --accent: #0E8A8A;
-  --accent-bg: #EFF9F9;
-  --accent-border: #A7E3E3;
+  --shadow-sm: 0 1px 0 rgba(20,17,15,0.04), 0 1px 2px rgba(20,17,15,0.05);
+  --shadow-md: 0 1px 0 rgba(20,17,15,0.04), 0 4px 12px -3px rgba(20,17,15,0.08);
+  --shadow-lg: 0 2px 0 rgba(20,17,15,0.04), 0 12px 32px -8px rgba(20,17,15,0.14);
 }
 
 * { box-sizing: border-box; }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg);
-  color: var(--text-primary);
+  background-color: var(--app-bg);
+  color: var(--ink-950);
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.mono { font-family: var(--font-mono); }
+.mono { font-family: var(--font-mono); font-feature-settings: "tnum" 1, "zero" 1; }
+.font-display { font-family: var(--font-display); font-variation-settings: "opsz" 48; }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+::-webkit-scrollbar-thumb { background: var(--ink-300); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-400); }
 
-/* Smooth transitions */
 button, a { transition: all 120ms ease; }
