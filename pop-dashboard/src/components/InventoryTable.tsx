@@ -1,5 +1,71 @@
 import { useState } from "react";
-import { inventoryData, type SkuRow, type DcSlot } from "../data/mockData";
+import liveInventoryRaw from "@backend/live_inventory.json";
+import type { SkuRow, DcSlot } from "../data/mockData";
+
+// ─── Build SkuRows from live_inventory.json ────────────────────────────────────
+type LiveDc = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
+
+function dcSlot(dc: LiveDc, demand: number): DcSlot {
+  const dos = dc.days_of_supply === 9999 ? 0 : dc.days_of_supply;
+  return {
+    onHand: dc.stock_on_hand,
+    allocated: 0,
+    available: dc.stock_on_hand,
+    daysSupply: dos,
+    velocityPerDay: Math.round(demand * 10) / 10,
+    isEstimated: false,
+  };
+}
+
+function liveStatus(sfDos: number, njDos: number, laDos: number): "critical" | "warning" | "ok" {
+  const worst = Math.min(sfDos, njDos, laDos);
+  if (worst < 14) return "critical";
+  if (worst < 30) return "warning";
+  return "ok";
+}
+
+const inventoryData: SkuRow[] = (() => {
+  const raw = liveInventoryRaw as {
+    METADATA: { avg_penalty_cost: number; avg_transfer_cost: number };
+    ITEMS: Record<string, { item_name: string; avg_daily_demand: number; inventory_by_dc: Record<string, LiveDc> }>;
+  };
+  return Object.entries(raw.ITEMS)
+    .filter(([, item]) => item.avg_daily_demand > 0)
+    .map(([sku, item]) => {
+      const dcMap = item.inventory_by_dc;
+      const sfRaw = dcMap["Site 1 - SF"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
+      const njRaw = dcMap["Site 2 - NJ"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
+      const laRaw = dcMap["Site 3 - LA"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
+      const demand = item.avg_daily_demand;
+      const sfDos = sfRaw.days_of_supply === 9999 ? 0 : sfRaw.days_of_supply;
+      const njDos = njRaw.days_of_supply === 9999 ? 0 : njRaw.days_of_supply;
+      const laDos = laRaw.days_of_supply === 9999 ? 0 : laRaw.days_of_supply;
+      const totalStock = sfRaw.stock_on_hand + njRaw.stock_on_hand + laRaw.stock_on_hand;
+      const companyDos = demand > 0 ? Math.round(totalStock / demand) : 0;
+      const status = liveStatus(sfDos, njDos, laDos);
+      const worstDos = Math.min(sfDos, njDos, laDos);
+      const cbRisk = status === "critical" ? Math.round(raw.METADATA.avg_penalty_cost) : 0;
+      return {
+        sku,
+        product: item.item_name,
+        category: sku.startsWith("T-") ? "OTC Analgesic" : sku.startsWith("F-") ? "Candy & Snacks" : sku.startsWith("AC-") || sku.startsWith("A-") ? "Am. Ginseng" : "General",
+        unitCost: 0,
+        dcSF: dcSlot(sfRaw, demand),
+        dcNJ: dcSlot(njRaw, demand),
+        dcLA: dcSlot(laRaw, demand),
+        companyAvailable: totalStock,
+        companyDaysSupply: companyDos,
+        status,
+        chargebackRisk: cbRisk,
+        inboundPo: worstDos === 0 ? null : null,
+        note: worstDos < 5 && status === "critical" ? `Lowest DC at ${worstDos}d · ${demand.toFixed(0)} units/day burn rate` : undefined,
+      } satisfies SkuRow;
+    })
+    .sort((a, b) => {
+      const order = { critical: 0, warning: 1, ok: 2 };
+      return order[a.status] - order[b.status];
+    });
+})();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const STATUS = {
@@ -64,7 +130,7 @@ function DetailModal({ row, onClose }: { row: SkuRow; onClose: () => void }) {
               <span className="mono text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5">{row.sku}</span>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mt-1.5">{row.product}</h3>
-            <p className="text-sm text-gray-400">{row.category} · ${row.unitCost.toFixed(2)}/unit</p>
+            <p className="text-sm text-gray-400">{row.category}{row.unitCost > 0 ? ` · $${row.unitCost.toFixed(2)}/unit` : ""}</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 ml-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-xl">
             ×
@@ -182,13 +248,12 @@ export function InventoryTable() {
 
   return (
     <>
-      {/* Reconstruction note */}
+      {/* Data source note */}
       <div className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-5 py-3.5 text-sm shadow-sm">
-        <span className="font-bold text-teal-600 flex-shrink-0">NOTE</span>
+        <span className="font-bold text-teal-600 flex-shrink-0">LIVE</span>
         <p className="text-gray-500">
-          Source data has <strong className="text-gray-700">company-wide totals only</strong> — no per-DC snapshot exists.
-          Per-DC values are <strong className="text-gray-700">estimated</strong> via reconstruction: PO receipts per DC − sales per DC ± transfer history.
-          Company-wide available units are real.
+          Per-DC inventory from <strong className="text-gray-700">live_inventory.json</strong> — real stock on hand and days of supply per warehouse.
+          Showing <strong className="text-gray-700">{inventoryData.length} SKUs</strong> with active demand.
         </p>
       </div>
 

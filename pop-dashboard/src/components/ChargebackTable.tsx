@@ -3,6 +3,20 @@ import { chargebackData, customerPenalties, yearlyPenalties } from "../data/mock
 const GRAND_TOTAL = chargebackData.reduce((s, r) => s + r.amount, 0);
 const CUSTOMER_TOTAL = customerPenalties.reduce((s, r) => s + r.amount, 0);
 
+// Peak month (2024)
+const peakYr = yearlyPenalties.find((y) => y.peakMonth);
+const peakMonthLabel = peakYr?.peakMonth ?? "";
+const peakMonthAmt = peakYr?.peakMonthAmount ?? 0;
+
+// YoY change (2023 → 2024 op+pa)
+const yr2023 = yearlyPenalties.find((y) => y.year === "2023");
+const yr2024 = yearlyPenalties.find((y) => y.year === "2024");
+const total2023 = (yr2023?.operational ?? 0) + (yr2023?.postAudit ?? 0);
+const total2024 = (yr2024?.operational ?? 0) + (yr2024?.postAudit ?? 0);
+const yoyPct = total2023 > 0 ? Math.round(((total2024 - total2023) / total2023) * 100) : 0;
+const avgMonthly2024 = total2024 / 12;
+const peakMultiplier = avgMonthly2024 > 0 ? (peakMonthAmt / avgMonthly2024).toFixed(1) : "—";
+
 const TYPE_CONFIG = {
   operational:   { label: "Operational",  pill: "bg-red-50 text-red-700 border border-red-200" },
   "post-audit":  { label: "Post-Audit",   pill: "bg-orange-50 text-orange-700 border border-orange-200" },
@@ -26,8 +40,8 @@ export function ChargebackTable() {
             </div>
             <div className="text-right">
               <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Peak Month</p>
-              <p className="text-lg font-bold text-red-600 mono">$101,045</p>
-              <p className="text-xs text-gray-400">August 2024 — 10× typical</p>
+              <p className="text-lg font-bold text-red-600 mono">${peakMonthAmt.toLocaleString()}</p>
+              <p className="text-xs text-gray-400">{peakMonthLabel} — {peakMultiplier}× typical</p>
             </div>
           </div>
         </div>
@@ -39,7 +53,6 @@ export function ChargebackTable() {
             const prev = i > 0 ? yearlyPenalties[i - 1].operational + yearlyPenalties[i - 1].postAudit : null;
             const pct = prev !== null ? Math.round(((total - prev) / prev) * 100) : null;
             const isWorst = i === 1;
-            const barPct = (total / maxPenalty) * 100;
 
             return (
               <div key={yr.year} className={`rounded-xl p-5 border ${isWorst ? "border-red-200 bg-red-50" : "border-gray-200 bg-gray-50"}`}>
@@ -99,9 +112,9 @@ export function ChargebackTable() {
 
         <div className="px-6 pb-5">
           <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-sm text-gray-700 leading-relaxed">
-            <strong className="text-red-700">143% increase from 2023 to 2024.</strong>{" "}
-            Post-audit claims (CRED12) arrive 8–12 months after the incident — 2024's $356K in post-audit claims
-            reflects 2022–2023 operational failures. By the time they arrive,{" "}
+            <strong className="text-red-700">+{yoyPct}% increase from 2023 to 2024</strong>{" "}
+            in operational + post-audit penalties (2023 covers Sep–Dec only — system tracking started mid-year).
+            Post-audit claims (CRED12) arrive 8–12 months after the incident — by the time they land,{" "}
             <em>there is no practical way to dispute them.</em> Early detection is the only lever.
           </div>
         </div>
@@ -153,9 +166,9 @@ export function ChargebackTable() {
           </div>
           <div className="p-5 space-y-4">
             {[
-              { label: "Operational penalties (CRED11)", amount: 189000, addressable: true, note: "Short ship, late delivery — preventable with proactive inventory positioning" },
-              { label: "Post-audit claims (CRED12)", amount: 254000, addressable: false, note: "Reflects 2023–24 events. Arrive 8–12 months later — cannot be prevented retroactively" },
-              { label: "Damage allowances", amount: 869000, addressable: false, note: "Warehouse handling — NJ rate 2.5× SF. Separate initiative required." },
+              { label: "Operational penalties (CRED11)", amount: yearlyPenalties.find((y) => y.year === "2025")?.operational ?? 155354, addressable: true, note: "Short ship, late delivery — preventable with proactive inventory positioning" },
+              { label: "Post-audit claims (CRED12)", amount: yearlyPenalties.find((y) => y.year === "2025")?.postAudit ?? 253597, addressable: false, note: "Reflects 2023–24 events. Arrive 8–12 months later — cannot be prevented retroactively" },
+              { label: "Damage allowances (CRED08)", amount: yearlyPenalties.find((y) => y.year === "2025")?.damage ?? 576864, addressable: false, note: "Warehouse handling — NJ rate 2.5× SF. Separate initiative required." },
             ].map((item) => (
               <div key={item.label}>
                 <div className="flex items-start justify-between mb-1.5">
