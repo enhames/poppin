@@ -1,35 +1,33 @@
-const SEV = {
-  critical: {
-    barColor: "#A6192E",
-    borderColor: "#F4D5D8",
-    badgeStyle: { backgroundColor: "#FBEEEF", color: "#7A0F1D", border: "1px solid #F4D5D8" },
-    dotColor: "#A6192E",
-    daysStyle: { color: "#7A0F1D", backgroundColor: "#FBEEEF" },
-    label: "Critical",
-  },
-  warning: {
-    barColor: "#B97A15",
-    borderColor: "#E5B664",
-    badgeStyle: { backgroundColor: "#FEF7E8", color: "#8C5A0F", border: "1px solid #E5B664" },
-    dotColor: "#B97A15",
-    daysStyle: { color: "#8C5A0F", backgroundColor: "#FEF7E8" },
-    label: "Warning",
-  },
-  ok: {
-    barColor: "#1E8574",
-    borderColor: "#7AC4B8",
-    badgeStyle: { backgroundColor: "#EEF7F5", color: "#125F54", border: "1px solid #7AC4B8" },
-    dotColor: "#1E8574",
-    daysStyle: { color: "#125F54", backgroundColor: "#EEF7F5" },
-    label: "OK",
-  },
-};
+import { useLanguage } from "../i18n/LanguageContext";
 
 export function AlertsBanner({ alerts, onDismiss }: { alerts: any[]; onDismiss: (id: string) => void }) {
+  const { t } = useLanguage();
+
+  const SEV = {
+    critical: {
+      barColor: "#A6192E", borderColor: "#F4D5D8",
+      badgeStyle: { backgroundColor: "#FBEEEF", color: "#7A0F1D", border: "1px solid #F4D5D8" },
+      dotColor: "#A6192E", daysStyle: { color: "#7A0F1D", backgroundColor: "#FBEEEF" },
+      label: t.alerts.severity.critical,
+    },
+    warning: {
+      barColor: "#B97A15", borderColor: "#E5B664",
+      badgeStyle: { backgroundColor: "#FEF7E8", color: "#8C5A0F", border: "1px solid #E5B664" },
+      dotColor: "#B97A15", daysStyle: { color: "#8C5A0F", backgroundColor: "#FEF7E8" },
+      label: t.alerts.severity.warning,
+    },
+    ok: {
+      barColor: "#1E8574", borderColor: "#7AC4B8",
+      badgeStyle: { backgroundColor: "#EEF7F5", color: "#125F54", border: "1px solid #7AC4B8" },
+      dotColor: "#1E8574", daysStyle: { color: "#125F54", backgroundColor: "#EEF7F5" },
+      label: t.alerts.severity.ok,
+    },
+  };
+
   if (alerts.length === 0) {
     return (
       <div className="rounded-xl px-6 py-8 text-center text-sm" style={{ backgroundColor: "#EEF7F5", border: "1px solid #7AC4B8", color: "#125F54" }}>
-        All alerts reviewed. No active warnings.
+        {t.alerts.allReviewed}
       </div>
     );
   }
@@ -53,7 +51,7 @@ export function AlertsBanner({ alerts, onDismiss }: { alerts: any[]; onDismiss: 
                 </span>
                 {alert.urgentRequestCount > 0 && (
                   <div className="text-[11px] font-semibold" style={{ color: "#A6192E" }}>
-                    ✕{alert.urgentRequestCount} in URGENT sheet
+                    {t.alerts.inUrgentSheet(alert.urgentRequestCount)}
                   </div>
                 )}
               </div>
@@ -70,7 +68,7 @@ export function AlertsBanner({ alerts, onDismiss }: { alerts: any[]; onDismiss: 
 
               <div className="flex-shrink-0 flex flex-col items-end gap-2 ml-2">
                 <span className="mono text-xs font-bold rounded-full px-2.5 py-1" style={s.daysStyle}>
-                  {alert.daysLeft}d supply
+                  {t.alerts.daysSupply(alert.daysLeft)}
                 </span>
                 <button
                   onClick={() => onDismiss(alert.id)}
@@ -79,7 +77,7 @@ export function AlertsBanner({ alerts, onDismiss }: { alerts: any[]; onDismiss: 
                   onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
                 >
-                  Dismiss
+                  {t.alerts.dismiss}
                 </button>
               </div>
             </div>
