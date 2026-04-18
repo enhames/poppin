@@ -1,141 +1,153 @@
 import { useState } from "react";
 import { inventoryData, type SkuRow, type DcSlot } from "../data/mockData";
 
-const statusConfig = {
-  critical: {
-    badge: "bg-[oklch(0.55_0.22_25)] text-white",
-    label: "CRITICAL",
-    row: "bg-[oklch(0.99_0.01_25)]",
-  },
-  warning: {
-    badge: "bg-[oklch(0.72_0.17_65)] text-white",
-    label: "WARNING",
-    row: "bg-[oklch(0.99_0.01_65)]",
-  },
-  ok: {
-    badge: "bg-[oklch(0.60_0.15_145)] text-white",
-    label: "OK",
-    row: "",
-  },
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const STATUS = {
+  critical: { label: "Critical", dot: "bg-red-500", text: "text-red-700", pill: "bg-red-50 text-red-700 border border-red-200" },
+  warning:  { label: "Warning",  dot: "bg-amber-400", text: "text-amber-700", pill: "bg-amber-50 text-amber-700 border border-amber-200" },
+  ok:       { label: "OK",       dot: "bg-emerald-500", text: "text-emerald-700", pill: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
 };
 
-function DosBar({ days }: { days: number }) {
-  const max = 90;
-  const pct = Math.min((days / max) * 100, 100);
-  const color =
-    days === 0
-      ? "bg-[oklch(0.55_0.22_25)]"
-      : days < 7
-      ? "bg-[oklch(0.72_0.17_65)]"
-      : days < 21
-      ? "bg-[oklch(0.80_0.14_65)]"
-      : "bg-[oklch(0.60_0.15_145)]";
-
-  return (
-    <div className="flex items-center gap-2">
-      <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-      <span
-        className={`font-mono text-xs font-medium ${
-          days === 0 ? "text-[oklch(0.55_0.22_25)]" : days < 7 ? "text-[oklch(0.62_0.17_65)]" : "text-gray-700"
-        }`}
-      >
-        {days === 0 ? "—" : `${days}d`}
-      </span>
-    </div>
-  );
+function dosColor(days: number) {
+  if (days === 0) return { text: "text-red-600", bg: "bg-red-500" };
+  if (days < 14)  return { text: "text-red-500",   bg: "bg-red-400" };
+  if (days < 30)  return { text: "text-amber-600", bg: "bg-amber-400" };
+  if (days < 60)  return { text: "text-amber-500", bg: "bg-amber-300" };
+  return            { text: "text-emerald-600", bg: "bg-emerald-400" };
 }
 
-function DcCell({ slot }: { slot: DcSlot }) {
-  const isEmpty = slot.onHand === 0;
-  const isFullyAllocated = slot.available === 0 && slot.onHand > 0;
+function DcCell({ slot, isHub }: { slot: DcSlot; isHub?: boolean }) {
+  const col = dosColor(slot.daysSupply);
+  const pct = Math.min((slot.daysSupply / 300) * 100, 100);
+  const isEmpty = slot.available === 0;
 
   return (
-    <div className="text-right">
-      <div
-        className={`font-mono text-sm font-medium ${
-          isEmpty
-            ? "text-[oklch(0.55_0.22_25)]"
-            : isFullyAllocated
-            ? "text-[oklch(0.72_0.17_65)]"
-            : "text-gray-900"
-        }`}
-      >
-        {isEmpty ? "0" : slot.onHand.toLocaleString()}
-      </div>
-      {!isEmpty && (
-        <div className="text-[10px] text-gray-400 font-mono">
-          {slot.available} avail
+    <div className="text-right min-w-[100px]">
+      {isHub && <p className="text-[10px] font-bold uppercase tracking-widest text-teal-600 mb-0.5">Hub</p>}
+      <p className={`mono text-base font-bold leading-none ${isEmpty ? "text-red-500" : "text-gray-900"}`}>
+        {isEmpty ? "—" : slot.available.toLocaleString()}
+      </p>
+      <p className="text-[11px] text-gray-400 mt-0.5 mono">{slot.velocityPerDay}/day</p>
+      <div className="flex items-center justify-end gap-1.5 mt-1.5">
+        <div className="w-12 h-1 rounded-full bg-gray-100 overflow-hidden">
+          <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${pct}%` }} />
         </div>
-      )}
-      <DosBar days={slot.daysSupply} />
+        <span className={`mono text-[11px] font-semibold ${col.text}`}>
+          {slot.daysSupply === 0 ? "0d" : `${slot.daysSupply}d`}
+        </span>
+      </div>
     </div>
   );
 }
 
-interface TransferModalProps {
-  row: SkuRow;
-  onClose: () => void;
-}
+// ─── Detail Modal ─────────────────────────────────────────────────────────────
+function DetailModal({ row, onClose }: { row: SkuRow; onClose: () => void }) {
+  const DC_KEYS = [
+    { key: "dcSF" as const, label: "DC-SF · Livermore", role: "Hub", accent: "teal" },
+    { key: "dcNJ" as const, label: "DC-NJ · New Jersey", role: "Primary", accent: "red" },
+    { key: "dcLA" as const, label: "DC-LA · Los Angeles", role: "", accent: "slate" },
+  ];
 
-function TransferModal({ row, onClose }: TransferModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 m-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between mb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+      onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+
+        {/* Modal header */}
+        <div className="flex items-start justify-between px-6 py-5 border-b border-gray-200">
           <div>
-            <h3 className="text-base font-bold text-gray-900">{row.product}</h3>
-            <span className="font-mono text-xs text-gray-400">{row.sku}</span>
+            <div className="flex items-center gap-2.5">
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2.5 py-1 ${STATUS[row.status].pill}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${STATUS[row.status].dot}`} />
+                {STATUS[row.status].label}
+              </span>
+              <span className="mono text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5">{row.sku}</span>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mt-1.5">{row.product}</h3>
+            <p className="text-sm text-gray-400">{row.category} · ${row.unitCost.toFixed(2)}/unit</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 ml-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-xl">
+            ×
+          </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          {(["dcWest", "dcEast", "dcCentral"] as const).map((key) => {
-            const labels = { dcWest: "DC-West", dcEast: "DC-East", dcCentral: "DC-Central" };
+        {/* DC cards */}
+        <div className="grid grid-cols-3 gap-4 p-6 border-b border-gray-100">
+          {DC_KEYS.map(({ key, label, role }) => {
             const slot = row[key];
+            const col = dosColor(slot.daysSupply);
             return (
-              <div key={key} className="bg-gray-50 rounded-lg p-3 text-center">
-                <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{labels[key]}</div>
-                <div className={`font-mono text-xl font-bold ${slot.onHand === 0 ? "text-[oklch(0.55_0.22_25)]" : "text-gray-900"}`}>
-                  {slot.onHand.toLocaleString()}
+              <div key={key} className="rounded-xl border border-gray-200 p-4">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500">{label}</p>
+                  {role && <p className="text-[10px] text-gray-400">{role}</p>}
                 </div>
-                <div className="text-[10px] text-gray-400">{slot.daysSupply}d supply</div>
+                <p className={`mono text-2xl font-bold mt-2 ${slot.available === 0 ? "text-red-500" : "text-gray-900"}`}>
+                  {slot.available.toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-400 mono">avail · {slot.onHand.toLocaleString()} on-hand</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                    <div className={`h-full rounded-full ${col.bg}`} style={{ width: `${Math.min(slot.daysSupply / 300 * 100, 100)}%` }} />
+                  </div>
+                  <span className={`mono text-xs font-bold ${col.text}`}>{slot.daysSupply}d</span>
+                </div>
+                <p className="mono text-xs text-gray-400 mt-1">{slot.velocityPerDay} units/day</p>
               </div>
             );
           })}
         </div>
 
-        <div className="bg-[oklch(0.97_0.01_240)] rounded-lg p-4 mb-4 text-sm space-y-1">
-          <div className="flex justify-between">
-            <span className="text-gray-500">Chargeback exposure</span>
-            <span className="font-mono font-semibold text-[oklch(0.55_0.22_25)]">${row.chargebackRisk.toLocaleString()}</span>
+        {/* Company totals + note */}
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex gap-8 text-sm mb-3">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Company Available</p>
+              <p className="mono text-xl font-bold text-gray-900">{row.companyAvailable.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Company Days Supply</p>
+              <p className="mono text-xl font-bold text-gray-900">{row.companyDaysSupply}d</p>
+            </div>
+            {row.chargebackRisk > 0 && (
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">CB Exposure</p>
+                <p className="mono text-xl font-bold text-red-600">${row.chargebackRisk.toLocaleString()}</p>
+              </div>
+            )}
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500">Unit cost</span>
-            <span className="font-mono">${row.unitCost.toFixed(2)}</span>
-          </div>
-          {row.inboundPo && (
-            <div className="flex justify-between">
-              <span className="text-gray-500">Inbound PO → {row.inboundPo.dc}</span>
-              <span className="font-mono">{row.inboundPo.qty.toLocaleString()} units · ETA {row.inboundPo.eta}</span>
+          {row.note && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800 leading-relaxed">
+              {row.note}
             </div>
           )}
         </div>
 
-        <div className="flex gap-2">
-          <button className="flex-1 rounded-lg bg-[oklch(0.13_0.03_240)] hover:bg-[oklch(0.20_0.04_240)] text-white text-sm font-semibold py-2.5 transition-colors">
-            Initiate Transfer
-          </button>
-          <button className="flex-1 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium py-2.5 transition-colors">
-            Wait for Inbound
-          </button>
-          <button onClick={onClose} className="px-4 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-500 text-sm py-2.5 transition-colors">
-            Dismiss
+        {/* Inbound PO */}
+        {row.inboundPo && (
+          <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
+            <p className="text-xs text-gray-500">
+              <span className="font-semibold">Inbound PO →</span> {row.inboundPo.dc} ·{" "}
+              <span className="mono">{row.inboundPo.qty.toLocaleString()} units</span> · ETA {row.inboundPo.eta}
+              <span className="text-amber-600 ml-2">· 81.5% of POs arrive late by avg 28d</span>
+            </p>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="px-6 py-4 flex gap-2">
+          {row.status !== "ok" && (
+            <button className="text-sm font-semibold text-white rounded-lg px-5 py-2.5" style={{ backgroundColor: "#0E1B2E" }}>
+              Initiate Transfer
+            </button>
+          )}
+          {row.inboundPo && (
+            <button className="text-sm font-medium text-gray-700 border border-gray-200 rounded-lg px-5 py-2.5 hover:bg-gray-50">
+              Track Inbound PO
+            </button>
+          )}
+          <button onClick={onClose} className="text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-4 py-2.5 hover:bg-gray-50 ml-auto">
+            Close
           </button>
         </div>
       </div>
@@ -143,151 +155,201 @@ function TransferModal({ row, onClose }: TransferModalProps) {
   );
 }
 
-type SortKey = "status" | "totalDaysSupply" | "chargebackRisk";
+// ─── Main Table ───────────────────────────────────────────────────────────────
+type SortKey = "status" | "chargebackRisk" | "companyDaysSupply";
+type FilterStatus = "all" | "critical" | "warning" | "ok";
 
 export function InventoryTable() {
   const [selected, setSelected] = useState<SkuRow | null>(null);
-  const [filterStatus, setFilterStatus] = useState<"all" | "critical" | "warning" | "ok">("all");
-  const [sortBy, setSortBy] = useState<SortKey>("status");
-
+  const [filter, setFilter] = useState<FilterStatus>("all");
+  const [sort, setSort] = useState<SortKey>("status");
   const statusOrder = { critical: 0, warning: 1, ok: 2 };
 
-  const rows = inventoryData
-    .filter((r) => filterStatus === "all" || r.status === filterStatus)
-    .sort((a, b) => {
-      if (sortBy === "status") return statusOrder[a.status] - statusOrder[b.status];
-      if (sortBy === "chargebackRisk") return b.chargebackRisk - a.chargebackRisk;
-      return a.totalDaysSupply - b.totalDaysSupply;
-    });
+  const counts = {
+    all: inventoryData.length,
+    critical: inventoryData.filter((r) => r.status === "critical").length,
+    warning: inventoryData.filter((r) => r.status === "warning").length,
+    ok: inventoryData.filter((r) => r.status === "ok").length,
+  };
 
-  const critCount = inventoryData.filter((r) => r.status === "critical").length;
-  const warnCount = inventoryData.filter((r) => r.status === "warning").length;
+  const rows = inventoryData
+    .filter((r) => filter === "all" || r.status === filter)
+    .sort((a, b) => {
+      if (sort === "status")           return statusOrder[a.status] - statusOrder[b.status];
+      if (sort === "chargebackRisk")   return b.chargebackRisk - a.chargebackRisk;
+      return a.companyDaysSupply - b.companyDaysSupply;
+    });
 
   return (
     <>
-      {/* Filter + Sort bar */}
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex items-center gap-1 bg-white rounded-lg border border-gray-200 p-1">
-          {(["all", "critical", "warning", "ok"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilterStatus(f)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all capitalize ${
-                filterStatus === f
-                  ? "bg-[oklch(0.13_0.03_240)] text-white"
-                  : "text-gray-500 hover:text-gray-800"
-              }`}
-            >
-              {f === "all" ? `All (${inventoryData.length})` : f === "critical" ? `Critical (${critCount})` : f === "warning" ? `Warning (${warnCount})` : "OK"}
-            </button>
-          ))}
+      {/* Reconstruction note */}
+      <div className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-5 py-3.5 text-sm shadow-sm">
+        <span className="font-bold text-teal-600 flex-shrink-0">NOTE</span>
+        <p className="text-gray-500">
+          Source data has <strong className="text-gray-700">company-wide totals only</strong> — no per-DC snapshot exists.
+          Per-DC values are <strong className="text-gray-700">estimated</strong> via reconstruction: PO receipts per DC − sales per DC ± transfer history.
+          Company-wide available units are real.
+        </p>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        {/* Filter pills */}
+        <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm">
+          {(["all", "critical", "warning", "ok"] as FilterStatus[]).map((f) => {
+            const active = filter === f;
+            const dot = f === "critical" ? "bg-red-500" : f === "warning" ? "bg-amber-400" : f === "ok" ? "bg-emerald-500" : "";
+            return (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all capitalize ${
+                  active ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+                }`}
+              >
+                {f !== "all" && <span className={`w-1.5 h-1.5 rounded-full ${active ? "opacity-80" : ""} ${dot}`} />}
+                {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+                <span className={`mono text-[11px] ${active ? "opacity-70" : "text-gray-400"}`}>({counts[f]})</span>
+              </button>
+            );
+          })}
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span>Sort by:</span>
-          {(["status", "chargebackRisk", "totalDaysSupply"] as SortKey[]).map((s) => (
+
+        {/* Sort */}
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <span>Sort:</span>
+          {([["status", "Risk Level"], ["chargebackRisk", "CB Exposure"], ["companyDaysSupply", "Days Supply"]] as [SortKey, string][]).map(([key, label]) => (
             <button
-              key={s}
-              onClick={() => setSortBy(s)}
-              className={`px-2.5 py-1 rounded border text-xs transition-all ${
-                sortBy === s ? "border-gray-800 text-gray-900 font-semibold" : "border-gray-200 hover:border-gray-400"
+              key={key}
+              onClick={() => setSort(key)}
+              className={`px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                sort === key
+                  ? "border-gray-800 text-gray-900 font-semibold bg-white shadow-sm"
+                  : "border-gray-200 text-gray-500 hover:border-gray-400 bg-white"
               }`}
             >
-              {s === "chargebackRisk" ? "Chargeback $" : s === "totalDaysSupply" ? "Days Supply" : "Risk Level"}
+              {label}
             </button>
           ))}
         </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400">SKU / Product</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 text-right">DC-West (CA)</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 text-right">DC-East (NJ)</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 text-right">DC-Central (TX)</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 text-right">Total DoS</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 text-right">CB Risk</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 text-center">Status</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">Inbound PO</th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {rows.map((row) => {
-              const cfg = statusConfig[row.status];
-              return (
-                <tr key={row.sku} className={`hover:bg-gray-50 transition-colors ${cfg.row}`}>
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-gray-900 leading-tight">{row.product}</div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="font-mono text-[10px] text-gray-400">{row.sku}</span>
-                      <span className="text-[10px] text-gray-400">· {row.category}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3"><DcCell slot={row.dcWest} /></td>
-                  <td className="px-4 py-3"><DcCell slot={row.dcEast} /></td>
-                  <td className="px-4 py-3"><DcCell slot={row.dcCentral} /></td>
-                  <td className="px-4 py-3 text-right">
-                    <DosBar days={row.totalDaysSupply} />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {row.chargebackRisk > 0 ? (
-                      <span className="font-mono text-sm font-semibold text-[oklch(0.55_0.22_25)]">
-                        ${row.chargebackRisk.toLocaleString()}
-                      </span>
-                    ) : (
-                      <span className="font-mono text-xs text-gray-300">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold tracking-widest ${cfg.badge}`}>
-                      {cfg.label}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {row.inboundPo ? (
-                      <div>
-                        <div className="text-[10px] font-semibold text-gray-600">{row.inboundPo.dc}</div>
-                        <div className="font-mono text-[10px] text-gray-400">{row.inboundPo.qty.toLocaleString()} units</div>
-                        <div className="font-mono text-[10px] text-gray-400">ETA {row.inboundPo.eta}</div>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-gray-300">None on file</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      {row.status !== "ok" && (
-                        <button
-                          onClick={() => setSelected(row)}
-                          className="rounded-md bg-[oklch(0.13_0.03_240)] hover:bg-[oklch(0.22_0.04_240)] text-white text-xs font-semibold px-3 py-1.5 transition-colors whitespace-nowrap"
-                        >
-                          Transfer →
-                        </button>
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-gray-200" style={{ backgroundColor: "#F9FAFB" }}>
+                <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-widest text-gray-400">Product</th>
+                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                  DC-SF <span className="font-normal text-teal-500">(Hub)</span>
+                </th>
+                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-NJ</th>
+                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">DC-LA</th>
+                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">Company</th>
+                <th className="px-5 py-3.5 text-center text-[11px] font-bold uppercase tracking-widest text-gray-400">Status</th>
+                <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-gray-400">CB Risk</th>
+                <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-widest text-gray-400">Inbound PO</th>
+                <th className="px-5 py-3.5" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => {
+                const s = STATUS[row.status];
+                return (
+                  <tr
+                    key={row.sku}
+                    className={`border-b border-gray-100 hover:bg-blue-50/30 cursor-pointer transition-colors ${i % 2 === 1 ? "bg-gray-50/40" : ""}`}
+                    onClick={() => setSelected(row)}
+                  >
+                    {/* Product */}
+                    <td className="px-5 py-4">
+                      <p className="font-semibold text-gray-900 text-sm leading-tight">{row.product}</p>
+                      <p className="mono text-[11px] text-gray-400 mt-0.5">{row.sku} · {row.category}</p>
+                      {row.note && (
+                        <p className="text-[11px] text-amber-600 mt-1 max-w-[200px] leading-tight line-clamp-1">
+                          ⚠ {row.note.slice(0, 55)}…
+                        </p>
                       )}
-                      <button
-                        onClick={() => setSelected(row)}
-                        className="rounded-md border border-gray-200 hover:border-gray-400 text-gray-600 text-xs font-medium px-2.5 py-1.5 transition-colors whitespace-nowrap"
-                      >
-                        Details
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+
+                    {/* DC cells */}
+                    <td className="px-5 py-4"><DcCell slot={row.dcSF} isHub /></td>
+                    <td className="px-5 py-4"><DcCell slot={row.dcNJ} /></td>
+                    <td className="px-5 py-4"><DcCell slot={row.dcLA} /></td>
+
+                    {/* Company DoS */}
+                    <td className="px-5 py-4 text-right">
+                      <p className="mono text-base font-bold text-gray-900">{row.companyDaysSupply}d</p>
+                      <p className="mono text-[11px] text-gray-400">{row.companyAvailable.toLocaleString()} avail</p>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-5 py-4 text-center">
+                      <span className={`inline-flex items-center gap-1.5 rounded-full text-xs font-semibold px-2.5 py-1 ${s.pill}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+                        {s.label}
+                      </span>
+                    </td>
+
+                    {/* CB Risk */}
+                    <td className="px-5 py-4 text-right">
+                      {row.chargebackRisk > 0 ? (
+                        <span className="mono text-sm font-bold text-red-600">${row.chargebackRisk.toLocaleString()}</span>
+                      ) : (
+                        <span className="mono text-sm text-gray-300">—</span>
+                      )}
+                    </td>
+
+                    {/* Inbound PO */}
+                    <td className="px-5 py-4">
+                      {row.inboundPo ? (
+                        <div>
+                          <p className="text-xs font-semibold text-gray-700">{row.inboundPo.dc}</p>
+                          <p className="mono text-[11px] text-gray-400">{row.inboundPo.qty.toLocaleString()} · {row.inboundPo.eta}</p>
+                          <p className="text-[10px] text-amber-500 mt-0.5">Late risk: 81.5%</p>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-300">None on file</span>
+                      )}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        {row.status !== "ok" && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelected(row); }}
+                            className="text-xs font-semibold text-white rounded-lg px-3 py-1.5 whitespace-nowrap"
+                            style={{ backgroundColor: "#0E1B2E" }}
+                          >
+                            Transfer
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSelected(row); }}
+                          className="text-xs font-medium text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 whitespace-nowrap"
+                        >
+                          Details
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Table footer note */}
+        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
+          <p className="text-[11px] text-gray-400">
+            Available = on-hand minus allocated · DoS = Days of Supply (est.) · Freight: SF→NJ $0.51/unit · SF→LA $0.17/unit · Reverse to SF $1.55/unit (avoid)
+          </p>
+        </div>
       </div>
 
-      {/* Footer note */}
-      <p className="text-xs text-gray-400 mt-3">
-        DoS = Days of Supply. Avail = on-hand minus allocated. CB Risk = estimated chargeback exposure if imbalance is not corrected.
-      </p>
-
-      {selected && <TransferModal row={selected} onClose={() => setSelected(null)} />}
+      {selected && <DetailModal row={selected} onClose={() => setSelected(null)} />}
     </>
   );
 }
