@@ -12,6 +12,20 @@ BASE_DIR = os.path.dirname(__file__)
 TRANSFERS_LOG = os.path.join(BASE_DIR, "transfers_log.json")
 
 
+@app.before_request
+def log_api_request():
+    if request.path.startswith("/api"):
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[API REQUEST] {now} | {request.method} {request.path}")
+
+
+@app.after_request
+def log_api_response(response):
+    if request.path.startswith("/api"):
+        print(f"[API RESPONSE] {request.method} {request.path} -> {response.status_code}")
+    return response
+
+
 def load_inventory():
     with open(os.path.join(BASE_DIR, "live_inventory.json")) as f:
         return json.load(f)
@@ -68,6 +82,19 @@ CHARGEBACK_DATA = {
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "yuh"})
+
+
+@app.route("/recommendations", methods=["GET"])
+def get_recommendations_legacy():
+    # Legacy path kept for compatibility; frontend uses /api/recommendations.
+    inventory = load_inventory()
+    recs = parse_inventory_json(inventory)
+    return jsonify(recs)
+
+
 @app.route("/api/recommendations")
 def get_recommendations():
     inventory = load_inventory()
@@ -119,4 +146,4 @@ def approve_transfer():
 
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    app.run(port=5002, debug=True)

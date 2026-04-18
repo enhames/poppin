@@ -1,0 +1,92 @@
+HACK THE COAST 2026
+Inventory Management & Order Fulfillment Optimization
+Problem Background
+Prince of Peace (PoP) operates 3 distribution centers (DCs) across the U.S. and ships to retailers across 9 channels. At the company level, inventory often looks healthy: a product might show 3 months of supply on hand. But that aggregate number hides dangerous site-level imbalances.
+Real example: all 3 months of a product's inventory is concentrated at one DC on the East Coast, while the other two DCs are empty. When a West Coast customer orders, PoP must split-ship from two locations. The retailer receives a partial shipment and issues a short-ship chargeback. The rest arrives late, triggering a late-delivery penalty. Combined penalties: $300+ on $100 of product.
+PoP's annual chargeback exposure across all cause codes is approximately $700,000. Shipment and delivery penalties specifically are in the low six figures.
+In this challenge, students will build an inventory balancing and fulfillment optimization system that:
+	•	Identifies site-level inventory imbalances before they cause penalties
+	•	Supports the transfer-vs-wait decision (move stock between DCs or wait for inbound supply)
+	•	Reduces chargeback exposure from split shipments, short ships, and late deliveries
+	•	Protects supplier OTIF (On Time, In Full) scores
+No prior supply chain experience is required.
+
+Problem Statement
+Design and build a system that helps PoP's operations team see and act on inventory imbalances across 3 DCs before they cascade into penalties, using real (anonymized) inventory, sales, and chargeback data.
+The system should demonstrate clear improvement over the current manual, reactive process.
+
+What the System Must Do (Requirements)
+Imbalance Detection
+	•	Compare inventory levels across all 3 DCs for each SKU
+	•	Flag SKUs where company-wide inventory looks adequate but one or more sites are critically low or empty
+	•	Rank imbalances by risk: consider demand at the understocked site, customer delivery windows, and penalty exposure
+Transfer vs. Wait Decision Support
+	•	When an imbalance is detected, help the ops manager decide:
+	•	Transfer stock from an overstocked DC now (faster, but costs freight)
+	•	Wait for an inbound shipment to arrive (cheaper, but risks stockout and penalties)
+	•	Factor in: inter-DC freight costs, inbound PO expected arrival dates, known delays or FDA holds, and the cost of potential chargebacks if stock runs out
+	•	Present the tradeoff clearly: cost of transfer vs. risk of penalty
+Chargeback Analysis
+	•	Analyze chargeback data by cause code to identify patterns:
+	•	Which cause codes drive the most cost?
+	•	Which customers or channels generate the most penalties?
+	•	Are chargebacks concentrated in specific SKUs, DCs, or time periods?
+	•	Use chargeback patterns to prioritize which imbalances to fix first
+	•	Note: chargeback data includes both operational penalties (short ship, late delivery, damage) and planned promotional deductions (TPRs). Filter or flag accordingly.
+Early Warning & Alerting
+	•	Generate proactive alerts when a SKU at a specific DC is approaching a critical threshold
+	•	Don't wait for a customer order to expose the problem
+	•	Show projected days until stockout based on recent demand rate
+Output & Usability
+	•	Present imbalances, alerts, and transfer recommendations in a format an operations manager can act on
+	•	Make the cost tradeoffs visible and clear
+	•	Show improvement: compare what would have happened under the current manual process vs. the system's recommendations
+
+Suggested Approach
+Break the problem into components:
+	•	Component 1 - Inventory Visibility: Load current inventory snapshot and sales history. Calculate demand rate by SKU by DC. Project days-of-supply at each site. Flag imbalances where company-wide inventory is adequate but site-level is critical.
+	•	Component 2 - Inbound Supply Awareness: Load open PO data. Map expected arrivals to DCs. Identify any flagged delays. This tells the system whether relief is coming.
+	•	Component 3 - Transfer Cost Model: Using freight cost estimates, model the cost of transferring stock between DCs. Compare against the expected cost of chargebacks if the imbalance is not corrected.
+	•	Component 4 - Chargeback Pattern Analysis: Analyze historical chargebacks by cause code, customer, channel, and DC. Identify which imbalances are most likely to result in penalties.
+	•	Component 5 - Alert & Recommendation Engine: Combine all of the above into a dashboard or alert system that surfaces the highest-priority imbalances with clear recommended actions.
+
+Note: PoP does not have historical monthly inventory snapshots. Only a current-day snapshot is available. You can estimate past inventory levels by working backward from current inventory using historical sales and PO receipt data.
+
+Team Collaboration Model
+Teams should divide responsibilities, for example:
+Data & Pipeline
+	•	CSV ingestion (inventory, sales, POs, chargebacks, freight costs, warehouse profiles)
+	•	Data joining and cleaning
+	•	Demand rate and days-of-supply calculations
+Analytics & Logic
+	•	Imbalance detection and risk ranking
+	•	Transfer cost vs. chargeback cost comparison model
+	•	Chargeback pattern analysis
+	•	Alert threshold logic
+Frontend & Presentation
+	•	Dashboard showing inventory health by SKU by DC
+	•	Transfer recommendation interface with cost tradeoffs
+	•	Before/after comparison (manual vs. system-assisted)
+
+Suggested 2-Day Plan
+Day 1
+	•	Load and explore data (inventory snapshot, sales, POs, chargebacks, warehouse profiles, freight costs)
+	•	Calculate demand rate and days-of-supply by SKU by DC
+	•	Build imbalance detection logic
+	•	Start chargeback pattern analysis
+Day 2
+	•	Build transfer cost model using freight estimates
+	•	Compare transfer cost vs. chargeback risk for flagged imbalances
+	•	Generate alerts and transfer recommendations
+	•	Build demo-ready dashboard
+	•	Prepare presentation with before/after scenario
+
+Deliverables
+Each team should present:
+	•	How the system detects inventory imbalances across 3 DCs
+	•	Transfer vs. wait decision logic and cost tradeoff model
+	•	Chargeback pattern analysis: which causes, customers, or DCs drive the most penalty cost
+	•	Example scenario: walk through a specific imbalance and show the system's recommendation vs. what would happen under the current manual process
+	•	Key assumptions, limitations, and lessons learned
+
+Presentation time: 6-8 minutes

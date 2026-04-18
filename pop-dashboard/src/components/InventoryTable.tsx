@@ -48,11 +48,13 @@ function buildInventoryRows(raw: RawInventory) {
       const status = liveStatus(sfDos, njDos, laDos, demand);
       const worstDos = Math.min(sfDos, njDos, laDos);
       const missingDays = Math.max(0, 14 - worstDos);
+      /* TODO: HARDCODED */
       const cbRisk = status === "critical" ? Math.round(demand * missingDays * 4.25) : 0;
 
       return {
         sku,
         product: item.item_name,
+        /* TODO: HARDCODED */
         category: sku.startsWith("T-") ? "OTC Analgesic" : sku.startsWith("F-") ? "Candy & Snacks" : sku.startsWith("AC-") || sku.startsWith("A-") ? "Am. Ginseng" : "General",
         unitCost: 0,
         dcSF: dcSlot(sfRaw, demand),
