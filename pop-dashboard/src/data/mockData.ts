@@ -1,5 +1,6 @@
 export type Status = "critical" | "warning" | "ok";
 export type Urgency = "critical" | "warning";
+/* TODO: HARDCODED */
 
 // ─── DC identities ─────────────────────────────────────────────────────────────
 // DC-1 = SF/Livermore (HQ, redistribution hub)

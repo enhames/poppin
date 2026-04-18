@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
-import type { SkuRow, DcSlot } from "../data/mockData";
+import type { DcSlot } from "../data/mockData";
 
 // ─── Build SkuRows from live_inventory.json ────────────────────────────────────
 type LiveDc = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
@@ -26,7 +26,7 @@ function liveStatus(sfDos: number, njDos: number, laDos: number, demand: number)
 }
 
 type RawInventory = {
-  METADATA: { avg_penalty_cost: number; avg_transfer_cost: number };
+  METADATA: { avg_penalty_cost: number; transfer_cost_by_lane?: Record<string, number> };
   ITEMS: Record<string, { item_name: string; avg_daily_demand: number; inventory_by_dc: Record<string, LiveDc> }>;
 };
 
@@ -48,11 +48,13 @@ function buildInventoryRows(raw: RawInventory) {
       const status = liveStatus(sfDos, njDos, laDos, demand);
       const worstDos = Math.min(sfDos, njDos, laDos);
       const missingDays = Math.max(0, 14 - worstDos);
+      /* TODO: HARDCODED */
       const cbRisk = status === "critical" ? Math.round(demand * missingDays * 4.25) : 0;
 
       return {
         sku,
         product: item.item_name,
+        /* TODO: HARDCODED */
         category: sku.startsWith("T-") ? "OTC Analgesic" : sku.startsWith("F-") ? "Candy & Snacks" : sku.startsWith("AC-") || sku.startsWith("A-") ? "Am. Ginseng" : "General",
         unitCost: 0,
         dcSF: dcSlot(sfRaw, demand),

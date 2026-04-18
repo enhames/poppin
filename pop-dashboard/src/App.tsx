@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { urgentRequestSample } from "./data/mockData";
-import { api } from "./api/client";
+import { api, type DashboardScenario, type DashboardSummary } from "./api/client";
 import { AlertsBanner } from "./components/AlertsBanner";
 import { InventoryTable } from "./components/InventoryTable";
 import { ChargebackTable } from "./components/ChargebackTable";
@@ -95,6 +95,8 @@ export default function App() {
   const [criticalCount, setCriticalCount] = useState(0);
   const [transferCount, setTransferCount] = useState(0);
   const [alertsData, setAlertsData] = useState<any[]>([]);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [scenario, setScenario] = useState<DashboardScenario | null>(null);
 
   useEffect(() => {
     api.getAlerts().then((alerts: any[]) => {
@@ -104,6 +106,11 @@ export default function App() {
     api.getRecommendations().then((recs) => {
       setTransferCount(recs.filter((r) => r.recommendation === "TRANSFER").length);
     });
+    api.getDashboardSummary().then((s) => {
+      setSummary(s);
+      setTransferCount(s.transferRecommendedCount);
+    });
+    api.getDashboardScenario().then(setScenario);
   }, []);
 
   return (
@@ -130,13 +137,19 @@ export default function App() {
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: "#6B6560" }}>
             Distribution Centers
           </p>
-          {[
-            { name: "DC-SF · Livermore", role: "Hub · 27.6% volume", dot: "#1E8574" },
-            { name: "DC-NJ · New Jersey", role: "Primary · 54.3% volume", dot: "#7A0F1D" },
-            { name: "DC-LA · Los Angeles", role: "18.1% volume", dot: "#6B6560" },
-          ].map((dc) => (
+          {(summary?.dcDistribution ?? []).map((dc) => (
             <div key={dc.name} className="flex items-start gap-2 mb-2.5">
-              <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: dc.dot }} />
+              <div
+                className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                style={{
+                  backgroundColor:
+                    dc.site === "Site 1 - SF"
+                      ? "#D4AF37"
+                      : dc.site === "Site 2 - NJ"
+                        ? "#A6192E"
+                        : "#475569",
+                }}
+              />
               <div>
                 <p className="text-xs font-semibold leading-tight" style={{ color: "#D6CFC7" }}>{dc.name}</p>
                 <p className="text-[11px]" style={{ color: "#6B6560" }}>{dc.role}</p>
@@ -222,7 +235,7 @@ export default function App() {
             <div className="grid grid-cols-4 gap-5">
               <KpiCard
                 label="Total Chargeback Exposure"
-                value={`$${(PENALTY_EXPOSURE/1000).toFixed(0)}K`}
+                value={`$${((summary?.penaltyExposure ?? 0) / 1000).toFixed(0)}K`}
                 trend={{ label: "Active Risk", isNegative: true }}
                 context="Projected penalty exposure from current site-level imbalances."
                 accent="critical"
@@ -236,12 +249,12 @@ export default function App() {
               <KpiCard
                 label="Transfers Recommended"
                 value={String(transferCount)}
-                context="Estimated Net Savings: $42,100 if all approved today."
+                context={`Estimated Net Savings: $${Math.round(summary?.estimatedNetSavings ?? 0).toLocaleString()} if all approved today.`}
                 accent="warning"
               />
               <KpiCard
                 label="Pending Inbound POs"
-                value="24"
+                value={String(summary?.pendingInboundPos ?? 0)}
                 context="Shipments en route. Evaluate 'Wait vs. Transfer' tradeoffs."
                 accent="neutral"
               />
@@ -283,8 +296,8 @@ export default function App() {
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-6">
-                    <p className="mono text-4xl font-bold" style={{ color: "#7A0F1D" }}>{URGENT_REQUESTS_TOTAL}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#8E8680" }}>Manual Requests Logged</p>
+                    <p className="mono text-4xl font-bold text-[#A6192E]">{summary?.urgentRequestTotal ?? 0}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Transfer Actions Logged</p>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -320,11 +333,14 @@ export default function App() {
               </div>
 
               {/* Before / After */}
-              <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
-                <div className="px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
-                  <h3 className="text-base font-bold" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Cost Tradeoff Analysis: Wait vs. Transfer</h3>
-                  <p className="text-sm mt-0.5" style={{ color: "#6B6560" }}>
-                    Scenario: F-04130 · Ginger Chews Plus+ 3oz — DC-NJ stockout on Dollar General order.
+              {/* TODO: HARDCODED */}
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <div className="px-6 py-5 border-b border-gray-200">
+                  <h3 className="text-base font-bold text-gray-900">Cost Tradeoff Analysis: Wait vs. Transfer</h3>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {scenario
+                      ? `Scenario: ${scenario.sku} · ${scenario.product} — ${scenario.destinationDc} stockout risk.`
+                      : "Scenario unavailable (no current transfer recommendation)."}
                   </p>
                 </div>
                 <div className="grid grid-cols-2" style={{ borderTop: "none" }}>
@@ -339,17 +355,19 @@ export default function App() {
                         "Order hits DC-NJ. System shows 0 available units.",
                         <span key="2">Ops manager logs request: <span className="font-semibold" style={{ color: "#7A0F1D" }}>"URGENT! F-04130, 4 pallets"</span>.</span>,
                         "Manual stock check causes 3–5 day processing delay.",
-                        <span key="4">Order is split. Short-ship penalty issued: <span className="mono font-bold" style={{ color: "#7A0F1D" }}>$851</span></span>,
-                        <span key="5">Second shipment late. Late-delivery penalty: <span className="mono font-bold" style={{ color: "#7A0F1D" }}>$851</span></span>,
+                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold text-[#A6192E]">${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
+                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold text-[#A6192E]">${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
                           <span className="mono flex-shrink-0 font-medium" style={{ color: "#D6CFC7" }}>{i + 1}.</span>
                           <span>{step}</span>
                         </li>
                       ))}
-                      <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #F2EDE5" }}>
-                        <span className="mono font-bold flex-shrink-0" style={{ color: "#7A0F1D" }}>→</span>
-                        <span className="font-semibold" style={{ color: "#7A0F1D" }}>$1,702 total penalty exposure.</span>
+                      <li className="flex gap-3 pt-2 border-t border-gray-100 mt-1">
+                        <span className="mono font-bold text-[#A6192E] flex-shrink-0">→</span>
+                        <span className="font-semibold text-[#A6192E]">
+                          ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()} total penalty exposure.
+                        </span>
                       </li>
                     </ol>
                   </div>
@@ -361,9 +379,9 @@ export default function App() {
                     </div>
                     <ol className="space-y-3 text-sm" style={{ color: "#403A34" }}>
                       {[
-                        <span key="1">System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</span>,
-                        <span key="2">Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</span>,
-                        <span key="3">Cost Model: Transfer SF→NJ · <span className="mono font-bold" style={{ color: "#14110F" }}>$1,043 freight</span> · Risk avoided: $1,702</span>,
+                        <>System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</>,
+                        <>Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</>,
+                        <>Cost Model: Transfer {scenario?.sourceDc ?? "—"}→{scenario?.destinationDc ?? "—"} · <span className="mono font-bold text-gray-900">${Math.round(scenario?.transferCost ?? 0).toLocaleString()} freight</span> · Risk avoided: ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()}</>,
                         "Ops manager approves transfer in dashboard. Initiated same day.",
                         "DC-NJ ships order on time, in full. Zero penalties incurred.",
                       ].map((step, i) => (
@@ -372,9 +390,11 @@ export default function App() {
                           <span>{step}</span>
                         </li>
                       ))}
-                      <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #DCEFEB" }}>
-                        <span className="mono font-bold flex-shrink-0" style={{ color: "#125F54" }}>→</span>
-                        <span className="font-semibold" style={{ color: "#125F54" }}>Net saving: $659. Imbalance resolved proactively.</span>
+                      <li className="flex gap-3 pt-2 border-t border-emerald-100 mt-1">
+                        <span className="mono font-bold text-emerald-700 flex-shrink-0">→</span>
+                        <span className="font-semibold text-emerald-700">
+                          Net saving: ${Math.round(scenario?.netSaving ?? 0).toLocaleString()}. Imbalance resolved proactively.
+                        </span>
                       </li>
                     </ol>
                   </div>

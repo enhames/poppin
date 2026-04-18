@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { api, type Recommendation } from "../api/client";
+import ScatterPlot from "./ScatterPlot";
 
 function CostBar({ freight, chargeback }: { freight: number; chargeback: number }) {
   const max = Math.max(freight, chargeback, 1);
@@ -166,6 +167,11 @@ export function TransferPanel() {
       .finally(() => setLoading(false));
   }, []);
 
+  const sortedRecs = useMemo(
+    () => [...recs].sort((a, b) => b.transfer_value - a.transfer_value),
+    [recs]
+  );
+
   const transferCount = recs.filter((r) => r.recommendation === "TRANSFER").length;
 
   return (
@@ -201,6 +207,15 @@ export function TransferPanel() {
         </div>
       </div>
 
+      {/* Scatter plot visualization */}
+      {!loading && !error && recs.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <h3 className="text-sm font-bold text-gray-900 mb-4">Transfer Cost vs. Net Savings</h3>
+          <ScatterPlot data={sortedRecs} />
+        </div>
+      )}
+
+      {/* State: loading / error / empty */}
       {loading && (
         <div className="rounded-xl px-6 py-8 text-center text-sm" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", color: "#8E8680" }}>
           Loading recommendations…
@@ -228,7 +243,8 @@ export function TransferPanel() {
         </div>
       )}
 
-      {recs.map((rec) => (
+      {/* Recommendation cards */}
+      {sortedRecs.map((rec) => (
         <RecCard key={`${rec.sku}-${rec.source_dc}-${rec.destination_dc}`} rec={rec} />
       ))}
     </div>

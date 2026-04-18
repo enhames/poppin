@@ -29,6 +29,7 @@ export function ChargebackTable() {
   const peakMonthLabel = peakYr?.peakMonth ?? "";
   const peakMonthAmt = peakYr?.peakMonthAmount ?? 0;
 
+  /* TODO: HARDCODED */
   const yr2023 = yearlyPenalties.find((y) => y.year === "2023");
   const yr2024 = yearlyPenalties.find((y) => y.year === "2024");
   const total2023 = (yr2023?.operational ?? 0) + (yr2023?.postAudit ?? 0);
@@ -180,6 +181,7 @@ export function ChargebackTable() {
             <p className="text-xs mt-0.5" style={{ color: "#8E8680" }}>What this system can and cannot prevent</p>
           </div>
           <div className="p-5 space-y-4">
+            {/* TODO: HARDCODED */}
             {[
               { label: "Operational penalties (CRED11)", amount: yearlyPenalties.find((y) => y.year === "2025")?.operational ?? 155354, addressable: true, note: "Short ship, late delivery — preventable with proactive inventory positioning" },
               { label: "Post-audit claims (CRED12)", amount: yearlyPenalties.find((y) => y.year === "2025")?.postAudit ?? 253597, addressable: false, note: "Reflects 2023–24 events. Arrive 8–12 months later — cannot be prevented retroactively" },
