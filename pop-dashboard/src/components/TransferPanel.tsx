@@ -35,7 +35,7 @@ function RecCard({ rec }: { rec: Recommendation }) {
   const [error, setError] = useState<string | null>(null);
 
   const isTransfer = rec.recommendation === "TRANSFER";
-  const netPositive = rec.net_value > 0;
+  const netPositive = rec.transfer_value > 0;
 
   async function handleApprove() {
     setApproving(true);
@@ -91,13 +91,13 @@ function RecCard({ rec }: { rec: Recommendation }) {
         {/* Cost visual */}
         <div className="mb-5">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Cost Comparison</p>
-          <CostBar freight={rec.transfer_cost} chargeback={rec.expected_penalty_without_transfer} />
+          <CostBar freight={rec.transfer_cost} chargeback={rec.avoided_penalty} />
           <div className={`mt-3 p-3 rounded-lg ${netPositive ? "bg-emerald-50 border border-emerald-200" : "bg-gray-50 border border-gray-200"}`}>
             <p className="text-[11px] font-bold uppercase tracking-widest mb-0.5" style={{ color: netPositive ? "#0A7B4B" : "#6B7280" }}>
               Net value
             </p>
             <p className={`mono text-xl font-bold ${netPositive ? "text-emerald-700" : "text-gray-500"}`}>
-              {netPositive ? `+$${rec.net_value.toLocaleString()}` : `−$${Math.abs(rec.net_value).toLocaleString()}`}
+              {netPositive ? `+$${rec.transfer_value.toLocaleString()}` : `−$${Math.abs(rec.transfer_value).toLocaleString()}`}
             </p>
             {!netPositive && (
               <p className="text-[11px] text-gray-400 mt-0.5">Freight exceeds penalty avoided — wait for PO</p>

@@ -6,9 +6,9 @@ export interface Recommendation {
   recommendation: "TRANSFER" | "WAIT";
   transfer_units: number;
   transfer_cost: number;
-  net_value: number;
-  expected_penalty_without_transfer: number;
-  expected_penalty_with_transfer: number;
+  avoided_penalty: number;
+  transfer_value: number;
+  reason: string;
 }
 
 export interface TransferApproval {

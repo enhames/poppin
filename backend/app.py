@@ -3,6 +3,7 @@ import os
 import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from transfer_logic import parse_inventory_json
 
 app = Flask(__name__)
 CORS(app)
@@ -10,109 +11,13 @@ CORS(app)
 BASE_DIR = os.path.dirname(__file__)
 TRANSFERS_LOG = os.path.join(BASE_DIR, "transfers_log.json")
 
-FREIGHT_RATES = {
-    ("Site 1 - SF", "Site 2 - NJ"): 0.51,
-    ("Site 1 - SF", "Site 3 - LA"): 0.17,
-    ("Site 2 - NJ", "Site 3 - LA"): 1.55,
-    ("Site 3 - LA", "Site 2 - NJ"): 1.55,
-    ("Site 2 - NJ", "Site 1 - SF"): 1.55,
-    ("Site 3 - LA", "Site 1 - SF"): 1.55,
-}
-
-SITES = ["Site 1 - SF", "Site 2 - NJ", "Site 3 - LA"]
-TARGET_DOS = 30
-CRITICAL_THRESHOLD = 14
-
 
 def load_inventory():
     with open(os.path.join(BASE_DIR, "live_inventory.json")) as f:
         return json.load(f)
 
 
-def make_recommendation(sku, item_name, source_dc, destination_dc,
-                         transfer_units, transfer_cost,
-                         expected_penalty_without_transfer,
-                         expected_penalty_with_transfer):
-    net_value = round(expected_penalty_without_transfer - expected_penalty_with_transfer - transfer_cost, 2)
-    return {
-        "sku": sku,
-        "item_name": item_name,
-        "source_dc": source_dc,
-        "destination_dc": destination_dc,
-        "recommendation": "TRANSFER" if net_value > 0 else "WAIT",
-        "transfer_units": round(transfer_units, 2),
-        "transfer_cost": round(transfer_cost, 2),
-        "net_value": net_value,
-        "expected_penalty_without_transfer": round(expected_penalty_without_transfer, 2),
-        "expected_penalty_with_transfer": round(expected_penalty_with_transfer, 2),
-    }
-
-
-def generate_recommendations(inventory):
-    metadata = inventory["METADATA"]
-    avg_penalty = metadata["avg_penalty_cost"]
-    recs = []
-    seen = set()
-
-    for sku, item in inventory["ITEMS"].items():
-        demand = item["avg_daily_demand"]
-        if demand == 0:
-            continue
-
-        dc_data = item["inventory_by_dc"]
-
-        for low_dc in SITES:
-            if low_dc not in dc_data:
-                continue
-            low_info = dc_data[low_dc]
-            if low_info["days_of_supply"] >= CRITICAL_THRESHOLD:
-                continue
-
-            for high_dc in SITES:
-                if high_dc == low_dc:
-                    continue
-                if high_dc not in dc_data:
-                    continue
-                high_info = dc_data[high_dc]
-                if high_info["stock_on_hand"] <= 0:
-                    continue
-
-                rate = FREIGHT_RATES.get((high_dc, low_dc))
-                if rate is None:
-                    continue
-
-                key = (sku, high_dc, low_dc)
-                if key in seen:
-                    continue
-                seen.add(key)
-
-                units_needed = max(0, (TARGET_DOS - low_info["days_of_supply"]) * demand)
-                units_to_transfer = min(units_needed, high_info["stock_on_hand"] * 0.5)
-                if units_to_transfer <= 0:
-                    continue
-
-                transfer_cost = units_to_transfer * rate
-                missing_days = max(0, CRITICAL_THRESHOLD - low_info["days_of_supply"])
-                expected_penalty_without = missing_days * demand * avg_penalty
-                expected_penalty_with = 0.0
-
-                rec = make_recommendation(
-                    sku,
-                    item["item_name"],
-                    high_dc,
-                    low_dc,
-                    units_to_transfer,
-                    transfer_cost,
-                    expected_penalty_without,
-                    expected_penalty_with,
-                )
-                recs.append(rec)
-                break
-
-    return recs
-
-
-# ── Static data (previously in mockData.ts) ──────────────────────────────────
+# ── Static data (derived from historical chargeback analysis) ─────────────────
 
 ALERTS_DATA = [
     {
@@ -166,7 +71,7 @@ CHARGEBACK_DATA = {
 @app.route("/api/recommendations")
 def get_recommendations():
     inventory = load_inventory()
-    recs = generate_recommendations(inventory)
+    recs = parse_inventory_json(inventory)
     return jsonify(recs)
 
 
