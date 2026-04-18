@@ -1,5 +1,5 @@
-import { useState } from "react";
-import liveInventoryRaw from "@backend/live_inventory.json";
+import { useState, useEffect } from "react";
+import { api } from "../api/client";
 import type { SkuRow, DcSlot } from "../data/mockData";
 
 // ─── Build SkuRows from live_inventory.json ────────────────────────────────────
@@ -25,33 +25,31 @@ function liveStatus(sfDos: number, njDos: number, laDos: number, demand: number)
   return "ok";
 }
 
-const inventoryData = (() => {
-  const raw = liveInventoryRaw as {
-    METADATA: { avg_penalty_cost: number; avg_transfer_cost: number };
-    ITEMS: Record<string, { item_name: string; avg_daily_demand: number; inventory_by_dc: Record<string, LiveDc> }>;
-  };
-  
+type RawInventory = {
+  METADATA: { avg_penalty_cost: number; avg_transfer_cost: number };
+  ITEMS: Record<string, { item_name: string; avg_daily_demand: number; inventory_by_dc: Record<string, LiveDc> }>;
+};
+
+function buildInventoryRows(raw: RawInventory) {
   return Object.entries(raw.ITEMS)
-    // FIX: Removed the filter that blocked 0 demand items so they can enter the table
     .map(([sku, item]) => {
       const dcMap = item.inventory_by_dc;
       const sfRaw = dcMap["Site 1 - SF"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
       const njRaw = dcMap["Site 2 - NJ"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
       const laRaw = dcMap["Site 3 - LA"] ?? { stock_on_hand: 0, incoming_stock: 0, days_of_supply: 9999 };
       const demand = item.avg_daily_demand;
-      
+
       const sfDos = sfRaw.days_of_supply;
       const njDos = njRaw.days_of_supply;
       const laDos = laRaw.days_of_supply;
-      
+
       const totalStock = sfRaw.stock_on_hand + njRaw.stock_on_hand + laRaw.stock_on_hand;
       const companyDos = demand > 0 ? Math.round(totalStock / demand) : 9999;
       const status = liveStatus(sfDos, njDos, laDos, demand);
       const worstDos = Math.min(sfDos, njDos, laDos);
-      
       const missingDays = Math.max(0, 14 - worstDos);
       const cbRisk = status === "critical" ? Math.round(demand * missingDays * 4.25) : 0;
-      
+
       return {
         sku,
         product: item.item_name,
@@ -64,17 +62,16 @@ const inventoryData = (() => {
         companyDaysSupply: companyDos,
         status,
         chargebackRisk: cbRisk,
-        inboundPo: worstDos === 0 ? null : null,
+        inboundPo: null,
         note: status === "inactive" ? "Dead stock. No recent demand across all regions." : (worstDos < 5 && status === "critical" ? `Lowest DC at ${worstDos}d · ${demand.toFixed(0)} units/day burn rate` : undefined),
       };
     })
-    // FIX: Keep critical, warning, AND inactive (dead stock). Only hide the healthy "ok" items.
-    .filter((row) => row.status !== "ok") 
+    .filter((row) => row.status !== "ok")
     .sort((a, b) => {
       const order = { critical: 0, warning: 1, inactive: 2, ok: 3 };
       return order[a.status] - order[b.status];
     });
-})();
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const STATUS = {
@@ -206,12 +203,19 @@ type SortKey = "status" | "chargebackRisk" | "companyDaysSupply";
 type FilterStatus = "all" | "critical" | "warning" | "inactive";
 
 export function InventoryTable() {
+  const [inventoryData, setInventoryData] = useState<ReturnType<typeof buildInventoryRows>>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selected, setSelected] = useState<any | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
   const [sort, setSort] = useState<SortKey>("status");
   const statusOrder = { critical: 0, warning: 1, inactive: 2, ok: 3 };
 
-// 1. Update counts so "all" only counts active risks
+  useEffect(() => {
+    api.getInventory()
+      .then((raw) => setInventoryData(buildInventoryRows(raw as RawInventory)))
+      .catch(() => setLoadError("Could not load inventory. Is the backend running?"));
+  }, []);
+
   const counts = {
     all: inventoryData.filter((r) => r.status === "critical" || r.status === "warning").length,
     critical: inventoryData.filter((r) => r.status === "critical").length,
@@ -219,7 +223,6 @@ export function InventoryTable() {
     inactive: inventoryData.filter((r) => r.status === "inactive").length,
   };
 
-  // 2. Tweak the filter logic so "all" excludes inactive (dead) stock
   const rows = inventoryData
     .filter((r) => filter === "all" ? r.status !== "inactive" : r.status === filter)
     .sort((a, b) => {
@@ -230,6 +233,11 @@ export function InventoryTable() {
 
   return (
     <>
+      {loadError && (
+        <div className="bg-red-50 rounded-xl border border-red-200 px-5 py-3.5 text-sm text-red-700 shadow-sm mb-4">
+          {loadError}
+        </div>
+      )}
       <div className="flex items-start gap-3 bg-white border border-red-200 rounded-xl px-5 py-3.5 text-sm shadow-sm">
         <span className="font-bold text-[#A6192E] flex-shrink-0">ACTION REQUIRED</span>
         <p className="text-gray-500">

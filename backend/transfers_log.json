@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": "2026-04-18T18:45:51.937367+00:00",
+    "sku": "AC-B3SLJ",
+    "item_name": "AM GSG Slices 3 oz Bag",
+    "source_dc": "Site 1 - SF",
+    "destination_dc": "Site 2 - NJ",
+    "units": 332.08
+  },
+  {
+    "timestamp": "2026-04-18T18:49:32.438058+00:00",
+    "sku": "AC-B3SLJ",
+    "item_name": "AM GSG Slices 3 oz Bag",
+    "source_dc": "Site 1 - SF",
+    "destination_dc": "Site 2 - NJ",
+    "units": 332
+  }
+]

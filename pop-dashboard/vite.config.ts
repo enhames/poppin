@@ -10,4 +10,9 @@ export default defineConfig({
       '@backend': resolve(__dirname, '../backend'),
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5001',
+    },
+  },
 })
