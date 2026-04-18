@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
-import type { SkuRow, DcSlot } from "../data/mockData";
+import type { DcSlot } from "../data/mockData";
 
 // ─── Build SkuRows from live_inventory.json ────────────────────────────────────
 type LiveDc = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };

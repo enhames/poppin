@@ -6,13 +6,15 @@ import {
     Tooltip,
     CartesianGrid,
     ResponsiveContainer,
-    Legend
+    Legend,
+    ReferenceLine
 } from "recharts";
 
 type Item = {
     item_name: string,
     transfer_cost: number,
     avoided_penalty: number,
+    transfer_value: number,
     recommendation: string
 }
 
@@ -31,10 +33,15 @@ export default function ScatterPlot({data}: {data: Item[]}){
         />
         <YAxis
           type="number"
-          dataKey="avoided_penalty"
-          name="Avoided Penalty"
+          dataKey="transfer_value"
+          name="Net Savings"
+          unit="$"
         />
-        <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+        <ReferenceLine y={0} stroke="#8884d8" strokeDasharray="3 3" label={{ value: "Break-even", position: "right", fill: "#8884d8", fontSize: 11 }} />
+        <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={(value: any, name: any) => {
+          const label = typeof name === "string" ? name.replace(/_/g, " ") : String(name);
+          return [`$${Number(value).toLocaleString()}`, label];
+        }} />
         <Legend />
 
         <Scatter name="TRANSFER" data={transfer} fill="green" />

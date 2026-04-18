@@ -10,3 +10,4 @@ backend/data/*.csv
 backend/data/*.xlsx
 
 backend/all_data/
+node_modules
