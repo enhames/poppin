@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { urgentRequestSample } from "./data/mockData";
-import { api, type DashboardScenario, type DashboardSummary } from "./api/client";
+import { api, type DashboardScenario, type DashboardSummary, type UrgentRequest } from "./api/client";
 import { AlertsBanner } from "./components/AlertsBanner";
 import { InventoryTable } from "./components/InventoryTable";
 import { ChargebackTable } from "./components/ChargebackTable";
@@ -8,9 +7,6 @@ import { TransferPanel } from "./components/TransferPanel";
 import { InventoryCharts } from "./components/InventoryCharts";
 
 type Tab = "imbalances" | "chargebacks" | "transfers" | "alerts" | "charts";
-
-const URGENT_REQUESTS_TOTAL = 2029;
-const PENALTY_EXPOSURE = 745000;
 
 function Icon({ d, size = 16 }: { d: string; size?: number }) {
   return (
@@ -92,25 +88,34 @@ function KpiCard({
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("imbalances");
-  const [criticalCount, setCriticalCount] = useState(0);
   const [transferCount, setTransferCount] = useState(0);
   const [alertsData, setAlertsData] = useState<any[]>([]);
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<Set<string>>(new Set());
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [scenario, setScenario] = useState<DashboardScenario | null>(null);
+  const [urgentRequests, setUrgentRequests] = useState<UrgentRequest[]>([]);
+
+  const visibleAlerts = alertsData.filter((a: any) => !dismissedAlertIds.has(a.id));
+  const criticalCount = visibleAlerts.filter((a: any) => a.severity === "critical").length;
+
+  function dismissAlert(id: string) {
+    setDismissedAlertIds((prev) => new Set([...prev, id]));
+  }
+
+  function dismissAllAlerts() {
+    setDismissedAlertIds(new Set(alertsData.map((a: any) => a.id)));
+  }
 
   useEffect(() => {
     api.getAlerts().then((alerts: any[]) => {
       setAlertsData(alerts);
-      setCriticalCount(alerts.filter((a) => a.severity === "critical").length);
-    });
-    api.getRecommendations().then((recs) => {
-      setTransferCount(recs.filter((r) => r.recommendation === "TRANSFER").length);
     });
     api.getDashboardSummary().then((s) => {
       setSummary(s);
       setTransferCount(s.transferRecommendedCount);
     });
     api.getDashboardScenario().then(setScenario);
+    api.getUrgentRequests().then(setUrgentRequests);
   }, []);
 
   return (
@@ -215,11 +220,6 @@ export default function App() {
               <p className="text-xs mt-0.5 max-w-2xl" style={{ color: "#6B6560" }}>{NAV_DESC[activeTab]}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="text-sm font-semibold rounded-lg px-4 py-2 transition-colors" style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}>
-                Export Report
-              </button>
               <button className="text-sm font-bold text-white rounded-lg px-4 py-2 transition-colors" style={{ backgroundColor: "#7A0F1D" }}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5E0B15")}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}>
@@ -270,15 +270,21 @@ export default function App() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <p className="text-sm" style={{ color: "#6B6560" }}>
-                  <span className="font-semibold" style={{ color: "#14110F" }}>{alertsData.length} active alerts</span>
+                  <span className="font-semibold" style={{ color: "#14110F" }}>{visibleAlerts.length} active alerts</span>
                   {" "}· sorted by severity · based on estimated DC positions
                 </p>
-                <button className="text-sm font-semibold rounded-lg px-4 py-2" style={{ border: "1px solid #D6CFC7", color: "#403A34", backgroundColor: "#FFFFFF" }}>
+                <button
+                  onClick={dismissAllAlerts}
+                  className="text-sm font-semibold rounded-lg px-4 py-2 transition-colors"
+                  style={{ border: "1px solid #D6CFC7", color: "#403A34", backgroundColor: "#FFFFFF" }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
+                >
                   Mark all reviewed
                 </button>
               </div>
 
-              <AlertsBanner />
+              <AlertsBanner alerts={visibleAlerts} onDismiss={dismissAlert} />
 
               {/* URGENT Spreadsheet */}
               <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
@@ -312,7 +318,7 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {urgentRequestSample.map((r, i) => {
+                      {urgentRequests.map((r, i) => {
                         const isUrgent = /urgent|out of stock|asap/i.test(r.note);
                         return (
                           <tr key={r.id} style={{ borderBottom: "1px solid #F2EDE5", backgroundColor: i % 2 === 0 ? "#FFFFFF" : "#FAF7F1" }}>
@@ -333,17 +339,16 @@ export default function App() {
               </div>
 
               {/* Before / After */}
-              {/* TODO: HARDCODED */}
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="px-6 py-5 border-b border-gray-200">
-                  <h3 className="text-base font-bold text-gray-900">Cost Tradeoff Analysis: Wait vs. Transfer</h3>
-                  <p className="text-sm text-gray-500 mt-0.5">
+              <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+                <div className="px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
+                  <h3 className="text-base font-bold" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Cost Tradeoff Analysis: Wait vs. Transfer</h3>
+                  <p className="text-sm mt-0.5" style={{ color: "#6B6560" }}>
                     {scenario
                       ? `Scenario: ${scenario.sku} · ${scenario.product} — ${scenario.destinationDc} stockout risk.`
                       : "Scenario unavailable (no current transfer recommendation)."}
                   </p>
                 </div>
-                <div className="grid grid-cols-2" style={{ borderTop: "none" }}>
+                <div className="grid grid-cols-2">
                   <div className="p-6" style={{ borderRight: "1px solid #E8E2DA" }}>
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-xs font-bold uppercase tracking-widest rounded-full px-3 py-1" style={{ color: "#7A0F1D", backgroundColor: "#FBEEEF", border: "1px solid #F4D5D8" }}>
@@ -355,17 +360,17 @@ export default function App() {
                         "Order hits DC-NJ. System shows 0 available units.",
                         <span key="2">Ops manager logs request: <span className="font-semibold" style={{ color: "#7A0F1D" }}>"URGENT! F-04130, 4 pallets"</span>.</span>,
                         "Manual stock check causes 3–5 day processing delay.",
-                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold text-[#A6192E]">${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
-                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold text-[#A6192E]">${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
+                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold" style={{ color: "#A6192E" }}>${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
+                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold" style={{ color: "#A6192E" }}>${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
                           <span className="mono flex-shrink-0 font-medium" style={{ color: "#D6CFC7" }}>{i + 1}.</span>
                           <span>{step}</span>
                         </li>
                       ))}
-                      <li className="flex gap-3 pt-2 border-t border-gray-100 mt-1">
-                        <span className="mono font-bold text-[#A6192E] flex-shrink-0">→</span>
-                        <span className="font-semibold text-[#A6192E]">
+                      <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #F2EDE5" }}>
+                        <span className="mono font-bold flex-shrink-0" style={{ color: "#A6192E" }}>→</span>
+                        <span className="font-semibold" style={{ color: "#A6192E" }}>
                           ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()} total penalty exposure.
                         </span>
                       </li>
@@ -381,7 +386,7 @@ export default function App() {
                       {[
                         <>System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</>,
                         <>Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</>,
-                        <>Cost Model: Transfer {scenario?.sourceDc ?? "—"}→{scenario?.destinationDc ?? "—"} · <span className="mono font-bold text-gray-900">${Math.round(scenario?.transferCost ?? 0).toLocaleString()} freight</span> · Risk avoided: ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()}</>,
+                        <>Cost Model: Transfer {scenario?.sourceDc ?? "—"}→{scenario?.destinationDc ?? "—"} · <span className="mono font-bold" style={{ color: "#14110F" }}>${Math.round(scenario?.transferCost ?? 0).toLocaleString()} freight</span> · Risk avoided: ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()}</>,
                         "Ops manager approves transfer in dashboard. Initiated same day.",
                         "DC-NJ ships order on time, in full. Zero penalties incurred.",
                       ].map((step, i) => (
@@ -390,9 +395,9 @@ export default function App() {
                           <span>{step}</span>
                         </li>
                       ))}
-                      <li className="flex gap-3 pt-2 border-t border-emerald-100 mt-1">
-                        <span className="mono font-bold text-emerald-700 flex-shrink-0">→</span>
-                        <span className="font-semibold text-emerald-700">
+                      <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #DCEFEB" }}>
+                        <span className="mono font-bold flex-shrink-0" style={{ color: "#125F54" }}>→</span>
+                        <span className="font-semibold" style={{ color: "#125F54" }}>
                           Net saving: ${Math.round(scenario?.netSaving ?? 0).toLocaleString()}. Imbalance resolved proactively.
                         </span>
                       </li>

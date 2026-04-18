@@ -67,6 +67,12 @@ def generate_alerts(inventory, max_items=12):
     alerts = []
     items = inventory.get("ITEMS", {})
 
+    # Count urgent requests per SKU from historical data
+    urgent_counts = {}
+    for req in URGENT_REQUESTS_DATA:
+        sku = req["sku"].strip()
+        urgent_counts[sku] = urgent_counts.get(sku, 0) + 1
+
     for sku, item in items.items():
         demand = float(item.get("avg_daily_demand", 0) or 0)
         if demand <= 0:
@@ -86,6 +92,7 @@ def generate_alerts(inventory, max_items=12):
                     "product": item.get("item_name", sku),
                     "dc": DC_SITE_TO_LABEL.get(dc_name, dc_name),
                     "daysLeft": days,
+                    "urgentRequestCount": urgent_counts.get(sku.strip(), 0),
                     "message": (
                         f"{DC_SITE_TO_LABEL.get(dc_name, dc_name)} has {stock:,} on hand, "
                         f"{incoming:,} incoming, and ~{demand:.2f}/day demand."
@@ -200,29 +207,17 @@ def apply_transfer_to_inventory(payload):
 
 # ── Static data (derived from historical chargeback analysis) ─────────────────
 
-ALERTS_DATA = [
-    {
-        "id": 1, "severity": "critical", "sku": "F-04211",
-        "product": "POP Ginger Chews Original 2 oz", "dc": "All DCs", "daysLeft": 1,
-        "urgentRequestCount": 6,
-        "message": "All three DCs are at 0–1 day of supply. Demand is 3,212 units/day. Large incoming POs are in transit to all DCs (SF: 10K, NJ: 53K, LA: 14K). Monitor inbound arrival closely; any delay creates an immediate stockout.",
-    },
-    {
-        "id": 2, "severity": "critical", "sku": "F-04117",
-        "product": "POP Ginger Chews Blood Orange 4 oz", "dc": "DC-NJ", "daysLeft": 4,
-        "urgentRequestCount": 3,
-        "message": "DC-NJ at 4 days of supply with 234 units/day demand. DC-SF has 104 days on-hand (24,393 units). NJ has 82,852 incoming units in transit — but transit timing is uncertain. Transfer 6,084 units from SF to NJ now to bridge the gap. Freight cost $0.51/unit = $3,103.",
-    },
-    {
-        "id": 3, "severity": "critical", "sku": "J-72402",
-        "product": "Totole Chicken Bouillon 2.2 lbs", "dc": "DC-NJ", "daysLeft": 1,
-        "message": "DC-NJ has only 48 units on hand with 26.95 units/day demand — less than 2 days of supply. No incoming stock on file for NJ. DC-SF has 6,094 units (226 days). Transfer 783 units SF→NJ immediately ($399 freight vs. ~$680 chargeback exposure).",
-    },
-    {
-        "id": 4, "severity": "warning", "sku": "T-31520",
-        "product": "Tiger Balm Ultra 10g", "dc": "DC-SF / DC-LA", "daysLeft": 4,
-        "message": "DC-SF at 2 days, DC-LA at 6 days. Both have large inbound POs (SF: 77K units, LA: 70K units). DC-NJ is at 15 days with 135K incoming. Watch inbound arrival — if POs are delayed (avg 81.5% arrive late), SF and LA will stockout before replenishment.",
-    },
+URGENT_REQUESTS_DATA = [
+    {"id": "5701", "sku": "A-61011",  "product": "AM GSG Root (bulk)",              "qty": "50 cases",  "note": "URGENT! OUT OF STOCK",                  "date": "2022-09-12"},
+    {"id": "5706", "sku": "D-60013",  "product": "Dragon Well Green Tea",           "qty": "20 cases",  "note": "ASAP",                                  "date": "2022-09-12"},
+    {"id": "5712", "sku": "F-04130",  "product": "POP Ginger Chews Original 3 oz", "qty": "2 pallets", "note": "Urgent",                                "date": "2022-09-19"},
+    {"id": "5718", "sku": "C-70121",  "product": "Chicken Congee",                  "qty": "1 pallet",  "note": "URGENT! OUT OF STOCK",                  "date": "2022-10-03"},
+    {"id": "5734", "sku": "F-04211",  "product": "POP Ginger Chews Original 2 oz", "qty": "4 pallets", "note": "URGENT! OUT OF STOCK",                  "date": "2023-02-20"},
+    {"id": "5748", "sku": "T-31520",  "product": "Tiger Balm Ultra 10g",            "qty": "3 pallets", "note": "OUT OF STOCK at NJ — urgent!",          "date": "2023-07-11"},
+    {"id": "5769", "sku": "F-04117",  "product": "POP Ginger Chews Blood Orange 4 oz", "qty": "2 pallets", "note": "Urgent transfer needed NJ",         "date": "2024-03-05"},
+    {"id": "5782", "sku": "J-72402",  "product": "Totole Chicken Bouillon 2.2 lbs","qty": "30 cases",  "note": "URGENT! OUT OF STOCK NJ",               "date": "2024-08-19"},
+    {"id": "5801", "sku": "AC-B4BK",  "product": "AM GSG Root (Mixed) 4 oz Bag",   "qty": "2 pallets", "note": "ASAP!! NJ needs stock",                 "date": "2025-01-14"},
+    {"id": "5818", "sku": "F-04211",  "product": "POP Ginger Chews Original 2 oz", "qty": "6 pallets", "note": "URGENT — Dollar General order at risk", "date": "2025-03-28"},
 ]
 
 CHARGEBACK_DATA = {
@@ -283,6 +278,11 @@ def get_alerts():
 @app.route("/api/chargebacks")
 def get_chargebacks():
     return jsonify(CHARGEBACK_DATA)
+
+
+@app.route("/api/urgent-requests")
+def get_urgent_requests():
+    return jsonify(URGENT_REQUESTS_DATA)
 
 
 @app.route("/api/transfers", methods=["POST"])
