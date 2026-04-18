@@ -1,3 +1,4 @@
+import math
 def calculate_avoided_penalty(penalty_without_transfer, penalty_with_transfer=0):
     return penalty_without_transfer - penalty_with_transfer
 
@@ -41,9 +42,23 @@ def make_recommendation(sku, item_name, source_dc, destination_dc, transfer_unit
 
 def parse_inventory_json(data):
     recommendations = []
-    for sku, sku_data in data.items():
+
+    metadata = data["METADATA"]
+    items = data["ITEMS"]
+
+    avg_penalty_cost = metadata["avg_penalty_cost"]
+    transfer_cost_by_lane = metadata["transfer_cost_by_lane"]
+
+    site_abbrev = {
+        "Site 1 - SF": "SF",
+        "Site 2 - NJ": "NJ",
+        "Site 3 - LA": "LA"
+    }
+
+    for sku, sku_data in items.items():
         item_name = sku_data["item_name"]
         avg_daily_demand = sku_data["avg_daily_demand"]
+        cases_per_pallet = sku_data["cases_per_pallet"]
         inventory_by_dc = sku_data["inventory_by_dc"]
 
         destination_dc = None
@@ -76,9 +91,11 @@ def parse_inventory_json(data):
 
         destination_data = inventory_by_dc[destination_dc]
         destination_stock = destination_data["stock_on_hand"]
+        destination_incoming = destination_data["incoming_stock"]
 
         target_days = 7
-        transfer_units = max(0, (avg_daily_demand * target_days) - destination_stock)
+        target_stock = avg_daily_demand * target_days
+        transfer_units = max(0, target_stock - destination_stock - destination_incoming)
 
         if transfer_units == 0:
             continue
@@ -92,9 +109,15 @@ def parse_inventory_json(data):
         if source_remaining_days < 14:
             continue
 
-        # placeholder values
-        transfer_cost = transfer_units * 0.50
-        expected_penalty_without_transfer = 300
+        source_abbrev = site_abbrev[source_dc]
+        destination_abbrev = site_abbrev[destination_dc]
+        lane_key = f"{source_abbrev}->{destination_abbrev}"
+
+        pallets = math.ceil(transfer_units / cases_per_pallet)
+        lane_cost = transfer_cost_by_lane.get(lane_key, 0)
+        transfer_cost = pallets * lane_cost
+
+        expected_penalty_without_transfer = avg_penalty_cost
         expected_penalty_with_transfer = 0
 
         recommendation = make_recommendation(

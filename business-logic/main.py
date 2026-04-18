@@ -1,7 +1,7 @@
 import json
 from transfer_logic import parse_inventory_json
 
-with open("live_inventory.json", "r") as f:
+with open("../backend/live_inventory.json", "r") as f:
     data = json.load(f)
 
 recommendations = parse_inventory_json(data)
