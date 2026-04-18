@@ -38,17 +38,52 @@ transfer_df['Amount'] = pd.to_numeric(
 avg_penalty = float(penalty_df['Extended Price'].mean())
 transfer_df['From'] = transfer_df['From'].astype(str).str.strip().str.upper()
 transfer_df['To'] = transfer_df['To'].astype(str).str.strip().str.upper()
-lane_avg_df = (
-    transfer_df.dropna(subset=['From', 'To', 'Amount'])
+transfer_df['Carrier'] = transfer_df['Carrier'].astype(str).str.strip().str.upper()
+valid_transfer_df = transfer_df.dropna(subset=['From', 'To', 'Amount'])
+jk_transfer_df = valid_transfer_df[valid_transfer_df['Carrier'] == 'JK']
+jk_lane_avg_df = (
+    jk_transfer_df
     .groupby(['From', 'To'])['Amount']
     .mean()
     .round(2)
     .reset_index()
 )
+priority1_transfer_df = valid_transfer_df[
+    (valid_transfer_df['Carrier'] == 'PRIORITY 1')
+    & ((valid_transfer_df['From'] == 'NJ') | (valid_transfer_df['To'] == 'NJ'))
+]
+priority1_lane_avg_df = (
+    priority1_transfer_df
+    .groupby(['From', 'To'])['Amount']
+    .mean()
+    .round(2)
+    .reset_index()
+)
+jk_transfer_cost_by_lane = {
+    f"{row['From']}->{row['To']}": float(row['Amount'])
+    for _, row in jk_lane_avg_df.iterrows()
+    if row['From'] and row['To'] and row['From'] != 'NAN' and row['To'] != 'NAN'
+}
+priority1_nj_transfer_cost_by_lane = {
+    f"{row['From']}->{row['To']}": float(row['Amount'])
+    for _, row in priority1_lane_avg_df.iterrows()
+    if row['From'] and row['To'] and row['From'] != 'NAN' and row['To'] != 'NAN'
+}
+transfer_cost_by_lane_by_pallet = {
+    **jk_transfer_cost_by_lane,
+    **{
+        lane: cost
+        for lane, cost in priority1_nj_transfer_cost_by_lane.items()
+        if lane not in jk_transfer_cost_by_lane
+    },
+}
+
 transfer_cost_by_lane_by_pallet = {
     f"{row['From']}->{row['To']}": float(row['Amount'])
-    for _, row in lane_avg_df.iterrows()
-    if row['From'] and row['To'] and row['From'] != 'NAN' and row['To'] != 'NAN'
+    for row in sorted(
+        [{"From": k.split("->")[0], "To": k.split("->")[1], "Amount": v} for k, v in transfer_cost_by_lane_by_pallet.items()],
+        key=lambda x: (x['From'], x['To'])
+    )
 }
 
 # 4. PROCESS INVENTORY
@@ -59,7 +94,7 @@ site_code_map = {'Site 1 - SF': '1', 'Site 2 - NJ': '2', 'Site 3 - LA': '3'}
 master_inventory = {
     "METADATA": {
         "avg_penalty_cost": round(avg_penalty, 2),
-        "transfer_cost_by_lane": transfer_cost_by_lane
+        "transfer_cost_by_lane": transfer_cost_by_lane_by_pallet
     },
     "ITEMS": {}
 }

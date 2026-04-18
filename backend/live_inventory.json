@@ -1,13 +1,13 @@
 {
     "METADATA": {
         "avg_penalty_cost": 680.16,
-        "transfer_cost_by_lane_by_pallet": {
-            "LA->NJ": 310.11,
+        "transfer_cost_by_lane": {
+            "LA->NJ": 308.83,
             "LA->SF": 97.18,
-            "NJ->LA": 277.0,
-            "NJ->SF": 281.97,
+            "NJ->LA": 272.4,
+            "NJ->SF": 269.16,
             "SF->LA": 54.7,
-            "SF->NJ": 273.18
+            "SF->NJ": 270.42
         }
     },
     "ITEMS": {
