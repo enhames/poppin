@@ -78,7 +78,16 @@ function RecCard({ rec }: { rec: Recommendation }) {
             ? { backgroundColor: "#14110F", color: "#FFFFFF" }
             : { border: "1px solid #E5B664", color: "#8C5A0F", backgroundColor: "#FFFFFF" }
         }>
-          {isTransfer ? "↗ Transfer" : "⏳ Wait"}
+          {isTransfer ? "↗ Transfer" : (
+            <span className="flex items-center gap-1.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 22h14" /><path d="M5 2h14" />
+                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+              </svg>
+              Wait
+            </span>
+          )}
         </div>
       </div>
 
@@ -124,7 +133,12 @@ function RecCard({ rec }: { rec: Recommendation }) {
               {t.transferPanel.transferLogged}
             </span>
           ) : overridden ? (
-            <span className="text-sm font-semibold rounded-lg px-5 py-2.5" style={{ color: "#8C5A0F", backgroundColor: "#FEF7E8", border: "1px solid #E5B664" }}>
+            <span className="flex items-center gap-2 text-sm font-semibold rounded-lg px-5 py-2.5" style={{ color: "#8C5A0F", backgroundColor: "#FEF7E8", border: "1px solid #E5B664" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 22h14" /><path d="M5 2h14" />
+                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+              </svg>
               {t.transferPanel.waitingForPo}
             </span>
           ) : isTransfer ? (
