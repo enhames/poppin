@@ -2,13 +2,19 @@ import { useState, useMemo, useEffect } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DcData = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
-type ItemData = { item_name: string; avg_daily_demand: number; inventory_by_dc: Record<string, DcData> };
-type LiveInventory = { METADATA: { avg_penalty_cost: number; avg_transfer_cost: number }; ITEMS: Record<string, ItemData> };
+type ItemData = {
+  item_name: string;
+  avg_daily_demand: number;
+  cases_per_pallet: number;
+  inventory_by_dc: Record<string, DcData>;
+};
+type LiveInventory = { METADATA: { avg_penalty_cost: number; transfer_cost_by_lane?: Record<string, number> }; ITEMS: Record<string, ItemData> };
 type Status = "stockout" | "critical" | "warning" | "watch" | "ok" | "inactive";
 type NavFilter = "all" | "action" | "ok" | "inactive";
 
 interface ProcessedItem {
   sku: string; name: string; demand: number;
+  casesPerPallet: number;
   sf: DcData; nj: DcData; la: DcData;
   sfStatus: Status; njStatus: Status; laStatus: Status;
   worstStatus: Status; worstRank: number;
@@ -50,7 +56,20 @@ function processInventory(raw: LiveInventory): ProcessedItem[] {
       const laStatus = getStatus(la.days_of_supply, demand);
       const worstRank = Math.min(STATUS_CFG[sfStatus].rank, STATUS_CFG[njStatus].rank, STATUS_CFG[laStatus].rank);
       const worstStatus = (Object.keys(STATUS_CFG) as Status[]).find(k => STATUS_CFG[k].rank === worstRank) ?? "inactive";
-      return { sku, name: data.item_name, demand, sf, nj, la, sfStatus, njStatus, laStatus, worstStatus, worstRank };
+      return {
+        sku,
+        name: data.item_name,
+        demand,
+        casesPerPallet: Number(data.cases_per_pallet || 1),
+        sf,
+        nj,
+        la,
+        sfStatus,
+        njStatus,
+        laStatus,
+        worstStatus,
+        worstRank,
+      };
     })
     .sort((a, b) => a.worstRank - b.worstRank);
 }
@@ -58,18 +77,23 @@ function processInventory(raw: LiveInventory): ProcessedItem[] {
 // ─── Recommendation helper ────────────────────────────────────────────────────
 interface Rec { text: string; units: number; cost: number; route: string }
 
-function getRecommendations(item: ProcessedItem): Rec[] {
+function getRecommendations(item: ProcessedItem, laneCosts: Record<string, number>): Rec[] {
   if (item.demand === 0) return [];
   const recs: Rec[] = [];
   const sfGood = item.sfStatus !== "stockout" && item.sfStatus !== "critical";
+  const casesPerPallet = Math.max(1, Number(item.casesPerPallet || 1));
   if ((item.njStatus === "stockout" || item.njStatus === "critical") && sfGood) {
     const units = Math.max(0, Math.round((30 - item.nj.days_of_supply) * item.demand));
-    const cost = Math.round(units * 0.51);
+    const pallets = Math.ceil(units / casesPerPallet);
+    const laneCost = Number(laneCosts["SF->NJ"] || 0);
+    const cost = Math.round(pallets * laneCost);
     recs.push({ route: "SF → NJ", units, cost, text: `Transfer ${units.toLocaleString()} units from SF to NJ` });
   }
   if ((item.laStatus === "stockout" || item.laStatus === "critical") && sfGood) {
     const units = Math.max(0, Math.round((30 - item.la.days_of_supply) * item.demand));
-    const cost = Math.round(units * 0.17);
+    const pallets = Math.ceil(units / casesPerPallet);
+    const laneCost = Number(laneCosts["SF->LA"] || 0);
+    const cost = Math.round(pallets * laneCost);
     recs.push({ route: "SF → LA", units, cost, text: `Transfer ${units.toLocaleString()} units from SF to LA` });
   }
   return recs;
@@ -416,8 +440,8 @@ function DosChart({ item }: { item: ProcessedItem }) {
 }
 
 // ─── Item Detail Panel ────────────────────────────────────────────────────────
-function ItemDetail({ item, avgPenalty }: { item: ProcessedItem; avgPenalty: number }) {
-  const recs = getRecommendations(item);
+function ItemDetail({ item, avgPenalty, laneCosts }: { item: ProcessedItem; avgPenalty: number; laneCosts: Record<string, number> }) {
+  const recs = getRecommendations(item, laneCosts);
 
   return (
     <div className="space-y-5">
@@ -585,6 +609,7 @@ export function InventoryCharts() {
   const allItems = useMemo(() => inventory ? processInventory(inventory) : [], [inventory]);
   const selectedItem = selectedSku ? allItems.find(i => i.sku === selectedSku) ?? null : null;
   const avgPenalty = inventory?.METADATA.avg_penalty_cost ?? 680;
+  const laneCosts = inventory?.METADATA.transfer_cost_by_lane ?? {};
 
   if (loadError) {
     return (
@@ -613,7 +638,7 @@ export function InventoryCharts() {
       </div>
       <div className="flex-1 overflow-y-auto p-6">
         {selectedItem
-          ? <ItemDetail item={selectedItem} avgPenalty={avgPenalty} />
+          ? <ItemDetail item={selectedItem} avgPenalty={avgPenalty} laneCosts={laneCosts} />
           : <Overview allItems={allItems} onSelect={setSelectedSku} />
         }
       </div>
