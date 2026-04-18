@@ -11,6 +11,7 @@ type Tab = "imbalances" | "chargebacks" | "transfers" | "alerts" | "charts";
 
 const URGENT_REQUESTS_TOTAL = 2029;
 const PENALTY_EXPOSURE = 745000;
+/* TODO: HARDCODED */
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 function Icon({ d, size = 16 }: { d: string; size?: number }) {
@@ -130,6 +131,7 @@ export default function App() {
           <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-gray-500">
             Distribution Centers
           </p>
+          {/* TODO: HARDCODED */}
           {[
             { name: "DC-SF · Livermore", role: "Hub · 27.6% volume", dot: "#D4AF37" }, // Gold
             { name: "DC-NJ · New Jersey", role: "Primary · 54.3% volume", dot: "#A6192E" }, // Crimson
@@ -230,11 +232,13 @@ export default function App() {
               <KpiCard
                 label="Transfers Recommended"
                 value={String(transferCount)}
+                /* TODO: HARDCODED */
                 context="Estimated Net Savings: $42,100 if all approved today."
                 accent="warning"
               />
               <KpiCard
                 label="Pending Inbound POs"
+                /* TODO: HARDCODED */
                 value="24"
                 context="Shipments en route. Evaluate 'Wait vs. Transfer' tradeoffs."
                 accent="neutral"
@@ -264,6 +268,7 @@ export default function App() {
               <AlertsBanner />
 
               {/* URGENT Spreadsheet - "before" story */}
+              {/* TODO: HARDCODED */}
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                 <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
                   <div>
@@ -316,6 +321,7 @@ export default function App() {
               </div>
 
               {/* Before / After */}
+              {/* TODO: HARDCODED */}
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                 <div className="px-6 py-5 border-b border-gray-200">
                   <h3 className="text-base font-bold text-gray-900">Cost Tradeoff Analysis: Wait vs. Transfer</h3>

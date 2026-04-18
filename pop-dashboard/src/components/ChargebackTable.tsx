@@ -29,6 +29,7 @@ export function ChargebackTable() {
   const peakMonthLabel = peakYr?.peakMonth ?? "";
   const peakMonthAmt = peakYr?.peakMonthAmount ?? 0;
 
+  /* TODO: HARDCODED */
   const yr2023 = yearlyPenalties.find((y) => y.year === "2023");
   const yr2024 = yearlyPenalties.find((y) => y.year === "2024");
   const total2023 = (yr2023?.operational ?? 0) + (yr2023?.postAudit ?? 0);
@@ -114,6 +115,7 @@ export function ChargebackTable() {
                 {yr.peakMonth && (
                   <div className="mt-3 bg-white border border-red-200 rounded-lg px-3 py-2">
                     <p className="text-[11px] font-bold text-red-600">{yr.peakMonth}: ${yr.peakMonthAmount?.toLocaleString()}</p>
+                    {/* TODO: HARDCODED */}
                     <p className="text-[10px] text-gray-400">10× a typical month</p>
                   </div>
                 )}
@@ -123,6 +125,7 @@ export function ChargebackTable() {
         </div>
 
         <div className="px-6 pb-5">
+          {/* TODO: HARDCODED */}
           <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-sm text-gray-700 leading-relaxed">
             <strong className="text-red-700">+{yoyPct}% increase from 2023 to 2024</strong>{" "}
             in operational + post-audit penalties (2023 covers Sep–Dec only — system tracking started mid-year).
@@ -177,6 +180,7 @@ export function ChargebackTable() {
             <p className="text-xs text-gray-400 mt-0.5">What this system can and cannot prevent</p>
           </div>
           <div className="p-5 space-y-4">
+            {/* TODO: HARDCODED */}
             {[
               { label: "Operational penalties (CRED11)", amount: yearlyPenalties.find((y) => y.year === "2025")?.operational ?? 155354, addressable: true, note: "Short ship, late delivery — preventable with proactive inventory positioning" },
               { label: "Post-audit claims (CRED12)", amount: yearlyPenalties.find((y) => y.year === "2025")?.postAudit ?? 253597, addressable: false, note: "Reflects 2023–24 events. Arrive 8–12 months later — cannot be prevented retroactively" },
@@ -201,6 +205,7 @@ export function ChargebackTable() {
             ))}
           </div>
           <div className="px-5 py-4 bg-emerald-50 border-t border-emerald-200">
+            {/* TODO: HARDCODED */}
             <p className="text-xs text-emerald-800 leading-relaxed font-medium">
               Target: prevent 30–50% of the $189K operational penalties ($57K–$95K/yr)
               against ~$50–80K in targeted transfer freight.{" "}
