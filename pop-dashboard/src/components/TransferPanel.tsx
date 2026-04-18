@@ -148,6 +148,8 @@ function RecCard({ rec }: { rec: Recommendation }) {
                 disabled={approving}
                 className="text-sm font-bold text-white rounded-lg px-5 py-2.5 disabled:opacity-60 transition-opacity"
                 style={{ backgroundColor: "#7A0F1D" }}
+                onMouseEnter={e => { if (!approving) e.currentTarget.style.backgroundColor = "#5E0B15"; }}
+                onMouseLeave={e => { if (!approving) e.currentTarget.style.backgroundColor = "#7A0F1D"; }}
               >
                 {approving ? t.transferPanel.submitting : t.transferPanel.approve}
               </button>
@@ -167,6 +169,8 @@ function RecCard({ rec }: { rec: Recommendation }) {
               disabled={approving}
               className="text-sm font-semibold rounded-lg px-5 py-2.5 disabled:opacity-60 transition-colors"
               style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
             >
               {approving ? t.transferPanel.submitting : t.transferPanel.overrideTransfer}
             </button>

@@ -200,7 +200,7 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
             <h3 className="text-lg font-bold leading-tight" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{row.product}</h3>
             <p className="mono text-xs mt-0.5" style={{ color: "#8E8680" }}>{row.sku.trim()}</p>
           </div>
-          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl" style={{ color: "#B8B1AA" }}>×</button>
+          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl transition-colors hover:bg-[#F2EDE5] hover:text-[#403A34]" style={{ color: "#B8B1AA" }}>×</button>
         </div>
 
         {done ? (
@@ -242,6 +242,8 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                         backgroundColor: sourceDc === dc.site ? "#FBEEEF" : "#FFFFFF",
                         color: "#14110F",
                       }}
+                      onMouseEnter={e => { if (sourceDc !== dc.site) e.currentTarget.style.backgroundColor = "#FAF7F1"; }}
+                      onMouseLeave={e => { if (sourceDc !== dc.site) e.currentTarget.style.backgroundColor = "#FFFFFF"; }}
                     >
                       <p className="font-semibold text-xs">{dc.label}</p>
                       <p className="mono text-[11px] mt-0.5" style={{ color: dc.dos < 14 ? "#A6192E" : "#6B6560" }}>
@@ -265,6 +267,8 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                         backgroundColor: destDc === dc.site ? "#EEF7F5" : "#FFFFFF",
                         color: "#14110F",
                       }}
+                      onMouseEnter={e => { if (destDc !== dc.site) e.currentTarget.style.backgroundColor = "#FAF7F1"; }}
+                      onMouseLeave={e => { if (destDc !== dc.site) e.currentTarget.style.backgroundColor = "#FFFFFF"; }}
                     >
                       <p className="font-semibold text-xs">{dc.label}</p>
                       <p className="mono text-[11px] mt-0.5" style={{ color: dc.dos < 14 ? "#A6192E" : "#6B6560" }}>
@@ -341,6 +345,8 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                 disabled={submitting || unitCount <= 0}
                 className="flex-1 text-sm font-bold text-white rounded-lg px-5 py-2.5 disabled:opacity-50 transition-opacity"
                 style={{ backgroundColor: "#7A0F1D" }}
+                onMouseEnter={e => { if (!submitting && unitCount > 0) e.currentTarget.style.backgroundColor = "#5E0B15"; }}
+                onMouseLeave={e => { if (!submitting && unitCount > 0) e.currentTarget.style.backgroundColor = "#7A0F1D"; }}
               >
                 {submitting ? t.transferModal.submitting : t.transferModal.approve}
               </button>
@@ -348,6 +354,8 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
                 onClick={onClose}
                 className="text-sm font-medium rounded-lg px-5 py-2.5 transition-colors"
                 style={{ color: "#6B6560", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
               >
                 {t.transferModal.cancel}
               </button>
@@ -387,7 +395,7 @@ function DetailModal({ row, onClose, onTransfer }: {
             <h3 className="text-lg font-bold mt-1.5" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>{row.product}</h3>
             <p className="text-sm" style={{ color: "#8E8680" }}>{row.category}</p>
           </div>
-          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl" style={{ color: "#B8B1AA" }}>×</button>
+          <button onClick={onClose} className="ml-4 w-8 h-8 flex items-center justify-center rounded-lg text-xl transition-colors hover:bg-[#F2EDE5] hover:text-[#403A34]" style={{ color: "#B8B1AA" }}>×</button>
         </div>
 
         {/* DC cards */}
@@ -427,11 +435,15 @@ function DetailModal({ row, onClose, onTransfer }: {
               onClick={() => { onClose(); onTransfer(); }}
               className="text-sm font-bold text-white rounded-lg px-5 py-2.5 transition-colors"
               style={{ backgroundColor: "#7A0F1D" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5E0B15")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}
             >
               {t.detailModal.initiateTransfer}
             </button>
           )}
-          <button onClick={onClose} className="text-sm font-medium rounded-lg px-4 py-2.5 ml-auto transition-colors" style={{ color: "#6B6560", border: "1px solid #D6CFC7" }}>
+          <button onClick={onClose} className="text-sm font-medium rounded-lg px-4 py-2.5 ml-auto transition-colors" style={{ color: "#6B6560", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}>
             {t.detailModal.close}
           </button>
         </div>
@@ -516,7 +528,9 @@ export function InventoryTable() {
             return (
               <button key={f} onClick={() => setFilter(f)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
-                style={{ backgroundColor: active ? "#14110F" : "transparent", color: active ? "#FFFFFF" : "#6B6560" }}>
+                style={{ backgroundColor: active ? "#14110F" : "transparent", color: active ? "#FFFFFF" : "#6B6560" }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = "#F2EDE5"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = "transparent"; }}>
                 {f !== "all" && <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: active ? "rgba(255,255,255,0.6)" : dotColor }} />}
                 {label}
                 <span className="mono text-[11px]" style={{ opacity: 0.6 }}>({counts[f]})</span>
@@ -535,7 +549,9 @@ export function InventoryTable() {
                 color: sort === key ? "#14110F" : "#6B6560",
                 fontWeight: sort === key ? 700 : 400,
                 backgroundColor: "#FFFFFF",
-              }}>
+              }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}>
               {t.table.sortKeys[key]}
             </button>
           ))}

@@ -93,12 +93,7 @@ function AppContent() {
         {/* Logo */}
         <div className="px-6 pt-7 pb-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-[10px] font-black" style={{ backgroundColor: "#7A0F1D", boxShadow: "0 0 10px rgba(122,15,29,0.5)" }}>
-                Pop-Ops
-              </div>
-              <span className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Pop-Ops</span>
-            </div>
+            <span className="text-white font-bold text-xl tracking-wide" style={{ fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Pop-Ops</span>
           </div>
           <div className="flex items-center gap-1.5 mt-2">
             {(["en", "zh"] as const).map((lang) => (
@@ -110,6 +105,8 @@ function AppContent() {
                   backgroundColor: language === lang ? "#D4AF37" : "rgba(255,255,255,0.06)",
                   color: language === lang ? "#14110F" : "#6B6560",
                 }}
+                onMouseEnter={e => { if (language !== lang) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.12)"; }}
+                onMouseLeave={e => { if (language !== lang) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; }}
               >
                 {lang === "en" ? "EN" : "中文"}
               </button>
@@ -146,7 +143,9 @@ function AppContent() {
             return (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-all relative group"
-                style={{ backgroundColor: active ? "rgba(255,255,255,0.08)" : "transparent", color: active ? "#FFFFFF" : "#8E8680", borderLeft: `2px solid ${active ? "#D4AF37" : "transparent"}` }}>
+                style={{ backgroundColor: active ? "rgba(255,255,255,0.08)" : "transparent", color: active ? "#FFFFFF" : "#8E8680", borderLeft: `2px solid ${active ? "#D4AF37" : "transparent"}` }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.05)"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = "transparent"; }}>
                 <span style={{ color: active ? "#D4AF37" : "#6B6560" }}>
                   <Icon d={NAV_ICONS[tab]} size={15} />
                 </span>
