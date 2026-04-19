@@ -49,11 +49,6 @@ export function AlertsBanner({ alerts, onDismiss }: { alerts: any[]; onDismiss: 
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.dotColor }} />
                   {s.label}
                 </span>
-                {alert.urgentRequestCount > 0 && (
-                  <div className="text-[11px] font-semibold" style={{ color: "#A6192E" }}>
-                    {t.alerts.inUrgentSheet(alert.urgentRequestCount)}
-                  </div>
-                )}
               </div>
 
               <div className="flex-1 min-w-0">
