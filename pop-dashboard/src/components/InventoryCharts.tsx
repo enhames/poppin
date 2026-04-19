@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "../i18n/LanguageContext";
+import { fmtMoney } from "../utils/format";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DcData = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
@@ -465,9 +466,9 @@ function ItemDetail({ item, avgPenalty, laneCosts }: { item: ProcessedItem; avgP
               <div>
                 <p className="text-sm font-semibold text-gray-900">{t.charts.transferText(r.units, r.from, r.to)}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {t.charts.freight} <span className="font-semibold text-gray-800" style={{ fontFamily: "DM Mono, monospace" }}>${r.cost.toLocaleString()}</span>
+                  {t.charts.freight} <span className="font-semibold text-gray-800" style={{ fontFamily: "DM Mono, monospace" }}>${fmtMoney(r.cost)}</span>
                   {" · "}
-                  {t.charts.avgChargeback} <span className="font-semibold text-red-600" style={{ fontFamily: "DM Mono, monospace" }}>${avgPenalty.toFixed(0)}</span>
+                  {t.charts.avgChargeback} <span className="font-semibold text-red-600" style={{ fontFamily: "DM Mono, monospace" }}>${fmtMoney(avgPenalty)}</span>
                 </p>
               </div>
               <span className="text-xs font-bold text-amber-700 bg-amber-100 border border-amber-200 rounded-lg px-3 py-1.5 flex-shrink-0"

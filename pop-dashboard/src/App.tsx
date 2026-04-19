@@ -4,9 +4,11 @@ import { AlertsBanner } from "./components/AlertsBanner";
 import { InventoryTable } from "./components/InventoryTable";
 import { TransferPanel } from "./components/TransferPanel";
 import { InventoryCharts } from "./components/InventoryCharts";
+import { ChargebackTable } from "./components/ChargebackTable";
 import { LanguageProvider, useLanguage } from "./i18n/LanguageContext";
+import { fmtMoney } from "./utils/format";
 
-type Tab = "imbalances" | "transfers" | "alerts" | "charts";
+type Tab = "imbalances" | "transfers" | "alerts" | "charts" | "chargebacks";
 
 function Icon({ d, size = 16 }: { d: string; size?: number }) {
   return (
@@ -21,6 +23,7 @@ const NAV_ICONS: Record<Tab, string> = {
   transfers: "M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5",
   alerts: "M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0",
   charts: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z",
+  chargebacks: "M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z",
 };
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
@@ -93,12 +96,7 @@ function AppContent() {
         {/* Logo */}
         <div className="px-6 pt-7 pb-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-[10px] font-black" style={{ backgroundColor: "#7A0F1D", boxShadow: "0 0 10px rgba(122,15,29,0.5)" }}>
-                Pop-Ops
-              </div>
-              <span className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Pop-Ops</span>
-            </div>
+            <span className="text-white font-bold text-xl tracking-wide" style={{ fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>Pop-Ops</span>
           </div>
           <div className="flex items-center gap-1.5 mt-2">
             {(["en", "zh"] as const).map((lang) => (
@@ -110,6 +108,8 @@ function AppContent() {
                   backgroundColor: language === lang ? "#D4AF37" : "rgba(255,255,255,0.06)",
                   color: language === lang ? "#14110F" : "#6B6560",
                 }}
+                onMouseEnter={e => { if (language !== lang) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.12)"; }}
+                onMouseLeave={e => { if (language !== lang) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; }}
               >
                 {lang === "en" ? "EN" : "中文"}
               </button>
@@ -146,7 +146,9 @@ function AppContent() {
             return (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-all relative group"
-                style={{ backgroundColor: active ? "rgba(255,255,255,0.08)" : "transparent", color: active ? "#FFFFFF" : "#8E8680", borderLeft: `2px solid ${active ? "#D4AF37" : "transparent"}` }}>
+                style={{ backgroundColor: active ? "rgba(255,255,255,0.08)" : "transparent", color: active ? "#FFFFFF" : "#8E8680", borderLeft: `2px solid ${active ? "#D4AF37" : "transparent"}` }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.05)"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = "transparent"; }}>
                 <span style={{ color: active ? "#D4AF37" : "#6B6560" }}>
                   <Icon d={NAV_ICONS[tab]} size={15} />
                 </span>
@@ -214,7 +216,7 @@ function AppContent() {
               <KpiCard
                 label={t.kpi.transfersRecommended}
                 value={String(transferCount)}
-                context={t.kpi.transfersContext(`$${Math.round(summary?.estimatedNetSavings ?? 0).toLocaleString()}`)}
+                context={t.kpi.transfersContext(`$${fmtMoney(summary?.estimatedNetSavings ?? 0)}`)}
                 accent="warning"
               />
               <KpiCard
@@ -227,8 +229,9 @@ function AppContent() {
           )}
 
           {activeTab === "imbalances" && <InventoryTable />}
-{activeTab === "transfers" && <TransferPanel />}
+          {activeTab === "transfers" && <TransferPanel />}
           {activeTab === "charts" && <InventoryCharts />}
+          {activeTab === "chargebacks" && <ChargebackTable />}
 
           {activeTab === "alerts" && (
             <div className="space-y-6">
@@ -321,8 +324,8 @@ function AppContent() {
                         "Order hits DC-NJ. System shows 0 available units.",
                         <span key="2">Ops manager logs request: <span className="font-semibold" style={{ color: "#7A0F1D" }}>"URGENT! F-04130, 4 pallets"</span>.</span>,
                         "Manual stock check causes 3–5 day processing delay.",
-                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold" style={{ color: "#A6192E" }}>${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
-                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold" style={{ color: "#A6192E" }}>${Math.round((scenario?.penaltyExposure ?? 0) / 2).toLocaleString()}</span></>,
+                        <>Order is split. Short-ship penalty issued: <span className="mono font-bold" style={{ color: "#A6192E" }}>${fmtMoney((scenario?.penaltyExposure ?? 0) / 2)}</span></>,
+                        <>Second shipment late. Late-delivery penalty: <span className="mono font-bold" style={{ color: "#A6192E" }}>${fmtMoney((scenario?.penaltyExposure ?? 0) / 2)}</span></>,
                       ].map((step, i) => (
                         <li key={i} className="flex gap-3">
                           <span className="mono flex-shrink-0 font-medium" style={{ color: "#D6CFC7" }}>{i + 1}.</span>
@@ -332,7 +335,7 @@ function AppContent() {
                       <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #F2EDE5" }}>
                         <span className="mono font-bold flex-shrink-0" style={{ color: "#A6192E" }}>→</span>
                         <span className="font-semibold" style={{ color: "#A6192E" }}>
-                          ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()} total penalty exposure.
+                          ${fmtMoney(scenario?.penaltyExposure ?? 0)} total penalty exposure.
                         </span>
                       </li>
                     </ol>
@@ -347,7 +350,7 @@ function AppContent() {
                       {[
                         <>System flags DC-NJ at <strong>8 days estimated supply</strong>, 14 days prior to order window.</>,
                         <>Alert generated: NJ demand outpaces supply. SF has 126d supply. Recommend transfer.</>,
-                        <>Cost Model: Transfer {scenario?.sourceDc ?? "—"}→{scenario?.destinationDc ?? "—"} · <span className="mono font-bold" style={{ color: "#14110F" }}>${Math.round(scenario?.transferCost ?? 0).toLocaleString()} freight</span> · Risk avoided: ${Math.round(scenario?.penaltyExposure ?? 0).toLocaleString()}</>,
+                        <>Cost Model: Transfer {scenario?.sourceDc ?? "—"}→{scenario?.destinationDc ?? "—"} · <span className="mono font-bold" style={{ color: "#14110F" }}>${fmtMoney(scenario?.transferCost ?? 0)} freight</span> · Risk avoided: ${fmtMoney(scenario?.penaltyExposure ?? 0)}</>,
                         "Ops manager approves transfer in dashboard. Initiated same day.",
                         "DC-NJ ships order on time, in full. Zero penalties incurred.",
                       ].map((step, i) => (
@@ -359,7 +362,7 @@ function AppContent() {
                       <li className="flex gap-3 pt-2 mt-1" style={{ borderTop: "1px solid #DCEFEB" }}>
                         <span className="mono font-bold flex-shrink-0" style={{ color: "#125F54" }}>→</span>
                         <span className="font-semibold" style={{ color: "#125F54" }}>
-                          Net saving: ${Math.round(scenario?.netSaving ?? 0).toLocaleString()}. Imbalance resolved proactively.
+                          Net saving: ${fmtMoney(scenario?.netSaving ?? 0)}. Imbalance resolved proactively.
                         </span>
                       </li>
                     </ol>

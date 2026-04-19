@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { api } from "../api/client";
 import type { ChargebackRow, CustomerPenalty, YearlyPenalty } from "../data/mockData";
 import { useLanguage } from "../i18n/LanguageContext";
+import { fmtMoney } from "../utils/format";
 
 const TYPE_PILL: Record<string, string> = {
   operational:  "bg-[#FBEEEF] text-[#7A0F1D] border border-[#F4D5D8]",
@@ -55,7 +56,7 @@ export function ChargebackTable() {
             </div>
             <div className="text-right">
               <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>{t.chargebacks.peakMonth}</p>
-              <p className="text-lg font-bold mono" style={{ color: "#7A0F1D" }}>${peakMonthAmt.toLocaleString()}</p>
+              <p className="text-lg font-bold mono" style={{ color: "#7A0F1D" }}>${fmtMoney(peakMonthAmt)}</p>
               <p className="text-xs" style={{ color: "#8E8680" }}>{peakMonthLabel} — {t.chargebacks.typicalMultiplier(peakMultiplier)}</p>
             </div>
           </div>
@@ -97,7 +98,7 @@ export function ChargebackTable() {
                   <div>
                     <div className="flex justify-between text-[11px] mb-0.5" style={{ color: "#6B6560" }}>
                       <span>{t.chargebacks.operational}</span>
-                      <span className="mono">${yr.operational.toLocaleString()}</span>
+                      <span className="mono">${fmtMoney(yr.operational)}</span>
                     </div>
                     <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
                       <div className="h-full rounded-full" style={{ width: `${(yr.operational / maxPenalty) * 100}%`, backgroundColor: "#A6192E" }} />
@@ -106,20 +107,20 @@ export function ChargebackTable() {
                   <div>
                     <div className="flex justify-between text-[11px] mb-0.5" style={{ color: "#6B6560" }}>
                       <span>{t.chargebacks.postAudit}</span>
-                      <span className="mono">${yr.postAudit.toLocaleString()}</span>
+                      <span className="mono">${fmtMoney(yr.postAudit)}</span>
                     </div>
                     <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
                       <div className="h-full rounded-full" style={{ width: `${(yr.postAudit / maxPenalty) * 100}%`, backgroundColor: "#B97A15" }} />
                     </div>
                   </div>
                   <div className="text-[10px] pt-1" style={{ color: "#8E8680" }}>
-                    {t.chargebacks.damage} ${yr.damage.toLocaleString()}
+                    {t.chargebacks.damage} ${fmtMoney(yr.damage)}
                   </div>
                 </div>
 
                 {yr.peakMonth && (
                   <div className="mt-3 rounded-lg px-3 py-2" style={{ backgroundColor: "#FFFFFF", border: "1px solid #F4D5D8" }}>
-                    <p className="text-[11px] font-bold" style={{ color: "#7A0F1D" }}>{yr.peakMonth}: ${yr.peakMonthAmount?.toLocaleString()}</p>
+                    <p className="text-[11px] font-bold" style={{ color: "#7A0F1D" }}>{yr.peakMonth}: ${fmtMoney(yr.peakMonthAmount ?? 0)}</p>
                     <p className="text-[10px]" style={{ color: "#8E8680" }}>{t.chargebacks.tenXTypical}</p>
                   </div>
                 )}
@@ -159,7 +160,7 @@ export function ChargebackTable() {
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="mono text-sm font-bold" style={{ color: "#7A0F1D" }}>${c.amount.toLocaleString()}</p>
+                    <p className="mono text-sm font-bold" style={{ color: "#7A0F1D" }}>${fmtMoney(c.amount)}</p>
                     <p className="mono text-[11px]" style={{ color: "#8E8680" }}>{share.toFixed(0)}%</p>
                   </div>
                 </div>
@@ -244,7 +245,7 @@ export function ChargebackTable() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 mono text-xs" style={{ color: "#6B6560" }}>{row.incidents > 0 ? row.incidents : "—"}</td>
-                    <td className="px-5 py-3.5 mono text-sm font-bold" style={{ color: "#7A0F1D" }}>${row.amount.toLocaleString()}</td>
+                    <td className="px-5 py-3.5 mono text-sm font-bold" style={{ color: "#7A0F1D" }}>${fmtMoney(row.amount)}</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
