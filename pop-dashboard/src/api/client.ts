@@ -45,6 +45,13 @@ export interface DashboardScenario {
   netSaving: number;
 }
 
+const DEBUG_RECOMMENDATION_MODE: "legacy" | "new" = "new";
+
+function withRecommendationMode(path: string): string {
+  const glue = path.includes("?") ? "&" : "?";
+  return `${path}${glue}mode=${DEBUG_RECOMMENDATION_MODE}`;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
@@ -52,7 +59,7 @@ async function get<T>(path: string): Promise<T> {
 }
 
 export const api = {
-  getRecommendations: () => get<Recommendation[]>("/api/recommendations"),
+  getRecommendations: () => get<Recommendation[]>(withRecommendationMode("/api/recommendations")),
 
   getInventory: () => get<unknown>("/api/inventory"),
 
@@ -60,10 +67,10 @@ export const api = {
 
   getChargebacks: () => get<unknown>("/api/chargebacks"),
 
-  getDashboardSummary: () => get<DashboardSummary>("/api/dashboard/summary"),
+  getDashboardSummary: () => get<DashboardSummary>(withRecommendationMode("/api/dashboard/summary")),
 
   getDashboardScenario: async () => {
-    const raw = await get<{ scenario: DashboardScenario | null }>("/api/dashboard/scenario");
+    const raw = await get<{ scenario: DashboardScenario | null }>(withRecommendationMode("/api/dashboard/scenario"));
     return raw.scenario;
   },
 

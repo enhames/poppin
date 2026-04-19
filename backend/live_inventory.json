@@ -8,6 +8,35 @@
             "NJ->SF": 269.16,
             "SF->LA": 54.7,
             "SF->NJ": 270.42
+        },
+        "default_po_eta_reliability": 0.1854,
+        "default_po_delay_probability": 0.8146,
+        "default_po_avg_delay_days": 22.98,
+        "po_eta_reliability_by_location": {
+            "1": 0.1799,
+            "2": 0.1698,
+            "3": 0.2276
+        },
+        "po_delay_probability_by_location": {
+            "1": 0.8201,
+            "2": 0.8302,
+            "3": 0.7724
+        },
+        "po_avg_delay_days_by_location": {
+            "1": 20.67,
+            "2": 27.58,
+            "3": 17.1
+        },
+        "recommendation_calc_mode": "new",
+        "recommendation_calc_modes_available": [
+            "legacy",
+            "new"
+        ],
+        "data_coverage": {
+            "po_eta_reliability": true,
+            "po_delay_probability": true,
+            "fda_hold_flags": false,
+            "customer_delivery_windows": false
         }
     },
     "ITEMS": {
@@ -19,19 +48,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 4507,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1044,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 3345,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 8896,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "AC-B3SLJ": {
             "item_name": "AM GSG Slices 3 oz Bag-Jumbo",
@@ -41,19 +83,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 966,
                     "incoming_stock": 0,
-                    "days_of_supply": 81
+                    "days_of_supply": 81,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 32,
                     "incoming_stock": 0,
-                    "days_of_supply": 2
+                    "days_of_supply": 2,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 233,
                     "incoming_stock": 0,
-                    "days_of_supply": 19
+                    "days_of_supply": 19,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 1231,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 103,
+            "aggregate_days_of_supply_with_incoming": 103
         },
         "AC-B4BK": {
             "item_name": "AM GSG Root (Mixed) 4 oz Bag",
@@ -63,19 +118,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 8137,
                     "incoming_stock": 0,
-                    "days_of_supply": 45
+                    "days_of_supply": 45,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1718,
                     "incoming_stock": 0,
-                    "days_of_supply": 9
+                    "days_of_supply": 9,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 5244,
                     "incoming_stock": 0,
-                    "days_of_supply": 29
+                    "days_of_supply": 29,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 15099,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 83,
+            "aggregate_days_of_supply_with_incoming": 83
         },
         "AC-B6SLJ ": {
             "item_name": "AM GSG Slices 6 oz Bag-Jumbo",
@@ -85,19 +153,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1216,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 636,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 106,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 1958,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "AC-B8BK": {
             "item_name": "AM GSG Root (Mixed) 8 oz Bag",
@@ -107,19 +188,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 6644,
                     "incoming_stock": 0,
-                    "days_of_supply": 63
+                    "days_of_supply": 63,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1706,
                     "incoming_stock": 0,
-                    "days_of_supply": 16
+                    "days_of_supply": 16,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 2371,
                     "incoming_stock": 0,
-                    "days_of_supply": 22
+                    "days_of_supply": 22,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 10721,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 102,
+            "aggregate_days_of_supply_with_incoming": 102
         },
         "AC-B9SL": {
             "item_name": "POP AM GSG Root Slices 9 oz",
@@ -129,19 +223,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 0,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 0,
+            "aggregate_days_of_supply_with_incoming": 0
         },
         "AC-B9SLE": {
             "item_name": "POP AM GSG Root Slices 9 oz",
@@ -151,19 +258,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 0,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 0,
+            "aggregate_days_of_supply_with_incoming": 0
         },
         "A-61012": {
             "item_name": "Wild AM GSG Instant Tea 3gx10x8",
@@ -173,19 +293,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 3773,
                     "incoming_stock": 0,
-                    "days_of_supply": 139
+                    "days_of_supply": 139,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 3533,
                     "incoming_stock": 0,
-                    "days_of_supply": 130
+                    "days_of_supply": 130,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 3070,
                     "incoming_stock": 0,
-                    "days_of_supply": 113
+                    "days_of_supply": 113,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 10376,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 383,
+            "aggregate_days_of_supply_with_incoming": 383
         },
         "A-61117": {
             "item_name": "AM GSG Candy 1 lb / Bag",
@@ -195,19 +328,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1668,
                     "incoming_stock": 4504,
-                    "days_of_supply": 75
+                    "days_of_supply": 75,
+                    "incoming_eta_reliability": 0.4762,
+                    "incoming_delay_probability": 0.5238,
+                    "incoming_avg_delay_days": 8.19
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 5740,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.3636,
+                    "incoming_delay_probability": 0.6364,
+                    "incoming_avg_delay_days": 13.27
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 23858,
                     "incoming_stock": 3248,
-                    "days_of_supply": 1080
+                    "days_of_supply": 1080,
+                    "incoming_eta_reliability": 0.6667,
+                    "incoming_delay_probability": 0.3333,
+                    "incoming_avg_delay_days": 2.17
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 25526,
+            "aggregate_incoming_stock": 13492,
+            "aggregate_days_of_supply_on_hand": 1156,
+            "aggregate_days_of_supply_with_incoming": 1767
         },
         "A-61150": {
             "item_name": "AM GSG Candy 6 oz Bag",
@@ -217,19 +363,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 57994,
                     "incoming_stock": 10985,
-                    "days_of_supply": 1131
+                    "days_of_supply": 1131,
+                    "incoming_eta_reliability": 0.4348,
+                    "incoming_delay_probability": 0.5652,
+                    "incoming_avg_delay_days": 10.17
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 21593,
                     "incoming_stock": 11044,
-                    "days_of_supply": 421
+                    "days_of_supply": 421,
+                    "incoming_eta_reliability": 0.3333,
+                    "incoming_delay_probability": 0.6667,
+                    "incoming_avg_delay_days": 14.08
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 57545,
                     "incoming_stock": 7552,
-                    "days_of_supply": 1122
+                    "days_of_supply": 1122,
+                    "incoming_eta_reliability": 0.4286,
+                    "incoming_delay_probability": 0.5714,
+                    "incoming_avg_delay_days": 3.86
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 137132,
+            "aggregate_incoming_stock": 29581,
+            "aggregate_days_of_supply_on_hand": 2675,
+            "aggregate_days_of_supply_with_incoming": 3252
         },
         "A-61220": {
             "item_name": "AM GSG RT Tea 20 Bags",
@@ -239,19 +398,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 4992,
                     "incoming_stock": 0,
-                    "days_of_supply": 260
+                    "days_of_supply": 260,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1903,
                     "incoming_stock": 0,
-                    "days_of_supply": 99
+                    "days_of_supply": 99,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 7013,
                     "incoming_stock": 0,
-                    "days_of_supply": 365
+                    "days_of_supply": 365,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 13908,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 724,
+            "aggregate_days_of_supply_with_incoming": 724
         },
         "A-61243": {
             "item_name": "AM GSG RT Tea 40 Bags",
@@ -261,19 +433,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 5855,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 8457,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 3787,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 18099,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "A-61260N": {
             "item_name": "AM GSG RT Tea 60 Bags",
@@ -283,19 +468,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 4245,
                     "incoming_stock": 0,
-                    "days_of_supply": 166
+                    "days_of_supply": 166,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 6743,
                     "incoming_stock": 0,
-                    "days_of_supply": 263
+                    "days_of_supply": 263,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 2263,
                     "incoming_stock": 0,
-                    "days_of_supply": 88
+                    "days_of_supply": 88,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 13251,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 518,
+            "aggregate_days_of_supply_with_incoming": 518
         },
         "A-61280": {
             "item_name": "AM GSG RT Tea 80 Bags",
@@ -305,19 +503,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 0,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 0,
+            "aggregate_days_of_supply_with_incoming": 0
         },
         "F-20141": {
             "item_name": "Ferrero Coll. 24 pcs (w/Hazelnut)#20148",
@@ -327,19 +538,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 800,
                     "incoming_stock": 2738,
-                    "days_of_supply": 35
+                    "days_of_supply": 35,
+                    "incoming_eta_reliability": 0.2656,
+                    "incoming_delay_probability": 0.7344,
+                    "incoming_avg_delay_days": 4.52
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 432,
                     "incoming_stock": 13802,
-                    "days_of_supply": 19
+                    "days_of_supply": 19,
+                    "incoming_eta_reliability": 0.4628,
+                    "incoming_delay_probability": 0.5372,
+                    "incoming_avg_delay_days": 3.08
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 800,
                     "incoming_stock": 5003,
-                    "days_of_supply": 35
+                    "days_of_supply": 35,
+                    "incoming_eta_reliability": 0.5,
+                    "incoming_delay_probability": 0.5,
+                    "incoming_avg_delay_days": 4.57
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 2032,
+            "aggregate_incoming_stock": 21543,
+            "aggregate_days_of_supply_on_hand": 90,
+            "aggregate_days_of_supply_with_incoming": 1051
         },
         "F-12122": {
             "item_name": "Ferrero Rocher 12 Pcs",
@@ -349,19 +573,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 612,
                     "incoming_stock": 3108,
-                    "days_of_supply": 27
+                    "days_of_supply": 27,
+                    "incoming_eta_reliability": 0.1471,
+                    "incoming_delay_probability": 0.8529,
+                    "incoming_avg_delay_days": 6.26
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 3048,
                     "incoming_stock": 12802,
-                    "days_of_supply": 135
+                    "days_of_supply": 135,
+                    "incoming_eta_reliability": 0.56,
+                    "incoming_delay_probability": 0.44,
+                    "incoming_avg_delay_days": 1.93
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 2268,
                     "incoming_stock": 4275,
-                    "days_of_supply": 100
+                    "days_of_supply": 100,
+                    "incoming_eta_reliability": 0.4412,
+                    "incoming_delay_probability": 0.5588,
+                    "incoming_avg_delay_days": 3.18
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 5928,
+            "aggregate_incoming_stock": 20185,
+            "aggregate_days_of_supply_on_hand": 262,
+            "aggregate_days_of_supply_with_incoming": 1156
         },
         "F-12402": {
             "item_name": "Ferrero Rocher 24 Pcs Diamond",
@@ -371,19 +608,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1502,
                     "incoming_stock": 4630,
-                    "days_of_supply": 35
+                    "days_of_supply": 35,
+                    "incoming_eta_reliability": 0.2113,
+                    "incoming_delay_probability": 0.7887,
+                    "incoming_avg_delay_days": 4.65
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 2020,
                     "incoming_stock": 22897,
-                    "days_of_supply": 48
+                    "days_of_supply": 48,
+                    "incoming_eta_reliability": 0.4808,
+                    "incoming_delay_probability": 0.5192,
+                    "incoming_avg_delay_days": 2.33
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 462,
                     "incoming_stock": 9652,
-                    "days_of_supply": 10
+                    "days_of_supply": 10,
+                    "incoming_eta_reliability": 0.4524,
+                    "incoming_delay_probability": 0.5476,
+                    "incoming_avg_delay_days": 3.87
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 3984,
+            "aggregate_incoming_stock": 37179,
+            "aggregate_days_of_supply_on_hand": 94,
+            "aggregate_days_of_supply_with_incoming": 978
         },
         "F-12418": {
             "item_name": "Ferrero Rocher 24 pcs Diamond Display(48)",
@@ -393,19 +643,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 8,
                     "incoming_stock": 270,
-                    "days_of_supply": 5
+                    "days_of_supply": 5,
+                    "incoming_eta_reliability": 0.2857,
+                    "incoming_delay_probability": 0.7143,
+                    "incoming_avg_delay_days": 2.43
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 11,
                     "incoming_stock": 956,
-                    "days_of_supply": 6
+                    "days_of_supply": 6,
+                    "incoming_eta_reliability": 0.1538,
+                    "incoming_delay_probability": 0.8462,
+                    "incoming_avg_delay_days": 6.92
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 457,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.4,
+                    "incoming_delay_probability": 0.6,
+                    "incoming_avg_delay_days": 2.2
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 19,
+            "aggregate_incoming_stock": 1683,
+            "aggregate_days_of_supply_on_hand": 12,
+            "aggregate_days_of_supply_with_incoming": 1077
         },
         "F-12998": {
             "item_name": "Ferrero Rocher 48's Flat Gift Box",
@@ -415,19 +678,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 88,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1579,
+                    "incoming_delay_probability": 0.8421,
+                    "incoming_avg_delay_days": 5.89
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 165,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.5,
+                    "incoming_delay_probability": 0.5,
+                    "incoming_avg_delay_days": 2.69
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 127,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.5,
+                    "incoming_delay_probability": 0.5,
+                    "incoming_avg_delay_days": 2.65
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 0,
+            "aggregate_incoming_stock": 380,
+            "aggregate_days_of_supply_on_hand": 0,
+            "aggregate_days_of_supply_with_incoming": 139
         },
         "F-50140": {
             "item_name": "Gavottes Crepes 1250g #011120",
@@ -437,19 +713,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 281,
                     "incoming_stock": 340,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 69.0
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 847,
                     "incoming_stock": 2590,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 44.33
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 844,
                     "incoming_stock": 3290,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 49.22
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 1972,
+            "aggregate_incoming_stock": 6220,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-50139": {
             "item_name": "Gavottes Crepes 500g",
@@ -459,19 +748,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 3,
                     "incoming_stock": 900,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 69.0
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 173,
                     "incoming_stock": 2600,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 40.0
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 341,
                     "incoming_stock": 4900,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1,
+                    "incoming_delay_probability": 0.9,
+                    "incoming_avg_delay_days": 44.3
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 517,
+            "aggregate_incoming_stock": 8400,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-76010": {
             "item_name": "Kjeldsens 1 lb Danish Cookie(#98838)",
@@ -481,19 +783,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 8388,
                     "incoming_stock": 2520,
-                    "days_of_supply": 535
+                    "days_of_supply": 535,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 43.15
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 3721,
                     "incoming_stock": 3657,
-                    "days_of_supply": 237
+                    "days_of_supply": 237,
+                    "incoming_eta_reliability": 0.1111,
+                    "incoming_delay_probability": 0.8889,
+                    "incoming_avg_delay_days": 15.67
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 10476,
                     "incoming_stock": 4944,
-                    "days_of_supply": 669
+                    "days_of_supply": 669,
+                    "incoming_eta_reliability": 0.1111,
+                    "incoming_delay_probability": 0.8889,
+                    "incoming_avg_delay_days": 25.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 22585,
+            "aggregate_incoming_stock": 11121,
+            "aggregate_days_of_supply_on_hand": 1443,
+            "aggregate_days_of_supply_with_incoming": 2153
         },
         "F-00491": {
             "item_name": "Loacker Wafer Hazelnut 250g(#10491)",
@@ -503,19 +818,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 14314,
                     "incoming_stock": 3807,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2222,
+                    "incoming_delay_probability": 0.7778,
+                    "incoming_avg_delay_days": 35.78
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 8910,
                     "incoming_stock": 5696,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 26.37
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 20370,
                     "incoming_stock": 8701,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0435,
+                    "incoming_delay_probability": 0.9565,
+                    "incoming_avg_delay_days": 37.43
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 43594,
+            "aggregate_incoming_stock": 18204,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-97000": {
             "item_name": "MX Eggrolls (32pcs)",
@@ -525,19 +853,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1152,
                     "incoming_stock": 0,
-                    "days_of_supply": 223
+                    "days_of_supply": 223,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 2976,
                     "incoming_stock": 4855,
-                    "days_of_supply": 577
+                    "days_of_supply": 577,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 394.64
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 1128,
                     "incoming_stock": 0,
-                    "days_of_supply": 219
+                    "days_of_supply": 219,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 5256,
+            "aggregate_incoming_stock": 4855,
+            "aggregate_days_of_supply_on_hand": 1020,
+            "aggregate_days_of_supply_with_incoming": 1963
         },
         "F-00372": {
             "item_name": "Loacker GP Bisc Noisette Choc 3.53oz(#10392)",
@@ -547,19 +888,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1164,
                     "incoming_stock": 692,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.125,
+                    "incoming_delay_probability": 0.875,
+                    "incoming_avg_delay_days": 50.38
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 720,
                     "incoming_stock": 878,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 29.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 1272,
                     "incoming_stock": 819,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 38.45
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 3156,
+            "aggregate_incoming_stock": 2389,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-00378": {
             "item_name": "Loacker GP Dark Hazelnut 3.53oz(#10338)",
@@ -569,19 +923,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 192,
                     "incoming_stock": 567,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2,
+                    "incoming_delay_probability": 0.8,
+                    "incoming_avg_delay_days": 47.2
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 300,
                     "incoming_stock": 788,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 30.36
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 1141,
                     "incoming_stock": 692,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 37.44
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 1633,
+            "aggregate_incoming_stock": 2047,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-00375": {
             "item_name": "Loacker GP Bisc Cappuc Choc 3.53oz(#10398)",
@@ -591,19 +958,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 924,
                     "incoming_stock": 615,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 55.86
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1320,
                     "incoming_stock": 567,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 28.25
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 1015,
                     "incoming_stock": 502,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 31.71
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 3259,
+            "aggregate_incoming_stock": 1684,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-00373": {
             "item_name": "Loacker GP White Coconut 3.53oz",
@@ -613,19 +993,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 576,
                     "incoming_stock": 567,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 55.86
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1199,
                     "incoming_stock": 519,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 29.71
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 1186,
                     "incoming_stock": 462,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 34.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 2961,
+            "aggregate_incoming_stock": 1548,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-00376": {
             "item_name": "Loacker GP Bisc Coconut Choc 3.53oz(#10396)",
@@ -635,19 +1028,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 441,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 59.0
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 768,
                     "incoming_stock": 514,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 28.38
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 936,
                     "incoming_stock": 567,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 35.43
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 1704,
+            "aggregate_incoming_stock": 1522,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-00377": {
             "item_name": "Loacker GP Bisc Orange Choc 3.53oz(#10397)",
@@ -657,19 +1063,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 378,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 59.0
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 20,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 20.0
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 671,
                     "incoming_stock": 441,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 35.43
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 671,
+            "aggregate_incoming_stock": 839,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "F-04076": {
             "item_name": "POP Ginger Chews Assorted 8 oz",
@@ -679,19 +1098,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 50657,
                     "incoming_stock": 69166,
-                    "days_of_supply": 548
+                    "days_of_supply": 548,
+                    "incoming_eta_reliability": 0.2222,
+                    "incoming_delay_probability": 0.7778,
+                    "incoming_avg_delay_days": 24.44
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 212329,
                     "incoming_stock": 68331,
-                    "days_of_supply": 2297
+                    "days_of_supply": 2297,
+                    "incoming_eta_reliability": 0.1304,
+                    "incoming_delay_probability": 0.8696,
+                    "incoming_avg_delay_days": 21.3
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 10592,
                     "incoming_stock": 0,
-                    "days_of_supply": 114
+                    "days_of_supply": 114,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 273578,
+            "aggregate_incoming_stock": 137497,
+            "aggregate_days_of_supply_on_hand": 2960,
+            "aggregate_days_of_supply_with_incoming": 4447
         },
         "F-04117": {
             "item_name": "POP Ginger Chews Blood Orange 4 oz (12ct/cs)",
@@ -701,19 +1133,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 24393,
                     "incoming_stock": 22142,
-                    "days_of_supply": 104
+                    "days_of_supply": 104,
+                    "incoming_eta_reliability": 0.1,
+                    "incoming_delay_probability": 0.9,
+                    "incoming_avg_delay_days": 27.2
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1071,
                     "incoming_stock": 82852,
-                    "days_of_supply": 4
+                    "days_of_supply": 4,
+                    "incoming_eta_reliability": 0.1961,
+                    "incoming_delay_probability": 0.8039,
+                    "incoming_avg_delay_days": 28.22
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 36048,
                     "incoming_stock": 19228,
-                    "days_of_supply": 154
+                    "days_of_supply": 154,
+                    "incoming_eta_reliability": 0.375,
+                    "incoming_delay_probability": 0.625,
+                    "incoming_avg_delay_days": 23.12
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 61512,
+            "aggregate_incoming_stock": 124222,
+            "aggregate_days_of_supply_on_hand": 262,
+            "aggregate_days_of_supply_with_incoming": 793
         },
         "F-04075": {
             "item_name": "POP Ginger Chews Blood Orange 8 oz",
@@ -723,19 +1168,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 34586,
                     "incoming_stock": 46924,
-                    "days_of_supply": 210
+                    "days_of_supply": 210,
+                    "incoming_eta_reliability": 0.2683,
+                    "incoming_delay_probability": 0.7317,
+                    "incoming_avg_delay_days": 38.78
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 48180,
                     "incoming_stock": 25034,
-                    "days_of_supply": 293
+                    "days_of_supply": 293,
+                    "incoming_eta_reliability": 0.1538,
+                    "incoming_delay_probability": 0.8462,
+                    "incoming_avg_delay_days": 15.23
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 5589,
                     "incoming_stock": 3178,
-                    "days_of_supply": 34
+                    "days_of_supply": 34,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 24.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 88355,
+            "aggregate_incoming_stock": 75136,
+            "aggregate_days_of_supply_on_hand": 539,
+            "aggregate_days_of_supply_with_incoming": 997
         },
         "F-04221": {
             "item_name": "POP Ginger Chews Lemon 2 oz(24ct/cs)",
@@ -745,19 +1203,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 0,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 0,
+            "aggregate_days_of_supply_with_incoming": 0
         },
         "F-04112": {
             "item_name": "POP Ginger Chews Lemon 4 oz (12ct/cs)",
@@ -767,19 +1238,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 54246,
                     "incoming_stock": 78784,
-                    "days_of_supply": 113
+                    "days_of_supply": 113,
+                    "incoming_eta_reliability": 0.1111,
+                    "incoming_delay_probability": 0.8889,
+                    "incoming_avg_delay_days": 31.83
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 134488,
                     "incoming_stock": 174542,
-                    "days_of_supply": 281
+                    "days_of_supply": 281,
+                    "incoming_eta_reliability": 0.1739,
+                    "incoming_delay_probability": 0.8261,
+                    "incoming_avg_delay_days": 32.43
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 32886,
                     "incoming_stock": 26648,
-                    "days_of_supply": 68
+                    "days_of_supply": 68,
+                    "incoming_eta_reliability": 0.5,
+                    "incoming_delay_probability": 0.5,
+                    "incoming_avg_delay_days": 14.25
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 221620,
+            "aggregate_incoming_stock": 279974,
+            "aggregate_days_of_supply_on_hand": 464,
+            "aggregate_days_of_supply_with_incoming": 1051
         },
         "F-04071": {
             "item_name": "POP Ginger Chews Lemon 8 oz",
@@ -789,19 +1273,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 72353,
                     "incoming_stock": 114904,
-                    "days_of_supply": 224
+                    "days_of_supply": 224,
+                    "incoming_eta_reliability": 0.1538,
+                    "incoming_delay_probability": 0.8462,
+                    "incoming_avg_delay_days": 17.76
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 64730,
                     "incoming_stock": 58414,
-                    "days_of_supply": 200
+                    "days_of_supply": 200,
+                    "incoming_eta_reliability": 0.16,
+                    "incoming_delay_probability": 0.84,
+                    "incoming_avg_delay_days": 24.64
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 13782,
                     "incoming_stock": 6480,
-                    "days_of_supply": 42
+                    "days_of_supply": 42,
+                    "incoming_eta_reliability": 0.3333,
+                    "incoming_delay_probability": 0.6667,
+                    "incoming_avg_delay_days": 11.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 150865,
+            "aggregate_incoming_stock": 179798,
+            "aggregate_days_of_supply_on_hand": 467,
+            "aggregate_days_of_supply_with_incoming": 1023
         },
         "F-04074": {
             "item_name": "POP Ginger Chews Lychee 8 oz",
@@ -811,19 +1308,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 24294,
                     "incoming_stock": 69302,
-                    "days_of_supply": 108
+                    "days_of_supply": 108,
+                    "incoming_eta_reliability": 0.4,
+                    "incoming_delay_probability": 0.6,
+                    "incoming_avg_delay_days": 19.4
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 15064,
                     "incoming_stock": 22263,
-                    "days_of_supply": 67
+                    "days_of_supply": 67,
+                    "incoming_eta_reliability": 0.3333,
+                    "incoming_delay_probability": 0.6667,
+                    "incoming_avg_delay_days": 11.67
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 4016,
                     "incoming_stock": 3630,
-                    "days_of_supply": 18
+                    "days_of_supply": 18,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 24.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 43374,
+            "aggregate_incoming_stock": 95195,
+            "aggregate_days_of_supply_on_hand": 194,
+            "aggregate_days_of_supply_with_incoming": 621
         },
         "F-04114": {
             "item_name": "POP Ginger Chews Mango 4 oz (12ct/cs)",
@@ -833,19 +1343,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 55014,
                     "incoming_stock": 69630,
-                    "days_of_supply": 164
+                    "days_of_supply": 164,
+                    "incoming_eta_reliability": 0.1875,
+                    "incoming_delay_probability": 0.8125,
+                    "incoming_avg_delay_days": 38.66
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 99872,
                     "incoming_stock": 122366,
-                    "days_of_supply": 298
+                    "days_of_supply": 298,
+                    "incoming_eta_reliability": 0.2264,
+                    "incoming_delay_probability": 0.7736,
+                    "incoming_avg_delay_days": 29.79
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 25120,
                     "incoming_stock": 14984,
-                    "days_of_supply": 75
+                    "days_of_supply": 75,
+                    "incoming_eta_reliability": 0.5,
+                    "incoming_delay_probability": 0.5,
+                    "incoming_avg_delay_days": 21.17
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 180006,
+            "aggregate_incoming_stock": 206980,
+            "aggregate_days_of_supply_on_hand": 538,
+            "aggregate_days_of_supply_with_incoming": 1158
         },
         "F-04073": {
             "item_name": "POP Ginger Chews Mango 8 oz",
@@ -855,19 +1378,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 132706,
                     "incoming_stock": 140303,
-                    "days_of_supply": 433
+                    "days_of_supply": 433,
+                    "incoming_eta_reliability": 0.2857,
+                    "incoming_delay_probability": 0.7143,
+                    "incoming_avg_delay_days": 25.14
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 57987,
                     "incoming_stock": 49883,
-                    "days_of_supply": 189
+                    "days_of_supply": 189,
+                    "incoming_eta_reliability": 0.25,
+                    "incoming_delay_probability": 0.75,
+                    "incoming_avg_delay_days": 18.78
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 3307,
                     "incoming_stock": 1904,
-                    "days_of_supply": 10
+                    "days_of_supply": 10,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 3.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 194000,
+            "aggregate_incoming_stock": 192090,
+            "aggregate_days_of_supply_on_hand": 633,
+            "aggregate_days_of_supply_with_incoming": 1261
         },
         "F-04001": {
             "item_name": "POP Ginger Chews Original 1 lb Bulk",
@@ -877,19 +1413,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 4943,
                     "incoming_stock": 12600,
-                    "days_of_supply": 101
+                    "days_of_supply": 101,
+                    "incoming_eta_reliability": 0.1667,
+                    "incoming_delay_probability": 0.8333,
+                    "incoming_avg_delay_days": 27.5
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 14224,
                     "incoming_stock": 20010,
-                    "days_of_supply": 291
+                    "days_of_supply": 291,
+                    "incoming_eta_reliability": 0.2727,
+                    "incoming_delay_probability": 0.7273,
+                    "incoming_avg_delay_days": 18.45
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 20767,
                     "incoming_stock": 10407,
-                    "days_of_supply": 425
+                    "days_of_supply": 425,
+                    "incoming_eta_reliability": 0.5556,
+                    "incoming_delay_probability": 0.4444,
+                    "incoming_avg_delay_days": 13.67
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 39934,
+            "aggregate_incoming_stock": 43017,
+            "aggregate_days_of_supply_on_hand": 817,
+            "aggregate_days_of_supply_with_incoming": 1698
         },
         "F-04211": {
             "item_name": "POP Ginger Chews Original 2 oz",
@@ -899,19 +1448,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 2038,
                     "incoming_stock": 10372,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.5714,
+                    "incoming_delay_probability": 0.4286,
+                    "incoming_avg_delay_days": 34.0
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 3496,
                     "incoming_stock": 53095,
-                    "days_of_supply": 1
+                    "days_of_supply": 1,
+                    "incoming_eta_reliability": 0.1429,
+                    "incoming_delay_probability": 0.8571,
+                    "incoming_avg_delay_days": 39.39
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 1471,
                     "incoming_stock": 14686,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.25,
+                    "incoming_delay_probability": 0.75,
+                    "incoming_avg_delay_days": 15.88
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 7005,
+            "aggregate_incoming_stock": 78153,
+            "aggregate_days_of_supply_on_hand": 2,
+            "aggregate_days_of_supply_with_incoming": 26
         },
         "F-04220": {
             "item_name": "POP Ginger Chews Original 2 oz(24ct/cs)",
@@ -921,19 +1483,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 0,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 0,
+            "aggregate_days_of_supply_with_incoming": 0
         },
         "F-04111": {
             "item_name": "POP Ginger Chews Original 4 oz (12ct/cs)",
@@ -943,19 +1518,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 164895,
                     "incoming_stock": 142000,
-                    "days_of_supply": 184
+                    "days_of_supply": 184,
+                    "incoming_eta_reliability": 0.0769,
+                    "incoming_delay_probability": 0.9231,
+                    "incoming_avg_delay_days": 23.28
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 326488,
                     "incoming_stock": 320886,
-                    "days_of_supply": 364
+                    "days_of_supply": 364,
+                    "incoming_eta_reliability": 0.1443,
+                    "incoming_delay_probability": 0.8557,
+                    "incoming_avg_delay_days": 23.74
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 221764,
                     "incoming_stock": 168084,
-                    "days_of_supply": 247
+                    "days_of_supply": 247,
+                    "incoming_eta_reliability": 0.451,
+                    "incoming_delay_probability": 0.549,
+                    "incoming_avg_delay_days": 10.31
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 713147,
+            "aggregate_incoming_stock": 630970,
+            "aggregate_days_of_supply_on_hand": 796,
+            "aggregate_days_of_supply_with_incoming": 1500
         },
         "F-04070": {
             "item_name": "POP Ginger Chews Original 8 oz",
@@ -965,19 +1553,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 98959,
                     "incoming_stock": 185340,
-                    "days_of_supply": 212
+                    "days_of_supply": 212,
+                    "incoming_eta_reliability": 0.1374,
+                    "incoming_delay_probability": 0.8626,
+                    "incoming_avg_delay_days": 18.96
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 86316,
                     "incoming_stock": 81265,
-                    "days_of_supply": 185
+                    "days_of_supply": 185,
+                    "incoming_eta_reliability": 0.1695,
+                    "incoming_delay_probability": 0.8305,
+                    "incoming_avg_delay_days": 22.08
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 17918,
                     "incoming_stock": 6480,
-                    "days_of_supply": 38
+                    "days_of_supply": 38,
+                    "incoming_eta_reliability": 0.3333,
+                    "incoming_delay_probability": 0.6667,
+                    "incoming_avg_delay_days": 11.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 203193,
+            "aggregate_incoming_stock": 273085,
+            "aggregate_days_of_supply_on_hand": 437,
+            "aggregate_days_of_supply_with_incoming": 1024
         },
         "F-04118": {
             "item_name": "POP Ginger Chews Pineapple Coconut 4 oz (12ct/cs)",
@@ -987,19 +1588,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 7951,
                     "incoming_stock": 22938,
-                    "days_of_supply": 61
+                    "days_of_supply": 61,
+                    "incoming_eta_reliability": 0.4545,
+                    "incoming_delay_probability": 0.5455,
+                    "incoming_avg_delay_days": 22.36
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 82440,
                     "incoming_stock": 36172,
-                    "days_of_supply": 633
+                    "days_of_supply": 633,
+                    "incoming_eta_reliability": 0.2143,
+                    "incoming_delay_probability": 0.7857,
+                    "incoming_avg_delay_days": 38.36
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 16421,
                     "incoming_stock": 13014,
-                    "days_of_supply": 126
+                    "days_of_supply": 126,
+                    "incoming_eta_reliability": 0.2,
+                    "incoming_delay_probability": 0.8,
+                    "incoming_avg_delay_days": 13.2
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 106812,
+            "aggregate_incoming_stock": 72124,
+            "aggregate_days_of_supply_on_hand": 820,
+            "aggregate_days_of_supply_with_incoming": 1374
         },
         "F-04131": {
             "item_name": "POP Ginger Chews Plus+ Lemon 3 oz",
@@ -1009,19 +1623,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 5870,
                     "incoming_stock": 2037,
-                    "days_of_supply": 136
+                    "days_of_supply": 136,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 39.83
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 15200,
                     "incoming_stock": 10594,
-                    "days_of_supply": 352
+                    "days_of_supply": 352,
+                    "incoming_eta_reliability": 0.1667,
+                    "incoming_delay_probability": 0.8333,
+                    "incoming_avg_delay_days": 38.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 14395,
                     "incoming_stock": 3746,
-                    "days_of_supply": 334
+                    "days_of_supply": 334,
+                    "incoming_eta_reliability": 0.1429,
+                    "incoming_delay_probability": 0.8571,
+                    "incoming_avg_delay_days": 45.14
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 35465,
+            "aggregate_incoming_stock": 16377,
+            "aggregate_days_of_supply_on_hand": 823,
+            "aggregate_days_of_supply_with_incoming": 1203
         },
         "F-04130": {
             "item_name": "POP Ginger Chews Plus+ Original 3 oz",
@@ -1031,19 +1658,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 79511,
                     "incoming_stock": 14283,
-                    "days_of_supply": 1134
+                    "days_of_supply": 1134,
+                    "incoming_eta_reliability": 0.125,
+                    "incoming_delay_probability": 0.875,
+                    "incoming_avg_delay_days": 29.0
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 29824,
                     "incoming_stock": 30356,
-                    "days_of_supply": 425
+                    "days_of_supply": 425,
+                    "incoming_eta_reliability": 0.2,
+                    "incoming_delay_probability": 0.8,
+                    "incoming_avg_delay_days": 49.65
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 30960,
                     "incoming_stock": 10254,
-                    "days_of_supply": 441
+                    "days_of_supply": 441,
+                    "incoming_eta_reliability": 0.1429,
+                    "incoming_delay_probability": 0.8571,
+                    "incoming_avg_delay_days": 45.14
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 140295,
+            "aggregate_incoming_stock": 54893,
+            "aggregate_days_of_supply_on_hand": 2001,
+            "aggregate_days_of_supply_with_incoming": 2784
         },
         "D-04037": {
             "item_name": "POP Ginger H Cytl.Lemon 10ct(6x6)",
@@ -1053,19 +1693,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 16703,
                     "incoming_stock": 14558,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.5833,
+                    "incoming_delay_probability": 0.4167,
+                    "incoming_avg_delay_days": 3.54
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 24769,
                     "incoming_stock": 12854,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1373,
+                    "incoming_delay_probability": 0.8627,
+                    "incoming_avg_delay_days": 7.61
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 2997,
                     "incoming_stock": 1870,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 8.0
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 44469,
+            "aggregate_incoming_stock": 29282,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-04061": {
             "item_name": "POP Ginger Honey Cytl Original 10ct(6x6)",
@@ -1075,19 +1728,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 34934,
                     "incoming_stock": 15674,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0769,
+                    "incoming_delay_probability": 0.9231,
+                    "incoming_avg_delay_days": 10.96
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 35897,
                     "incoming_stock": 25532,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1081,
+                    "incoming_delay_probability": 0.8919,
+                    "incoming_avg_delay_days": 6.86
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 22044,
                     "incoming_stock": 4465,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 7.9
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 92875,
+            "aggregate_incoming_stock": 45671,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-04043": {
             "item_name": "POP In Ginger H Cytl w/Lemon 18gx30",
@@ -1097,19 +1763,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 853,
                     "incoming_stock": 1935,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2857,
+                    "incoming_delay_probability": 0.7143,
+                    "incoming_avg_delay_days": 6.14
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 13210,
                     "incoming_stock": 13030,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0702,
+                    "incoming_delay_probability": 0.9298,
+                    "incoming_avg_delay_days": 7.53
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 16238,
                     "incoming_stock": 6596,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1351,
+                    "incoming_delay_probability": 0.8649,
+                    "incoming_avg_delay_days": 7.3
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 30301,
+            "aggregate_incoming_stock": 21561,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-04032": {
             "item_name": "POP In Ginger H Cytl w/Turmeric 10ct(6x6)",
@@ -1119,19 +1798,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 13621,
                     "incoming_stock": 5395,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.5714,
+                    "incoming_delay_probability": 0.4286,
+                    "incoming_avg_delay_days": 3.38
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 10710,
                     "incoming_stock": 3692,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1111,
+                    "incoming_delay_probability": 0.8889,
+                    "incoming_avg_delay_days": 7.39
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 10895,
                     "incoming_stock": 740,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 8.25
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 35226,
+            "aggregate_incoming_stock": 9827,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-04033": {
             "item_name": "POP In Ginger H Cytl w/Turmeric 18gx25",
@@ -1141,19 +1833,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1404,
                     "incoming_stock": 3815,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.4737,
+                    "incoming_delay_probability": 0.5263,
+                    "incoming_avg_delay_days": 13.16
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 12154,
                     "incoming_stock": 9485,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1636,
+                    "incoming_delay_probability": 0.8364,
+                    "incoming_avg_delay_days": 6.65
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 3519,
                     "incoming_stock": 2920,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2,
+                    "incoming_delay_probability": 0.8,
+                    "incoming_avg_delay_days": 8.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 17077,
+            "aggregate_incoming_stock": 16220,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-04011": {
             "item_name": "POP In Ginger Honey Cytl 18gx30",
@@ -1163,19 +1868,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1927,
                     "incoming_stock": 3200,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 28.9
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 25853,
                     "incoming_stock": 24945,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1184,
+                    "incoming_delay_probability": 0.8816,
+                    "incoming_avg_delay_days": 7.07
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 9788,
                     "incoming_stock": 11680,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1463,
+                    "incoming_delay_probability": 0.8537,
+                    "incoming_avg_delay_days": 8.17
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 37568,
+            "aggregate_incoming_stock": 39825,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "J-63006": {
             "item_name": "Mazola Corn Oil 128 oz (1 gal)",
@@ -1185,19 +1903,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 3594,
                     "incoming_stock": 15636,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.087,
+                    "incoming_delay_probability": 0.913,
+                    "incoming_avg_delay_days": 3.3
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 12641,
                     "incoming_stock": 30995,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2857,
+                    "incoming_delay_probability": 0.7143,
+                    "incoming_avg_delay_days": 4.5
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 1470,
                     "incoming_stock": 15686,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.3043,
+                    "incoming_delay_probability": 0.6957,
+                    "incoming_avg_delay_days": 2.7
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 17705,
+            "aggregate_incoming_stock": 62317,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "J-63004": {
             "item_name": "Mazola Corn Oil 40 oz",
@@ -1207,19 +1938,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 5424,
                     "incoming_stock": 4071,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0588,
+                    "incoming_delay_probability": 0.9412,
+                    "incoming_avg_delay_days": 3.24
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 4980,
                     "incoming_stock": 2778,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2308,
+                    "incoming_delay_probability": 0.7692,
+                    "incoming_avg_delay_days": 5.62
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 8028,
                     "incoming_stock": 3786,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2667,
+                    "incoming_delay_probability": 0.7333,
+                    "incoming_avg_delay_days": 2.07
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 18432,
+            "aggregate_incoming_stock": 10635,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "J-72402": {
             "item_name": "Totole Chicken Bouillon 2.2 lbs",
@@ -1229,19 +1973,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 6094,
                     "incoming_stock": 11614,
-                    "days_of_supply": 226
+                    "days_of_supply": 226,
+                    "incoming_eta_reliability": 0.3388,
+                    "incoming_delay_probability": 0.6612,
+                    "incoming_avg_delay_days": 4.28
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 48,
                     "incoming_stock": 0,
-                    "days_of_supply": 1
+                    "days_of_supply": 1,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 480,
                     "incoming_stock": 0,
-                    "days_of_supply": 17
+                    "days_of_supply": 17,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 6622,
+            "aggregate_incoming_stock": 11614,
+            "aggregate_days_of_supply_on_hand": 245,
+            "aggregate_days_of_supply_with_incoming": 676
         },
         "T-47010": {
             "item_name": "Kwan Loong Oil 2 fl oz",
@@ -1251,19 +2008,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 40794,
                     "incoming_stock": 22021,
-                    "days_of_supply": 1736
+                    "days_of_supply": 1736,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 49.93
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 42877,
                     "incoming_stock": 21739,
-                    "days_of_supply": 1825
+                    "days_of_supply": 1825,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 56.47
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 198762,
                     "incoming_stock": 60198,
-                    "days_of_supply": 8461
+                    "days_of_supply": 8461,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 43.12
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 282433,
+            "aggregate_incoming_stock": 103958,
+            "aggregate_days_of_supply_on_hand": 12023,
+            "aggregate_days_of_supply_with_incoming": 16449
         },
         "T-22010": {
             "item_name": "Tiger Balm 18g Red, Ext/St(MM)",
@@ -1273,19 +2043,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 160190,
                     "incoming_stock": 119732,
-                    "days_of_supply": 1291
+                    "days_of_supply": 1291,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 35.76
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 451477,
                     "incoming_stock": 250034,
-                    "days_of_supply": 3641
+                    "days_of_supply": 3641,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 53.38
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 86295,
                     "incoming_stock": 67391,
-                    "days_of_supply": 695
+                    "days_of_supply": 695,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 28.42
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 697962,
+            "aggregate_incoming_stock": 437157,
+            "aggregate_days_of_supply_on_hand": 5629,
+            "aggregate_days_of_supply_with_incoming": 9154
         },
         "T-31510": {
             "item_name": "Tiger Balm 18g, Ultra/St",
@@ -1295,19 +2078,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 318941,
                     "incoming_stock": 180820,
-                    "days_of_supply": 447
+                    "days_of_supply": 447,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 35.97
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 640977,
                     "incoming_stock": 379273,
-                    "days_of_supply": 900
+                    "days_of_supply": 900,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 54.27
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 125744,
                     "incoming_stock": 90598,
-                    "days_of_supply": 176
+                    "days_of_supply": 176,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 27.8
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 1085662,
+            "aggregate_incoming_stock": 650691,
+            "aggregate_days_of_supply_on_hand": 1524,
+            "aggregate_days_of_supply_with_incoming": 2438
         },
         "T-31510R": {
             "item_name": "Tiger Balm 18g, Ultra/St - RFID",
@@ -1317,19 +2113,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 64788,
                     "incoming_stock": 27679,
-                    "days_of_supply": 5178
+                    "days_of_supply": 5178,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 36.87
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 109997,
                     "incoming_stock": 50962,
-                    "days_of_supply": 8792
+                    "days_of_supply": 8792,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 54.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 174785,
+            "aggregate_incoming_stock": 78641,
+            "aggregate_days_of_supply_on_hand": 13971,
+            "aggregate_days_of_supply_with_incoming": 20257
         },
         "T-31541": {
             "item_name": "Tiger Balm 50g, Ultra/St",
@@ -1339,19 +2148,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 41701,
                     "incoming_stock": 28259,
-                    "days_of_supply": 525
+                    "days_of_supply": 525,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 36.58
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 138926,
                     "incoming_stock": 115044,
-                    "days_of_supply": 1750
+                    "days_of_supply": 1750,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 55.31
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 29109,
                     "incoming_stock": 33535,
-                    "days_of_supply": 366
+                    "days_of_supply": 366,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 28.08
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 209736,
+            "aggregate_incoming_stock": 176838,
+            "aggregate_days_of_supply_on_hand": 2642,
+            "aggregate_days_of_supply_with_incoming": 4869
         },
         "T-32300": {
             "item_name": "Tiger Balm Patch - Large",
@@ -1361,19 +2183,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 70258,
                     "incoming_stock": 19821,
-                    "days_of_supply": 1954
+                    "days_of_supply": 1954,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 30.56
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 128431,
                     "incoming_stock": 60704,
-                    "days_of_supply": 3572
+                    "days_of_supply": 3572,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 51.33
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 21175,
                     "incoming_stock": 6861,
-                    "days_of_supply": 589
+                    "days_of_supply": 589,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 23.33
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 219864,
+            "aggregate_incoming_stock": 87386,
+            "aggregate_days_of_supply_on_hand": 6115,
+            "aggregate_days_of_supply_with_incoming": 8546
         },
         "T-32206": {
             "item_name": "Tiger Balm Patch Warm (MM)",
@@ -1383,19 +2218,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 252287,
                     "incoming_stock": 1688579,
-                    "days_of_supply": 616
+                    "days_of_supply": 616,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 32.29
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 317891,
                     "incoming_stock": 3664109,
-                    "days_of_supply": 776
+                    "days_of_supply": 776,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 49.18
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 136719,
                     "incoming_stock": 807339,
-                    "days_of_supply": 334
+                    "days_of_supply": 334,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 31.39
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 706897,
+            "aggregate_incoming_stock": 6160027,
+            "aggregate_days_of_supply_on_hand": 1727,
+            "aggregate_days_of_supply_with_incoming": 16780
         },
         "T-32224": {
             "item_name": "Tiger Balm Single Patch (2x12)",
@@ -1405,19 +2253,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 3084,
                     "incoming_stock": 0,
-                    "days_of_supply": 62
+                    "days_of_supply": 62,
+                    "incoming_eta_reliability": 0.1799,
+                    "incoming_delay_probability": 0.8201,
+                    "incoming_avg_delay_days": 20.67
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 5000,
                     "incoming_stock": 0,
-                    "days_of_supply": 102
+                    "days_of_supply": 102,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 0,
                     "incoming_stock": 0,
-                    "days_of_supply": 0
+                    "days_of_supply": 0,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 8084,
+            "aggregate_incoming_stock": 0,
+            "aggregate_days_of_supply_on_hand": 165,
+            "aggregate_days_of_supply_with_incoming": 165
         },
         "T-32202": {
             "item_name": "Tiger Balm Single Patch 12ct/disp",
@@ -1427,19 +2288,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 5232,
                     "incoming_stock": 42979,
-                    "days_of_supply": 1
+                    "days_of_supply": 1,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 32.25
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1869144,
                     "incoming_stock": 365657,
-                    "days_of_supply": 634
+                    "days_of_supply": 634,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 49.53
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 499680,
                     "incoming_stock": 79108,
-                    "days_of_supply": 169
+                    "days_of_supply": 169,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 45.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 2374056,
+            "aggregate_incoming_stock": 487744,
+            "aggregate_days_of_supply_on_hand": 806,
+            "aggregate_days_of_supply_with_incoming": 972
         },
         "T-31520": {
             "item_name": "Tiger Balm Ultra 10g",
@@ -1449,19 +2323,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 2473,
                     "incoming_stock": 77789,
-                    "days_of_supply": 2
+                    "days_of_supply": 2,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 34.65
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 17028,
                     "incoming_stock": 135190,
-                    "days_of_supply": 15
+                    "days_of_supply": 15,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 55.77
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 6544,
                     "incoming_stock": 70567,
-                    "days_of_supply": 6
+                    "days_of_supply": 6,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 28.15
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 26045,
+            "aggregate_incoming_stock": 283546,
+            "aggregate_days_of_supply_on_hand": 24,
+            "aggregate_days_of_supply_with_incoming": 287
         },
         "D-03052": {
             "item_name": "POP HT Blood Pressure 1.8gx18",
@@ -1471,19 +2358,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 670,
                     "incoming_stock": 132236,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 33.33
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 2852,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 2614,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 6136,
+            "aggregate_incoming_stock": 132236,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-03053": {
             "item_name": "POP HT Blood Sugar 1.8gx18",
@@ -1493,19 +2393,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 3790,
                     "incoming_stock": 150540,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1429,
+                    "incoming_delay_probability": 0.8571,
+                    "incoming_avg_delay_days": 25.29
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 4349,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 3219,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 11358,
+            "aggregate_incoming_stock": 150540,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-03054": {
             "item_name": "POP HT Cholesterol 1.8gx18",
@@ -1515,19 +2428,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 22847,
                     "incoming_stock": 89064,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 44.75
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 4226,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.1698,
+                    "incoming_delay_probability": 0.8302,
+                    "incoming_avg_delay_days": 27.58
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 7153,
                     "incoming_stock": 0,
-                    "days_of_supply": 9999
+                    "days_of_supply": 9999,
+                    "incoming_eta_reliability": 0.2276,
+                    "incoming_delay_probability": 0.7724,
+                    "incoming_avg_delay_days": 17.1
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 34226,
+            "aggregate_incoming_stock": 89064,
+            "aggregate_days_of_supply_on_hand": 9999,
+            "aggregate_days_of_supply_with_incoming": 9999
         },
         "D-13206": {
             "item_name": "POP OG Green Tea 1.8gx100 (6ct/cs)",
@@ -1537,19 +2463,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 2949,
                     "incoming_stock": 13616,
-                    "days_of_supply": 89
+                    "days_of_supply": 89,
+                    "incoming_eta_reliability": 0.0909,
+                    "incoming_delay_probability": 0.9091,
+                    "incoming_avg_delay_days": 9.27
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 7026,
                     "incoming_stock": 21926,
-                    "days_of_supply": 213
+                    "days_of_supply": 213,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 7.56
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 6449,
                     "incoming_stock": 4517,
-                    "days_of_supply": 195
+                    "days_of_supply": 195,
+                    "incoming_eta_reliability": 0.2,
+                    "incoming_delay_probability": 0.8,
+                    "incoming_avg_delay_days": 5.6
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 16424,
+            "aggregate_incoming_stock": 40059,
+            "aggregate_days_of_supply_on_hand": 499,
+            "aggregate_days_of_supply_with_incoming": 1716
         },
         "D-14206": {
             "item_name": "POP OG Jasmine Tea 1.8gx100 (6ct/cs)",
@@ -1559,19 +2498,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 4512,
                     "incoming_stock": 13097,
-                    "days_of_supply": 183
+                    "days_of_supply": 183,
+                    "incoming_eta_reliability": 0.1667,
+                    "incoming_delay_probability": 0.8333,
+                    "incoming_avg_delay_days": 8.17
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 4834,
                     "incoming_stock": 13355,
-                    "days_of_supply": 196
+                    "days_of_supply": 196,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 7.5
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 2716,
                     "incoming_stock": 4050,
-                    "days_of_supply": 110
+                    "days_of_supply": 110,
+                    "incoming_eta_reliability": 0.25,
+                    "incoming_delay_probability": 0.75,
+                    "incoming_avg_delay_days": 4.5
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 12062,
+            "aggregate_incoming_stock": 30502,
+            "aggregate_days_of_supply_on_hand": 491,
+            "aggregate_days_of_supply_with_incoming": 1733
         },
         "D-15206": {
             "item_name": "POP OG Oolong Tea 1.8gx100 (6ct/cs)",
@@ -1581,19 +2533,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 1028,
                     "incoming_stock": 9532,
-                    "days_of_supply": 32
+                    "days_of_supply": 32,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 9.17
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 1320,
                     "incoming_stock": 17796,
-                    "days_of_supply": 41
+                    "days_of_supply": 41,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 6.88
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 502,
                     "incoming_stock": 8304,
-                    "days_of_supply": 15
+                    "days_of_supply": 15,
+                    "incoming_eta_reliability": 0.2,
+                    "incoming_delay_probability": 0.8,
+                    "incoming_avg_delay_days": 5.6
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 2850,
+            "aggregate_incoming_stock": 35632,
+            "aggregate_days_of_supply_on_hand": 89,
+            "aggregate_days_of_supply_with_incoming": 1213
         },
         "D-18206": {
             "item_name": "POP OG White Tea 1.8gx100 (6ct/cs)",
@@ -1603,19 +2568,32 @@
                 "Site 1 - SF": {
                     "stock_on_hand": 5374,
                     "incoming_stock": 9073,
-                    "days_of_supply": 238
+                    "days_of_supply": 238,
+                    "incoming_eta_reliability": 0.1,
+                    "incoming_delay_probability": 0.9,
+                    "incoming_avg_delay_days": 8.7
                 },
                 "Site 2 - NJ": {
                     "stock_on_hand": 5762,
                     "incoming_stock": 12899,
-                    "days_of_supply": 256
+                    "days_of_supply": 256,
+                    "incoming_eta_reliability": 0.0,
+                    "incoming_delay_probability": 1.0,
+                    "incoming_avg_delay_days": 7.87
                 },
                 "Site 3 - LA": {
                     "stock_on_hand": 4385,
                     "incoming_stock": 5058,
-                    "days_of_supply": 194
+                    "days_of_supply": 194,
+                    "incoming_eta_reliability": 0.2,
+                    "incoming_delay_probability": 0.8,
+                    "incoming_avg_delay_days": 5.6
                 }
-            }
+            },
+            "aggregate_stock_on_hand": 15521,
+            "aggregate_incoming_stock": 27030,
+            "aggregate_days_of_supply_on_hand": 689,
+            "aggregate_days_of_supply_with_incoming": 1891
         }
     }
 }

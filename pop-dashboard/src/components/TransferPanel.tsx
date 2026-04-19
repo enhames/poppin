@@ -208,7 +208,7 @@ export function TransferPanel() {
       </div>
 
       {/* Scatter plot visualization */}
-      {!loading && !error && recs.length > 0 && (
+      {!loading && !error && (
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
           <h3 className="text-sm font-bold text-gray-900 mb-4">Transfer Cost vs. Net Savings</h3>
           <ScatterPlot data={sortedRecs} />

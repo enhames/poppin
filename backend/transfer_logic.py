@@ -1,4 +1,5 @@
 import math
+
 def calculate_avoided_penalty(penalty_without_transfer, penalty_with_transfer=0):
     return penalty_without_transfer - penalty_with_transfer
 
@@ -15,7 +16,17 @@ def get_reason(transfer_value):
 def should_recommend_transfer(transfer_value):
     return transfer_value > 0
 
-def make_recommendation(sku, item_name, source_dc, destination_dc, transfer_units, transfer_cost, expected_penalty_without_transfer, expected_penalty_with_transfer = 0):
+def make_recommendation(
+    sku,
+    item_name,
+    source_dc,
+    destination_dc,
+    transfer_units,
+    transfer_cost,
+    expected_penalty_without_transfer,
+    expected_penalty_with_transfer=0,
+    risk_inputs=None,
+):
     avoided_penalty = calculate_avoided_penalty(expected_penalty_without_transfer, expected_penalty_with_transfer)
     transfer_value = calculate_transfer_value(transfer_cost, avoided_penalty)
 
@@ -27,7 +38,7 @@ def make_recommendation(sku, item_name, source_dc, destination_dc, transfer_unit
 
     reason = get_reason(transfer_value)
 
-    return {
+    recommendation_payload = {
         "sku" : sku,
         "item_name": item_name,
         "source_dc": source_dc, 
@@ -40,13 +51,21 @@ def make_recommendation(sku, item_name, source_dc, destination_dc, transfer_unit
         "reason": reason    
     }
 
-def parse_inventory_json(data):
+    if risk_inputs:
+        recommendation_payload.update(risk_inputs)
+
+    return recommendation_payload
+
+def parse_inventory_json(data, mode=None):
     recommendations = []
 
     metadata = data["METADATA"]
     items = data["ITEMS"]
+    calculation_mode = "legacy"
 
     avg_penalty_cost = metadata["avg_penalty_cost"]
+    default_eta_reliability = float(metadata.get("default_po_eta_reliability", 1.0) or 1.0)
+    default_delay_probability = float(metadata.get("default_po_delay_probability", 0.0) or 0.0)
     transfer_cost_by_lane = metadata["transfer_cost_by_lane"]
 
     site_abbrev = {
@@ -92,10 +111,36 @@ def parse_inventory_json(data):
         destination_data = inventory_by_dc[destination_dc]
         destination_stock = destination_data["stock_on_hand"]
         destination_incoming = destination_data["incoming_stock"]
+        incoming_stock_for_transfer = destination_incoming
+        risk_inputs = None
+        if calculation_mode == "new":
+            destination_eta_reliability = float(
+                destination_data.get("incoming_eta_reliability", default_eta_reliability)
+                or default_eta_reliability
+            )
+            destination_delay_probability = float(
+                destination_data.get("incoming_delay_probability", default_delay_probability)
+                or default_delay_probability
+            )
+            destination_eta_reliability = max(0.0, min(1.0, destination_eta_reliability))
+            destination_delay_probability = max(0.0, min(1.0, destination_delay_probability))
+
+            risk_inputs = {"calculation_mode": calculation_mode}
+        
+            incoming_weight = 0.5 + (0.5 * destination_eta_reliability)
+            incoming_stock_for_transfer = destination_incoming * incoming_weight
+            risk_inputs.update(
+                {
+                    "eta_reliability": round(destination_eta_reliability, 4),
+                    "delay_probability": round(destination_delay_probability, 4),
+                    "risk_adjusted_incoming_stock": round(incoming_stock_for_transfer, 2),
+                    "incoming_weight": round(incoming_weight, 4),
+                }
+            )
 
         target_days = 7
         target_stock = avg_daily_demand * target_days
-        transfer_units = max(0, target_stock - destination_stock - destination_incoming)
+        transfer_units = max(0, target_stock - destination_stock - incoming_stock_for_transfer)
 
         if transfer_units == 0:
             continue
@@ -105,8 +150,7 @@ def parse_inventory_json(data):
 
         source_remaining_stock = source_stock - transfer_units
         source_remaining_days = source_remaining_stock / avg_daily_demand
-
-        if source_remaining_days < 14:
+        if calculation_mode == "legacy" and source_remaining_days < 14:
             continue
 
         source_abbrev = site_abbrev[source_dc]
@@ -118,18 +162,40 @@ def parse_inventory_json(data):
         transfer_cost = pallets * lane_cost
 
         expected_penalty_without_transfer = avg_penalty_cost
+        if calculation_mode == "new":
+            # Apply modest risk lift so reliability signals inform decisions without overwhelming costs.
+            reliability_risk = 1 - destination_eta_reliability
+            blended_risk = 0.5 * destination_delay_probability + 0.5 * reliability_risk
+            risk_multiplier = 1 + (0.2 * blended_risk)
+            if lowest_days <= 3:
+                risk_multiplier += 0.05
+            expected_penalty_without_transfer = avg_penalty_cost * max(1.0, risk_multiplier)
         expected_penalty_with_transfer = 0
-
-        recommendation = make_recommendation(
-            sku,
-            item_name,
-            source_dc,
-            destination_dc,
-            transfer_units,
-            transfer_cost,
-            expected_penalty_without_transfer,
-            expected_penalty_with_transfer
-        )
+        
+        if calculation_mode == "new":
+            risk_inputs["source_remaining_days_after_transfer"] = round(source_remaining_days, 2)
+            recommendation = make_recommendation(
+                sku,
+                item_name,
+                source_dc,
+                destination_dc,
+                transfer_units,
+                transfer_cost,
+                expected_penalty_without_transfer,
+                expected_penalty_with_transfer,
+                risk_inputs,
+            )
+        else:
+            recommendation = make_recommendation(
+                sku,
+                item_name,
+                source_dc,
+                destination_dc,
+                transfer_units,
+                transfer_cost,
+                expected_penalty_without_transfer,
+                expected_penalty_with_transfer,
+            )
 
         recommendations.append(recommendation)
 
