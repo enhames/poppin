@@ -7,6 +7,7 @@ import uuid
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from transfer_logic import parse_inventory_json
+from chargeback_pipeline import load_chargeback_data
 
 app = Flask(__name__)
 CORS(app)
@@ -279,8 +280,6 @@ def apply_transfer_to_inventory(payload):
     )
 
 
-# ── Static data (derived from historical chargeback analysis) ─────────────────
-
 URGENT_REQUESTS_DATA = [
     {"id": "5701", "sku": "A-61011",  "product": "AM GSG Root (bulk)",              "qty": "50 cases",  "note": "URGENT! OUT OF STOCK",                  "date": "2022-09-12"},
     {"id": "5706", "sku": "D-60013",  "product": "Dragon Well Green Tea",           "qty": "20 cases",  "note": "ASAP",                                  "date": "2022-09-12"},
@@ -293,27 +292,6 @@ URGENT_REQUESTS_DATA = [
     {"id": "5801", "sku": "AC-B4BK",  "product": "AM GSG Root (Mixed) 4 oz Bag",   "qty": "2 pallets", "note": "ASAP!! NJ needs stock",                 "date": "2025-01-14"},
     {"id": "5818", "sku": "F-04211",  "product": "POP Ginger Chews Original 2 oz", "qty": "6 pallets", "note": "URGENT — Dollar General order at risk", "date": "2025-03-28"},
 ]
-
-CHARGEBACK_DATA = {
-    "causeCodeRows": [
-        {"causeCode": "CRED11-F", "channel": "Various Channels", "amount": 250230, "incidents": 295, "dc": "DC-NJ", "type": "operational"},
-        {"causeCode": "CRED11-O", "channel": "Various Channels", "amount": 189404, "incidents": 480, "dc": "DC-NJ", "type": "operational"},
-        {"causeCode": "CRED12",   "channel": "Various Channels", "amount": 642550, "incidents": 451, "dc": "Various", "type": "post-audit"},
-        {"causeCode": "CRED08",   "channel": "All Channels",     "amount": 1128041, "incidents": 4286, "dc": "DC-NJ (×2.5 SF)", "type": "damage"},
-    ],
-    "customerPenalties": [
-        {"customerId": "WAO556A", "customerName": "KeHE Distributors, LLC",            "amount": 400297, "incidents": 323},
-        {"customerId": "MDO100A", "customerName": "Dollar General Corp",                "amount": 152575, "incidents": 116},
-        {"customerId": "MAM803A", "customerName": "Amazon.com Services, Inc.",          "amount": 81974,  "incidents": 106},
-        {"customerId": "EUNI12A", "customerName": "United Natural Foods, Inc. — East", "amount": 76206,  "incidents": 68},
-        {"customerId": "MRE800A", "customerName": "CVS Distribution Inc.",              "amount": 58655,  "incidents": 113},
-    ],
-    "yearlyPenalties": [
-        {"year": "2023", "operational": 32255,  "postAudit": 32528,  "damage": 85036},
-        {"year": "2024", "operational": 252025, "postAudit": 356425, "damage": 466141, "peakMonth": "Aug 2024", "peakMonthAmount": 110583},
-        {"year": "2025", "operational": 155354, "postAudit": 253597, "damage": 576864},
-    ],
-}
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -353,7 +331,7 @@ def get_alerts():
 
 @app.route("/api/chargebacks")
 def get_chargebacks():
-    return jsonify(CHARGEBACK_DATA)
+    return jsonify(load_chargeback_data())
 
 
 @app.route("/api/urgent-requests")

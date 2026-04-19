@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { api, type Recommendation } from "../api/client";
 import ScatterPlot from "./ScatterPlot";
 import { useLanguage } from "../i18n/LanguageContext";
+import { fmtMoney } from "../utils/format";
 
 function CostBar({ freight, chargeback }: { freight: number; chargeback: number }) {
   const { t } = useLanguage();
@@ -13,7 +14,7 @@ function CostBar({ freight, chargeback }: { freight: number; chargeback: number 
       <div className="space-y-1">
         <div className="flex justify-between text-xs mb-0.5" style={{ color: "#6B6560" }}>
           <span>{t.transferPanel.freight}</span>
-          <span className="mono font-semibold" style={{ color: "#403A34" }}>${freight.toLocaleString()}</span>
+          <span className="mono font-semibold" style={{ color: "#403A34" }}>${fmtMoney(freight)}</span>
         </div>
         <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
           <div className="h-full rounded-full" style={{ width: `${freightPct}%`, backgroundColor: "#403A34" }} />
@@ -22,7 +23,7 @@ function CostBar({ freight, chargeback }: { freight: number; chargeback: number 
       <div className="space-y-1">
         <div className="flex justify-between text-xs mb-0.5" style={{ color: "#6B6560" }}>
           <span>{t.transferPanel.penalty}</span>
-          <span className="mono font-semibold" style={{ color: "#7A0F1D" }}>${chargeback.toLocaleString()}</span>
+          <span className="mono font-semibold" style={{ color: "#7A0F1D" }}>${fmtMoney(chargeback)}</span>
         </div>
         <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#E8E2DA" }}>
           <div className="h-full rounded-full" style={{ width: `${cbPct}%`, backgroundColor: "#A6192E" }} />
@@ -118,7 +119,7 @@ function RecCard({ rec }: { rec: Recommendation }) {
               {t.transferPanel.netValue}
             </p>
             <p className="mono text-xl font-bold" style={{ color: netPositive ? "#125F54" : "#6B6560" }}>
-              {netPositive ? `+$${rec.transfer_value.toLocaleString()}` : `−$${Math.abs(rec.transfer_value).toLocaleString()}`}
+              {netPositive ? `+$${fmtMoney(rec.transfer_value)}` : `−$${fmtMoney(Math.abs(rec.transfer_value))}`}
             </p>
             {!netPositive && (
               <p className="text-[11px] mt-0.5" style={{ color: "#8E8680" }}>{t.transferPanel.waitForPo}</p>
@@ -148,6 +149,8 @@ function RecCard({ rec }: { rec: Recommendation }) {
                 disabled={approving}
                 className="text-sm font-bold text-white rounded-lg px-5 py-2.5 disabled:opacity-60 transition-opacity"
                 style={{ backgroundColor: "#7A0F1D" }}
+                onMouseEnter={e => { if (!approving) e.currentTarget.style.backgroundColor = "#5E0B15"; }}
+                onMouseLeave={e => { if (!approving) e.currentTarget.style.backgroundColor = "#7A0F1D"; }}
               >
                 {approving ? t.transferPanel.submitting : t.transferPanel.approve}
               </button>
@@ -167,6 +170,8 @@ function RecCard({ rec }: { rec: Recommendation }) {
               disabled={approving}
               className="text-sm font-semibold rounded-lg px-5 py-2.5 disabled:opacity-60 transition-colors"
               style={{ color: "#403A34", border: "1px solid #D6CFC7", backgroundColor: "#FFFFFF" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F2EDE5")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
             >
               {approving ? t.transferPanel.submitting : t.transferPanel.overrideTransfer}
             </button>
