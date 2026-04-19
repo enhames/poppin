@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import os
 
 # Paths
 sales_csv = "data/POP_SalesTransactionHistory.csv"
@@ -48,9 +49,87 @@ demand_dict = dict(zip(demand_df['ITEMNMBR'], demand_df['Daily_Demand']))
 
 # 2. CALCULATE INCOMING POs
 po_df = pd.read_excel(po_excel)
-po_df['Location Code'] = po_df['Location Code'].astype(str)
+po_df['Location Code'] = po_df['Location Code'].astype(str).str.strip()
+po_df['Item Number'] = po_df['Item Number'].astype(str).str.strip()
 incoming_df = po_df.groupby(['Item Number', 'Location Code'])['QTY Shipped'].sum().reset_index()
 po_dict = dict(zip(zip(incoming_df['Item Number'], incoming_df['Location Code']), incoming_df['QTY Shipped']))
+
+# PO ETA reliability and delay probability by location and SKU/location.
+po_df['Required Date'] = pd.to_datetime(po_df['Required Date'], errors='coerce')
+po_df['Receipt Date'] = pd.to_datetime(po_df['Receipt Date'], errors='coerce')
+po_history_df = po_df.dropna(subset=['Required Date', 'Receipt Date']).copy()
+
+default_eta_reliability = 1.0
+default_delay_probability = 0.0
+default_avg_delay_days = 0.0
+po_eta_reliability_by_location = {}
+po_delay_probability_by_location = {}
+po_avg_delay_days_by_location = {}
+po_eta_reliability_by_item_location = {}
+po_delay_probability_by_item_location = {}
+po_avg_delay_days_by_item_location = {}
+
+if not po_history_df.empty:
+    po_history_df['delay_days'] = (
+        po_history_df['Receipt Date'] - po_history_df['Required Date']
+    ).dt.days
+    po_history_df['is_delayed'] = po_history_df['delay_days'] > 0
+    po_history_df['delay_days_positive'] = po_history_df['delay_days'].clip(lower=0)
+    po_history_df['is_on_time'] = ~po_history_df['is_delayed']
+
+    location_stats_df = (
+        po_history_df
+        .groupby('Location Code')
+        .agg(
+            completed_pos=('PO Number', 'count'),
+            on_time_rate=('is_on_time', 'mean'),
+            delay_probability=('is_delayed', 'mean'),
+            avg_delay_days=('delay_days_positive', 'mean'),
+        )
+        .reset_index()
+    )
+
+    po_eta_reliability_by_location = {
+        row['Location Code']: float(row['on_time_rate'])
+        for _, row in location_stats_df.iterrows()
+    }
+    po_delay_probability_by_location = {
+        row['Location Code']: float(row['delay_probability'])
+        for _, row in location_stats_df.iterrows()
+    }
+    po_avg_delay_days_by_location = {
+        row['Location Code']: float(row['avg_delay_days'])
+        for _, row in location_stats_df.iterrows()
+    }
+
+    item_location_stats_df = (
+        po_history_df
+        .groupby(['Item Number', 'Location Code'])
+        .agg(
+            completed_pos=('PO Number', 'count'),
+            on_time_rate=('is_on_time', 'mean'),
+            delay_probability=('is_delayed', 'mean'),
+            avg_delay_days=('delay_days_positive', 'mean'),
+        )
+        .reset_index()
+    )
+
+    po_eta_reliability_by_item_location = {
+        (row['Item Number'], row['Location Code']): float(row['on_time_rate'])
+        for _, row in item_location_stats_df.iterrows()
+    }
+    po_delay_probability_by_item_location = {
+        (row['Item Number'], row['Location Code']): float(row['delay_probability'])
+        for _, row in item_location_stats_df.iterrows()
+    }
+    po_avg_delay_days_by_item_location = {
+        (row['Item Number'], row['Location Code']): float(row['avg_delay_days'])
+        for _, row in item_location_stats_df.iterrows()
+    }
+
+    default_eta_reliability = float(po_history_df['is_on_time'].mean())
+    default_delay_probability = float(po_history_df['is_delayed'].mean())
+    default_avg_delay_days = float(po_history_df['delay_days_positive'].mean())
 
 # 3. CALCULATE COSTS (The "Brain" Constants)
 penalty_df = pd.read_excel(cost_excel, sheet_name='Data-Penalty')
@@ -137,10 +216,35 @@ site_code_map = {'Site 1 - SF': '1', 'Site 2 - NJ': '2', 'Site 3 - LA': '3'}
 master_inventory = {
     "METADATA": {
         "avg_penalty_cost": round(avg_penalty, 2),
-        "transfer_cost_by_lane": transfer_cost_by_lane_by_pallet
+        "transfer_cost_by_lane": transfer_cost_by_lane_by_pallet,
+        "default_po_eta_reliability": round(default_eta_reliability, 4),
+        "default_po_delay_probability": round(default_delay_probability, 4),
+        "default_po_avg_delay_days": round(default_avg_delay_days, 2),
+        "po_eta_reliability_by_location": {
+            k: round(v, 4) for k, v in po_eta_reliability_by_location.items()
+        },
+        "po_delay_probability_by_location": {
+            k: round(v, 4) for k, v in po_delay_probability_by_location.items()
+        },
+        "po_avg_delay_days_by_location": {
+            k: round(v, 2) for k, v in po_avg_delay_days_by_location.items()
+        },
+        "recommendation_calc_mode": "new",
+        "recommendation_calc_modes_available": ["legacy", "new"],
+        "data_coverage": {
+            "po_eta_reliability": True,
+            "po_delay_probability": True,
+            "fda_hold_flags": False,
+            "customer_delivery_windows": False,
+        },
     },
     "ITEMS": {}
 }
+
+requested_calc_mode = os.getenv("RECOMMENDATION_CALC_MODE", "new").strip().lower()
+if requested_calc_mode not in {"legacy", "new"}:
+    requested_calc_mode = "new"
+master_inventory["METADATA"]["recommendation_calc_mode"] = requested_calc_mode
 
 missing_cases_per_pallet_skus = set()
 
@@ -153,6 +257,19 @@ for site in sites:
         sku = str(row['Item Number'])
         sku_lookup = sku.strip()
         available = float(row['Available'])
+        item_loc_key = (sku_lookup, loc_code)
+        eta_reliability = po_eta_reliability_by_item_location.get(
+            item_loc_key,
+            po_eta_reliability_by_location.get(loc_code, default_eta_reliability),
+        )
+        delay_probability = po_delay_probability_by_item_location.get(
+            item_loc_key,
+            po_delay_probability_by_location.get(loc_code, default_delay_probability),
+        )
+        avg_delay_days = po_avg_delay_days_by_item_location.get(
+            item_loc_key,
+            po_avg_delay_days_by_location.get(loc_code, default_avg_delay_days),
+        )
         
         if sku not in master_inventory["ITEMS"]:
             cases_per_pallet = cases_per_pallet_by_sku.get(
@@ -179,8 +296,29 @@ for site in sites:
         master_inventory["ITEMS"][sku]["inventory_by_dc"][site] = {
             "stock_on_hand": int(available),
             "incoming_stock": int(po_dict.get((sku, loc_code), 0)),
-            "days_of_supply": int(dos)
+            "days_of_supply": int(dos),
+            "incoming_eta_reliability": round(float(eta_reliability), 4),
+            "incoming_delay_probability": round(float(delay_probability), 4),
+            "incoming_avg_delay_days": round(float(avg_delay_days), 2),
         }
+
+for sku_data in master_inventory["ITEMS"].values():
+    inventory_by_dc = sku_data.get("inventory_by_dc", {})
+    total_stock_on_hand = sum(
+        int(slot.get("stock_on_hand", 0) or 0) for slot in inventory_by_dc.values()
+    )
+    total_incoming_stock = sum(
+        int(slot.get("incoming_stock", 0) or 0) for slot in inventory_by_dc.values()
+    )
+    daily_demand = float(sku_data.get("avg_daily_demand", 0) or 0)
+    aggregate_days_on_hand = (total_stock_on_hand / daily_demand) if daily_demand > 0 else 9999
+    aggregate_days_with_incoming = (
+        (total_stock_on_hand + total_incoming_stock) / daily_demand
+    ) if daily_demand > 0 else 9999
+    sku_data["aggregate_stock_on_hand"] = int(total_stock_on_hand)
+    sku_data["aggregate_incoming_stock"] = int(total_incoming_stock)
+    sku_data["aggregate_days_of_supply_on_hand"] = int(aggregate_days_on_hand)
+    sku_data["aggregate_days_of_supply_with_incoming"] = int(aggregate_days_with_incoming)
 
 # 5. SAVE
 #debugging stuff

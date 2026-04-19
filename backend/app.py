@@ -253,14 +253,16 @@ def health():
 def get_recommendations_legacy():
     # Legacy path kept for compatibility; frontend uses /api/recommendations.
     inventory = load_inventory()
-    recs = parse_inventory_json(inventory)
+    mode = request.args.get("mode")
+    recs = parse_inventory_json(inventory, mode=mode)
     return jsonify(recs)
 
 
 @app.route("/api/recommendations")
 def get_recommendations():
     inventory = load_inventory()
-    recs = parse_inventory_json(inventory)
+    mode = request.args.get("mode")
+    recs = parse_inventory_json(inventory, mode=mode)
     return jsonify(recs)
 
 
@@ -317,14 +319,16 @@ def approve_transfer():
 @app.route("/api/dashboard/summary")
 def get_dashboard_summary():
     inventory = load_inventory()
-    recs = parse_inventory_json(inventory)
+    mode = request.args.get("mode")
+    recs = parse_inventory_json(inventory, mode=mode)
     return jsonify(build_dashboard_summary(inventory, recs))
 
 
 @app.route("/api/dashboard/scenario")
 def get_dashboard_scenario():
     inventory = load_inventory()
-    recs = parse_inventory_json(inventory)
+    mode = request.args.get("mode")
+    recs = parse_inventory_json(inventory, mode=mode)
     scenario = build_scenario(recs)
     return jsonify({"scenario": scenario})
 
