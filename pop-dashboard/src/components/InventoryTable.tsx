@@ -593,8 +593,8 @@ export function InventoryTable() {
                       <p className="font-semibold text-sm leading-tight line-clamp-2" style={{ color: "#14110F" }}>{row.product}</p>
                       <p className="mono text-[11px] mt-0.5" style={{ color: "#8E8680" }}>{row.sku.trim()} · {row.category}</p>
                       {row.note && (
-                        <p className="text-[11px] mt-1 max-w-[200px] leading-tight line-clamp-1" style={{ color: row.status === "inactive" ? "#8E8680" : "#8C5A0F" }}>
-                          {row.status === "inactive" ? "ℹ" : "⚠"} {row.note.slice(0, 55)}…
+                        <p className="text-[11px] mt-1 max-w-[200px] leading-tight" style={{ color: row.status === "inactive" ? "#8E8680" : "#8C5A0F" }}>
+                          {row.status === "inactive" ? "ℹ" : "⚠"} {row.note}
                         </p>
                       )}
                     </td>

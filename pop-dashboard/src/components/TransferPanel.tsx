@@ -4,6 +4,12 @@ import ScatterPlot from "./ScatterPlot";
 import { useLanguage } from "../i18n/LanguageContext";
 import { fmtMoney } from "../utils/format";
 
+type PoRiskMetrics = {
+  etaByLocation?: Record<string, number>;
+  delayByLocation?: Record<string, number>;
+  avgDelayByLocation?: Record<string, number>;
+};
+
 function CostBar({ freight, chargeback }: { freight: number; chargeback: number }) {
   const { t } = useLanguage();
   const max = Math.max(freight, chargeback, 1);
@@ -188,6 +194,7 @@ export function TransferPanel() {
   const [recs, setRecs] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [poRiskMetrics, setPoRiskMetrics] = useState<PoRiskMetrics | null>(null);
 
   useEffect(() => {
     api.getRecommendations()
@@ -196,37 +203,64 @@ export function TransferPanel() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    api.getInventory()
+      .then((inventory: any) => {
+        const metadata = inventory?.METADATA;
+        if (!metadata) return;
+        setPoRiskMetrics({
+          etaByLocation: metadata.po_eta_reliability_by_location,
+          delayByLocation: metadata.po_delay_probability_by_location,
+          avgDelayByLocation: metadata.po_avg_delay_days_by_location,
+        });
+      })
+      .catch(() => {
+        setPoRiskMetrics(null);
+      });
+  }, []);
+
   const sortedRecs = useMemo(
     () => [...recs].sort((a, b) => b.transfer_value - a.transfer_value),
     [recs]
   );
 
   const transferCount = recs.filter((r) => r.recommendation === "TRANSFER").length;
+  const hubRouteCosts: [string, string, boolean][] = [
+    [t.transferPanel.sfToNj, "$270.42", true],
+    [t.transferPanel.sfToLa, "$54.70", false],
+    [t.transferPanel.njToSf, "$269.16", false],
+    [t.transferPanel.njToLa, "$272.40", false],
+    [t.transferPanel.laToSf, "$97.18", false],
+    [t.transferPanel.laToNj, "$308.83", true],
+  ];
+  const toPct = (value?: number) => (value === undefined ? "—" : `${(value * 100).toFixed(1)}%`);
+  const toDays = (value?: number) => (value === undefined ? "—" : `${value.toFixed(1)}d`);
+  const poMetricCards = [
+    {
+      key: "sf",
+      label: t.transferPanel.poSf,
+      onTime: toPct(poRiskMetrics?.etaByLocation?.["1"]),
+      delay: toPct(poRiskMetrics?.delayByLocation?.["1"]),
+      avg: toDays(poRiskMetrics?.avgDelayByLocation?.["1"]),
+    },
+    {
+      key: "nj",
+      label: t.transferPanel.poNj,
+      onTime: toPct(poRiskMetrics?.etaByLocation?.["2"]),
+      delay: toPct(poRiskMetrics?.delayByLocation?.["2"]),
+      avg: toDays(poRiskMetrics?.avgDelayByLocation?.["2"]),
+    },
+    {
+      key: "la",
+      label: t.transferPanel.poLa,
+      onTime: toPct(poRiskMetrics?.etaByLocation?.["3"]),
+      delay: toPct(poRiskMetrics?.delayByLocation?.["3"]),
+      avg: toDays(poRiskMetrics?.avgDelayByLocation?.["3"]),
+    },
+  ];
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-xl px-5 py-4" style={{ backgroundColor: "#FFFFFF", border: "1px solid #7AC4B8", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: "#125F54" }}>{t.transferPanel.hubLogicTitle}</p>
-          <p className="text-sm leading-relaxed" style={{ color: "#6B6560" }}>{t.transferPanel.hubLogicBody}</p>
-          <div className="flex gap-4 mt-3 pt-3" style={{ borderTop: "1px solid #DCEFEB" }}>
-            {([[t.transferPanel.sfToNj, "$0.51/unit", false], [t.transferPanel.sfToLa, "$0.17/unit", false], [t.transferPanel.reverse, "$1.55/unit ⚠", true]] as [string, string, boolean][]).map(([route, cost, warn]) => (
-              <div key={route}>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>{route}</p>
-                <p className="mono text-xs font-semibold" style={{ color: warn ? "#7A0F1D" : "#403A34" }}>{cost}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-xl px-5 py-4" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E5B664", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: "#8C5A0F" }}>{t.transferPanel.poRiskTitle}</p>
-          <p className="text-sm leading-relaxed" style={{ color: "#6B6560" }}>{t.transferPanel.poRiskBody}</p>
-          <div className="mt-3 pt-3" style={{ borderTop: "1px solid #FBEACB" }}>
-            <p className="text-xs font-medium" style={{ color: "#8C5A0F" }}>{t.transferPanel.poRule}</p>
-          </div>
-        </div>
-      </div>
-
       {/* Scatter plot visualization */}
       {!loading && !error && recs.length > 0 && (
         <div className="rounded-xl p-5" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
@@ -267,6 +301,68 @@ export function TransferPanel() {
       {sortedRecs.map((rec) => (
         <RecCard key={`${rec.sku}-${rec.source_dc}-${rec.destination_dc}`} rec={rec} />
       ))}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-xl px-5 py-4" style={{ backgroundColor: "#FFFFFF", border: "1px solid #7AC4B8", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: "#125F54" }}>{t.transferPanel.hubLogicTitle}</p>
+          <p className="text-sm leading-relaxed" style={{ color: "#6B6560" }}>{t.transferPanel.hubLogicBody}</p>
+          <div className="mt-3 pt-3 space-y-3" style={{ borderTop: "1px solid #DCEFEB" }}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>
+              {t.transferPanel.hubRoutesTitle}
+            </p>
+            <div className="grid grid-cols-3 gap-2.5">
+              {hubRouteCosts.map(([route, cost, emphasized]) => (
+                <div
+                  key={route}
+                  className="rounded-lg px-3 py-2"
+                  style={{
+                    backgroundColor: emphasized ? "#FBEEEF" : "#FAF7F1",
+                    border: `1px solid ${emphasized ? "#F4D5D8" : "#E8E2DA"}`,
+                  }}
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8E8680" }}>{route}</p>
+                  <p className="mono text-xs font-semibold" style={{ color: emphasized ? "#7A0F1D" : "#403A34" }}>
+                    {cost}
+                    <span className="font-medium" style={{ color: emphasized ? "#A6192E" : "#6B6560" }}>{t.transferPanel.perPallet}</span>
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-lg px-3 py-2.5" style={{ backgroundColor: "#FEF7E8", border: "1px solid #E5B664" }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] mb-0.5" style={{ color: "#8C5A0F" }}>
+                {t.transferPanel.priorityNoteTitle}
+              </p>
+              <p className="text-xs font-semibold leading-relaxed" style={{ color: "#8C5A0F" }}>
+                {t.transferPanel.priorityNoteBody}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl px-5 py-4" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E5B664", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] mb-2" style={{ color: "#8C5A0F" }}>{t.transferPanel.poRiskTitle}</p>
+          <p className="text-sm leading-relaxed" style={{ color: "#6B6560" }}>{t.transferPanel.poRiskBody}</p>
+          <div className="mt-3 pt-3 space-y-2.5" style={{ borderTop: "1px solid #FBEACB" }}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "#8C5A0F" }}>{t.transferPanel.poStatsTitle}</p>
+            <div className="grid grid-cols-3 gap-2">
+              {poMetricCards.map((card) => (
+                <div key={card.key} className="rounded-lg px-2.5 py-2" style={{ backgroundColor: "#FEF7E8", border: "1px solid #FBEACB" }}>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "#8C5A0F" }}>{card.label}</p>
+                  <p className="text-[11px] mt-1" style={{ color: "#6B6560" }}>
+                    {t.transferPanel.poOnTime}: <span className="mono font-semibold" style={{ color: "#403A34" }}>{card.onTime}</span>
+                  </p>
+                  <p className="text-[11px]" style={{ color: "#6B6560" }}>
+                    {t.transferPanel.poDelayed}: <span className="mono font-semibold" style={{ color: "#7A0F1D" }}>{card.delay}</span>
+                  </p>
+                  <p className="text-[11px]" style={{ color: "#6B6560" }}>
+                    {t.transferPanel.poAvgDelay}: <span className="mono font-semibold" style={{ color: "#403A34" }}>{card.avg}</span>
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs font-medium" style={{ color: "#8C5A0F" }}>{t.transferPanel.poRule}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

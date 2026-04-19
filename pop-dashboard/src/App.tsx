@@ -256,9 +256,9 @@ function AppContent() {
             </div>
           )}
 
-          {activeTab === "imbalances" && <InventoryTable />}
-          {activeTab === "transfers" && <TransferPanel />}
-          {activeTab === "charts" && <InventoryCharts />}
+          {activeTab === "imbalances" && <InventoryTable key={`inventory-${refreshNonce}`} />}
+          {activeTab === "transfers" && <TransferPanel key={`transfers-${refreshNonce}`} />}
+          {activeTab === "charts" && <InventoryCharts key={`charts-${refreshNonce}`} />}
           {activeTab === "chargebacks" && <ChargebackTable />}
 
           {activeTab === "alerts" && (
