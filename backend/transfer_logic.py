@@ -61,7 +61,12 @@ def parse_inventory_json(data, mode=None):
 
     metadata = data["METADATA"]
     items = data["ITEMS"]
-    calculation_mode = "legacy"
+
+    # THE IMPORTANT LINE TO CHANGE
+    # pick between
+    # legacy
+    # new
+    calculation_mode = "new"
 
     avg_penalty_cost = metadata["avg_penalty_cost"]
     default_eta_reliability = float(metadata.get("default_po_eta_reliability", 1.0) or 1.0)

@@ -102,7 +102,7 @@ const en = {
   detailModal: {
     initiateTransfer: "Initiate Transfer",
     close: "Close",
-    availOnHand: (avail: number, onHand: number) => `avail · ${onHand.toLocaleString()} on-hand`,
+    availOnHand: (avail: number, onHand: number) => `${avail.toLocaleString()} avail · ${onHand.toLocaleString()} on-hand`,
     unitsPerDay: "units/day",
   },
   // ── Status Labels (shared) ────────────────────────────────────────────────
@@ -324,7 +324,7 @@ const zh: typeof en = {
   detailModal: {
     initiateTransfer: "发起调拨",
     close: "关闭",
-    availOnHand: (avail: number, onHand: number) => `可用 · ${onHand.toLocaleString()} 在库`,
+    availOnHand: (avail: number, onHand: number) => `${avail.toLocaleString()} 可用 · ${onHand.toLocaleString()} 在库`,
     unitsPerDay: "件/天",
   },
   status: {

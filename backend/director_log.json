@@ -1,0 +1,13 @@
+[
+  {
+    "event_id": "6a53ff27-34ad-48c9-98b9-c68a2da524e4",
+    "approved_at": "2026-04-19T00:11:47.380295+00:00",
+    "approved_by": "system_refresh",
+    "action_type": "INVENTORY_RESET",
+    "summary": "Live inventory rebuilt from source files via csv_pipeline.py; transfer log reset.",
+    "sku": null,
+    "source_dc": null,
+    "destination_dc": null,
+    "units": null
+  }
+]

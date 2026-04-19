@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { api, type DashboardScenario, type DashboardSummary, type UrgentRequest } from "./api/client";
+import { api, type DashboardScenario, type DashboardSummary, type DirectorLogEntry, type UrgentRequest } from "./api/client";
 import { AlertsBanner } from "./components/AlertsBanner";
 import { InventoryTable } from "./components/InventoryTable";
 import { TransferPanel } from "./components/TransferPanel";
@@ -66,6 +66,10 @@ function AppContent() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [scenario, setScenario] = useState<DashboardScenario | null>(null);
   const [urgentRequests, setUrgentRequests] = useState<UrgentRequest[]>([]);
+  const [directorLog, setDirectorLog] = useState<DirectorLogEntry[]>([]);
+  const [refreshNonce, setRefreshNonce] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
 
   const visibleAlerts = alertsData.filter((a: any) => !dismissedAlertIds.has(a.id));
   const criticalCount = visibleAlerts.filter((a: any) => a.severity === "critical").length;
@@ -77,12 +81,31 @@ function AppContent() {
     setDismissedAlertIds(new Set(alertsData.map((a: any) => a.id)));
   }
 
-  useEffect(() => {
+  function loadDashboardData() {
     api.getAlerts().then((alerts: any[]) => setAlertsData(alerts));
     api.getDashboardSummary().then((s) => { setSummary(s); setTransferCount(s.transferRecommendedCount); });
     api.getDashboardScenario().then(setScenario);
     api.getUrgentRequests().then(setUrgentRequests);
-  }, []);
+    api.getDirectorLog().then(setDirectorLog).catch(() => setDirectorLog([]));
+  }
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [refreshNonce]);
+
+  async function handleRefreshData() {
+    setRefreshing(true);
+    setRefreshError(null);
+    try {
+      await api.refreshInventory();
+      setDismissedAlertIds(new Set());
+      setRefreshNonce((n) => n + 1);
+    } catch {
+      setRefreshError("Refresh failed. Ensure backend access to source files.");
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   const NAV_LABELS: Record<Tab, string> = t.nav;
   const NAV_DESC: Record<Tab, string>   = t.navDesc;
@@ -188,12 +211,17 @@ function AppContent() {
             </div>
             <div className="flex items-center gap-2">
               <button className="text-sm font-bold text-white rounded-lg px-4 py-2 transition-colors" style={{ backgroundColor: "#7A0F1D" }}
+                onClick={handleRefreshData}
+                disabled={refreshing}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5E0B15")}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#7A0F1D")}>
-                {t.header.refreshData}
+                {refreshing ? `${t.header.refreshData}…` : t.header.refreshData}
               </button>
             </div>
           </div>
+          {refreshError && (
+            <p className="text-xs mt-2" style={{ color: "#A6192E" }}>{refreshError}</p>
+          )}
         </header>
 
         <div className="px-8 py-7 space-y-7 flex-1">
@@ -367,6 +395,51 @@ function AppContent() {
                       </li>
                     </ol>
                   </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E2DA", boxShadow: "0 1px 2px rgba(20,17,15,0.05)" }}>
+                <div className="px-6 py-5" style={{ borderBottom: "1px solid #E8E2DA" }}>
+                  <h3 className="text-base font-bold" style={{ color: "#14110F", fontFamily: "Fraunces, serif", fontVariationSettings: "'opsz' 48" }}>
+                    Director Log
+                  </h3>
+                  <p className="text-sm mt-0.5" style={{ color: "#6B6560" }}>
+                    Inventory changes and approval timestamps derived from transfer events.
+                  </p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr style={{ backgroundColor: "#FAF7F1" }}>
+                        {["Approved At", "Action", "SKU", "Route", "Units", "Approved By"].map((h) => (
+                          <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#6B6560", borderBottom: "1px solid #E8E2DA" }}>
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {directorLog.slice().reverse().slice(0, 25).map((entry, i) => (
+                        <tr key={entry.event_id} style={{ borderBottom: "1px solid #F2EDE5", backgroundColor: i % 2 === 0 ? "#FFFFFF" : "#FAF7F1" }}>
+                          <td className="px-5 py-3 mono text-xs" style={{ color: "#6B6560" }}>{entry.approved_at}</td>
+                          <td className="px-5 py-3" style={{ color: "#403A34" }}>{entry.action_type}</td>
+                          <td className="px-5 py-3 mono text-xs" style={{ color: "#403A34" }}>{entry.sku ?? "—"}</td>
+                          <td className="px-5 py-3 text-xs" style={{ color: "#403A34" }}>
+                            {entry.source_dc && entry.destination_dc ? `${entry.source_dc} → ${entry.destination_dc}` : "—"}
+                          </td>
+                          <td className="px-5 py-3 mono text-xs" style={{ color: "#403A34" }}>{entry.units ?? "—"}</td>
+                          <td className="px-5 py-3 text-xs" style={{ color: "#6B6560" }}>{entry.approved_by}</td>
+                        </tr>
+                      ))}
+                      {directorLog.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-5 py-6 text-sm text-center" style={{ color: "#8E8680" }}>
+                            No director log entries yet.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
