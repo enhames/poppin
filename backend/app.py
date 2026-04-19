@@ -1,6 +1,9 @@
 import json
 import os
 import datetime
+import subprocess
+import sys
+import uuid
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from transfer_logic import parse_inventory_json
@@ -9,7 +12,8 @@ app = Flask(__name__)
 CORS(app)
 
 BASE_DIR = os.path.dirname(__file__)
-TRANSFERS_LOG = os.path.join(BASE_DIR, "transfers_log.json")
+TRANSFERS_LOG = os.path.join(BASE_DIR, "transfers_logs.json")
+DIRECTOR_LOG = os.path.join(BASE_DIR, "director_log.json")
 INVENTORY_JSON = os.path.join(BASE_DIR, "live_inventory.json")
 
 DC_SITE_TO_LABEL = {
@@ -48,11 +52,65 @@ def save_inventory(data):
         json.dump(data, f, indent=4)
 
 
-def load_transfers_log():
-    if not os.path.exists(TRANSFERS_LOG):
+def load_json_array(path):
+    if not os.path.exists(path):
         return []
-    with open(TRANSFERS_LOG, encoding="utf-8") as f:
-        return json.load(f)
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    return data if isinstance(data, list) else []
+
+
+def save_json_array(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+
+def load_transfers_log():
+    return load_json_array(TRANSFERS_LOG)
+
+
+def save_transfers_log(entries):
+    save_json_array(TRANSFERS_LOG, entries)
+
+
+def load_director_log():
+    return load_json_array(DIRECTOR_LOG)
+
+
+def save_director_log(entries):
+    save_json_array(DIRECTOR_LOG, entries)
+
+
+def log_inventory_change(action_type, approved_by, details):
+    now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    event_id = str(uuid.uuid4())
+    event = {
+        "event_id": event_id,
+        "timestamp": now_iso,
+        "action_type": action_type,
+        "approved_by": approved_by,
+        "details": details,
+    }
+    transfers = load_transfers_log()
+    transfers.append(event)
+    save_transfers_log(transfers)
+
+    director_events = load_director_log()
+    director_events.append(
+        {
+            "event_id": event_id,
+            "approved_at": now_iso,
+            "approved_by": approved_by,
+            "action_type": action_type,
+            "summary": details.get("summary"),
+            "sku": details.get("sku"),
+            "source_dc": details.get("source_dc"),
+            "destination_dc": details.get("destination_dc"),
+            "units": details.get("units"),
+        }
+    )
+    save_director_log(director_events)
+    return event
 
 
 def resolve_sku_key(items, sku):
@@ -140,7 +198,7 @@ def build_dashboard_summary(inventory, recommendations):
     estimated_net_savings = round(sum(float(r.get("transfer_value", 0) or 0) for r in transfer_recs), 2)
 
     return {
-        "urgentRequestTotal": len(transfers_log),
+        "urgentRequestTotal": len([e for e in transfers_log if e.get("action_type") == "TRANSFER"]),
         "penaltyExposure": penalty_exposure,
         "transferRecommendedCount": len(transfer_recs),
         "estimatedNetSavings": estimated_net_savings,
@@ -171,30 +229,32 @@ def apply_transfer_to_inventory(payload):
     items = inventory.get("ITEMS", {})
     sku_key = resolve_sku_key(items, payload["sku"])
     if sku_key is None:
-        return None, f"SKU not found in inventory: {payload['sku']}"
+        return None, None, f"SKU not found in inventory: {payload['sku']}"
 
     item = items[sku_key]
     source_dc = payload["source_dc"]
     destination_dc = payload["destination_dc"]
 
     if source_dc not in item["inventory_by_dc"] or destination_dc not in item["inventory_by_dc"]:
-        return None, "Source or destination DC not found for SKU."
+        return None, None, "Source or destination DC not found for SKU."
 
     units = int(float(payload["units"]))
     if units <= 0:
-        return None, "Transfer units must be positive."
+        return None, None, "Transfer units must be positive."
 
     source_slot = item["inventory_by_dc"][source_dc]
     dest_slot = item["inventory_by_dc"][destination_dc]
 
     source_stock = int(source_slot.get("stock_on_hand", 0) or 0)
     if units > source_stock:
-        return None, (
+        return None, None, (
             f"Insufficient stock at source ({source_dc}). Requested {units}, available {source_stock}."
         )
 
-    source_slot["stock_on_hand"] = source_stock - units
-    dest_slot["stock_on_hand"] = int(dest_slot.get("stock_on_hand", 0) or 0) + units
+    source_before = source_stock
+    dest_before = int(dest_slot.get("stock_on_hand", 0) or 0)
+    source_slot["stock_on_hand"] = source_before - units
+    dest_slot["stock_on_hand"] = dest_before + units
 
     demand = float(item.get("avg_daily_demand", 0) or 0)
     for slot in (source_slot, dest_slot):
@@ -202,7 +262,21 @@ def apply_transfer_to_inventory(payload):
         slot["days_of_supply"] = int(stock / demand) if demand > 0 else 9999
 
     save_inventory(inventory)
-    return inventory, None
+    return (
+        inventory,
+        {
+            "sku": payload["sku"],
+            "item_name": payload["item_name"],
+            "source_dc": source_dc,
+            "destination_dc": destination_dc,
+            "units": units,
+            "source_stock_before": source_before,
+            "source_stock_after": source_slot["stock_on_hand"],
+            "destination_stock_before": dest_before,
+            "destination_stock_after": dest_slot["stock_on_hand"],
+        },
+        None,
+    )
 
 
 # ── Static data (derived from historical chargeback analysis) ─────────────────
@@ -294,26 +368,62 @@ def approve_transfer():
     if not required.issubset(payload.keys()):
         return jsonify({"error": f"Missing fields: {required - payload.keys()}"}), 400
 
-    inventory, apply_error = apply_transfer_to_inventory(payload)
+    _inventory, transfer_change, apply_error = apply_transfer_to_inventory(payload)
     if apply_error:
         return jsonify({"error": apply_error}), 400
 
-    entry = {
-        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "sku": payload["sku"],
-        "item_name": payload["item_name"],
-        "source_dc": payload["source_dc"],
-        "destination_dc": payload["destination_dc"],
-        "units": payload["units"],
-    }
+    entry = log_inventory_change(
+        action_type="TRANSFER",
+        approved_by=(payload.get("approved_by") or "ops_manager"),
+        details={
+            **transfer_change,
+            "summary": (
+                f"Approved transfer of {transfer_change['units']} units for {transfer_change['sku']} "
+                f"from {transfer_change['source_dc']} to {transfer_change['destination_dc']}."
+            ),
+        },
+    )
 
-    log = load_transfers_log()
-    log.append(entry)
-    with open(TRANSFERS_LOG, "w", encoding="utf-8") as f:
-        json.dump(log, f, indent=2)
-
-    print(f"[TRANSFER APPROVED] {entry['sku']} | {entry['source_dc']} → {entry['destination_dc']} | {entry['units']} units | {entry['timestamp']}")
+    print(
+        f"[TRANSFER APPROVED] {transfer_change['sku']} | {transfer_change['source_dc']} "
+        f"→ {transfer_change['destination_dc']} | {transfer_change['units']} units | {entry['timestamp']}"
+    )
     return jsonify({"status": "logged", "entry": entry, "inventory_updated": True}), 201
+
+
+@app.route("/api/refresh-inventory", methods=["POST"])
+def refresh_inventory():
+    try:
+        result = subprocess.run(
+            [sys.executable, os.path.join(BASE_DIR, "csv_pipeline.py")],
+            cwd=BASE_DIR,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except Exception as exc:
+        return jsonify({"error": f"Refresh failed to start: {exc}"}), 500
+
+    if result.returncode != 0:
+        stderr_tail = (result.stderr or "").strip()[-1500:]
+        return jsonify({"error": "Failed to rebuild live inventory.", "details": stderr_tail}), 500
+
+    # Reset transfer history for a fresh cycle and log the reset as the first event.
+    save_transfers_log([])
+    save_director_log([])
+    reset_event = log_inventory_change(
+        action_type="INVENTORY_RESET",
+        approved_by="system_refresh",
+        details={
+            "summary": "Live inventory rebuilt from source files via csv_pipeline.py; transfer log reset.",
+        },
+    )
+    return jsonify({"status": "ok", "event": reset_event}), 200
+
+
+@app.route("/api/director-log", methods=["GET"])
+def get_director_log():
+    return jsonify(load_director_log())
 
 
 @app.route("/api/dashboard/summary")

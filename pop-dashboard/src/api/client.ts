@@ -17,6 +17,7 @@ export interface TransferApproval {
   source_dc: string;
   destination_dc: string;
   units: number;
+  approved_by?: string;
 }
 
 export interface DashboardSummary {
@@ -52,6 +53,18 @@ export interface DashboardScenario {
   transferCost: number;
   penaltyExposure: number;
   netSaving: number;
+}
+
+export interface DirectorLogEntry {
+  event_id: string;
+  approved_at: string;
+  approved_by: string;
+  action_type: string;
+  summary?: string;
+  sku?: string;
+  source_dc?: string;
+  destination_dc?: string;
+  units?: number;
 }
 
 const DEBUG_RECOMMENDATION_MODE: "legacy" | "new" = "new";
@@ -94,4 +107,12 @@ export const api = {
     if (!res.ok) throw new Error(`POST /api/transfers failed: ${res.status}`);
     return res.json();
   },
+
+  refreshInventory: async () => {
+    const res = await fetch("/api/refresh-inventory", { method: "POST" });
+    if (!res.ok) throw new Error(`POST /api/refresh-inventory failed: ${res.status}`);
+    return res.json();
+  },
+
+  getDirectorLog: () => get<DirectorLogEntry[]>("/api/director-log"),
 };
