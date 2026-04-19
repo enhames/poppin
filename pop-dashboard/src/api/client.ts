@@ -34,6 +34,15 @@ export interface DashboardSummary {
   }>;
 }
 
+export interface UrgentRequest {
+  id: string;
+  sku: string;
+  product: string;
+  qty: string;
+  note: string;
+  date: string;
+}
+
 export interface DashboardScenario {
   sku: string;
   product: string;
@@ -68,6 +77,8 @@ export const api = {
   getChargebacks: () => get<unknown>("/api/chargebacks"),
 
   getDashboardSummary: () => get<DashboardSummary>(withRecommendationMode("/api/dashboard/summary")),
+
+  getUrgentRequests: () => get<UrgentRequest[]>("/api/urgent-requests"),
 
   getDashboardScenario: async () => {
     const raw = await get<{ scenario: DashboardScenario | null }>(withRecommendationMode("/api/dashboard/scenario"));
