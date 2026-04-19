@@ -15,12 +15,14 @@ const en = {
     transfers: "Transfer Decisions",
     alerts: "Early Warnings",
     charts: "Live Inventory Charts",
+    chargebacks: "Chargeback Analysis",
   },
   navDesc: {
     imbalances: "Real-time visibility across all 3 Distribution Centers.",
     transfers: "Cost-tradeoff analysis for cross-country inventory movement.",
     alerts: "Proactive detection 14+ days before orders expose the imbalance.",
     charts: "Live per-DC inventory and days-of-supply. Showing SKUs with active demand.",
+    chargebacks: "Penalty trends by cause code, customer, and DC — prioritize which imbalances to fix first.",
   },
   // ── Header ────────────────────────────────────────────────────────────────
   header: {
@@ -241,12 +243,14 @@ const zh: typeof en = {
     transfers: "调拨决策",
     alerts: "预警中心",
     charts: "实时库存图表",
+    chargebacks: "退款分析",
   },
   navDesc: {
     imbalances: "实时监控全部3个配送中心的库存状况。",
     transfers: "跨区库存调拨的成本效益分析。",
     alerts: "提前14天以上主动检测订单暴露的失衡风险。",
     charts: "各配送中心实时库存及供货天数，展示有活跃需求的SKU。",
+    chargebacks: "按原因代码、客户及配送中心分析罚款趋势，优先解决最关键的失衡问题。",
   },
   header: {
     refreshData: "刷新数据",

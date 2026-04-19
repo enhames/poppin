@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { api, type Recommendation } from "../api/client";
 import type { DcSlot } from "../data/mockData";
 import { useLanguage } from "../i18n/LanguageContext";
+import { fmtMoney } from "../utils/format";
 
 // ─── Build SkuRows from live_inventory.json ────────────────────────────────────
 type LiveDc = { stock_on_hand: number; incoming_stock: number; days_of_supply: number };
@@ -319,16 +320,16 @@ function TransferModal({ row, rec, onClose, onSuccess }: {
               <div className="rounded-lg p-4 space-y-2" style={{ backgroundColor: "#FAF7F1", border: "1px solid #E8E2DA" }}>
                 <div className="flex justify-between text-sm">
                   <span style={{ color: "#6B6560" }}>{t.transferModal.freightCost}</span>
-                  <span className="mono font-semibold" style={{ color: "#403A34" }}>${rec.transfer_cost.toLocaleString()}</span>
+                  <span className="mono font-semibold" style={{ color: "#403A34" }}>${fmtMoney(rec.transfer_cost)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span style={{ color: "#6B6560" }}>{t.transferModal.penaltyAvoided}</span>
-                  <span className="mono font-semibold" style={{ color: "#1E8574" }}>${rec.avoided_penalty.toLocaleString()}</span>
+                  <span className="mono font-semibold" style={{ color: "#1E8574" }}>${fmtMoney(rec.avoided_penalty)}</span>
                 </div>
                 <div className="flex justify-between text-sm pt-2" style={{ borderTop: "1px solid #E8E2DA" }}>
                   <span className="font-bold" style={{ color: "#14110F" }}>{t.transferModal.netValue}</span>
                   <span className="mono font-bold" style={{ color: rec.transfer_value > 0 ? "#125F54" : "#8C5A0F" }}>
-                    {rec.transfer_value > 0 ? "+" : ""}${rec.transfer_value.toLocaleString()}
+                    {rec.transfer_value > 0 ? "+" : "−"}${fmtMoney(Math.abs(rec.transfer_value))}
                   </span>
                 </div>
               </div>
@@ -616,7 +617,7 @@ export function InventoryTable() {
 
                     <td className="px-3 py-4 text-right">
                       {row.chargebackRisk > 0 ? (
-                        <span className="mono text-sm font-bold" style={{ color: "#7A0F1D" }}>${row.chargebackRisk.toLocaleString()}</span>
+                        <span className="mono text-sm font-bold" style={{ color: "#7A0F1D" }}>${fmtMoney(row.chargebackRisk)}</span>
                       ) : (
                         <span className="mono text-sm" style={{ color: "#D6CFC7" }}>—</span>
                       )}

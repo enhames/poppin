@@ -1,5 +1,5 @@
 import {
-    ScatterChart, 
+    ScatterChart,
     Scatter,
     XAxis,
     YAxis,
@@ -9,6 +9,7 @@ import {
     Legend,
     ReferenceLine
 } from "recharts";
+import { fmtMoney } from "../utils/format";
 
 type Item = {
     item_name: string,
@@ -40,7 +41,7 @@ export default function ScatterPlot({data}: {data: Item[]}){
         <ReferenceLine y={0} stroke="#8884d8" strokeDasharray="3 3" label={{ value: "Break-even", position: "right", fill: "#8884d8", fontSize: 11 }} />
         <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={(value: any, name: any) => {
           const label = typeof name === "string" ? name.replace(/_/g, " ") : String(name);
-          return [`$${Number(value).toLocaleString()}`, label];
+          return [`$${fmtMoney(Number(value))}`, label];
         }} />
         <Legend />
 
