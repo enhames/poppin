@@ -51,7 +51,6 @@ Start both the React frontend and the Flask backend simultaneously using the con
 
     npm run dev:all
 
-*(Note for developers: Ensure the `dev:all` script in `package.json` is configured to point to the correct Python path: `../backend/.venv/bin/python`)*
 
 ---
 
